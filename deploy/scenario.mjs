@@ -148,7 +148,13 @@ const before = await balance(sellerAddr);
 const w = await tx(seller, "withdraw", [], "withdraw");
 check("withdraw applied", w.applied, true);
 const arrived = (await readUntil(() => balance(sellerAddr), (b) => b > before, { seconds: network === "studio" ? 240 : 2700, every: 15 })).value;
-check("seller's wallet received what it was owed", arrived - before, s5);
+// The seller sends the withdraw itself, so on a network that charges fees its
+// wallet rises by what it was owed less that transaction's fee.
+const received = arrived - before;
+const fee = s5 - received;
+console.log(`    wallet +${fmt(received)} (owed ${fmt(s5)}, withdraw fee ${fmt(fee)})`);
+check("seller's wallet received what it was owed, less its own transaction fee", fee >= 0n && fee < GEN(0.001), true);
+cases.withdraw = { owed: String(s5), received: String(received), fee: String(fee) };
 check("nothing left owed", await owed(), 0n);
 const status = await readView(buyer, clause, "status");
 check("the contract holds exactly what is escrowed or owed", BigInt(status.balance), BigInt(status.held) + BigInt(status.owed));
