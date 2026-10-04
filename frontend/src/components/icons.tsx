@@ -15,10 +15,9 @@ export const Moon = () => (
   </svg>
 );
 export const Menu = () => (
-  <svg {...S} width={26}>
-    <line x1="3" y1="7" x2="21" y2="7" />
-    <line x1="5" y1="12" x2="21" y2="12" />
-    <line x1="8" y1="17" x2="21" y2="17" />
+  <svg {...S} width={28}>
+    <line x1="2" y1="9" x2="22" y2="9" />
+    <line x1="2" y1="15" x2="22" y2="15" />
   </svg>
 );
 export const Close = () => (
@@ -58,13 +57,13 @@ export const Eye = () => (
   </svg>
 );
 
-/** Clause mark: a clause (white lines on a page) with the one line the jury
- *  checks (cyan), on navy. Three primitives, so it reads at 16px. Source files
- *  live in public/brand/. */
+/** Clause mark: an orange ring around a clause - three lines of a spec, the
+ *  one the jury checks ending in an orange square. Lines use currentColor so
+ *  the mark follows the theme. Source files live in public/. */
 export const Mark = ({ size = 34 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true">
-    <rect width="48" height="48" rx="12" fill="#14213d" />
-    <path d="M14 15h20M14 24h12M14 33h20" stroke="#ffffff" strokeWidth="3.6" strokeLinecap="round" />
-    <circle cx="33.5" cy="24" r="4.4" fill="#f4a261" />
+    <circle cx="24" cy="24" r="21" fill="none" stroke="#e8602c" strokeWidth="3.4" />
+    <path d="M14 16.5h20M14 24h11M14 31.5h20" stroke="currentColor" strokeWidth="3.4" strokeLinecap="square" />
+    <rect x="29" y="20.5" width="7" height="7" fill="#e8602c" />
   </svg>
 );

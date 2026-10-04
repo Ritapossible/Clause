@@ -59,11 +59,11 @@ export const appKit =
 export function themeVariablesFor(mode: "light" | "dark") {
   return {
     "--w3m-font-family": "'Inter Variable', Inter, system-ui, sans-serif",
-    // Navy on light, cyan on dark: the site's own primary in each theme.
-    "--w3m-accent": mode === "dark" ? "#0bbcd4" : "#03222e",
-    "--w3m-color-mix": "#03222e",
+    // The site's own orange in both themes.
+    "--w3m-accent": mode === "dark" ? "#ee6a33" : "#e8602c",
+    "--w3m-color-mix": "#0b0b0d",
     "--w3m-color-mix-strength": mode === "dark" ? 18 : 0,
-    "--w3m-border-radius-master": "3px",
+    "--w3m-border-radius-master": "0px",
     "--w3m-z-index": 1000,
   };
 }

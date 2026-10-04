@@ -190,7 +190,10 @@ function LineCard({ deal, line, now, isBuyer, onDone }: { deal: Deal; line: Line
         {line.state === "in_review" && `Open for review for ${duration((line.review_until ?? 0) - now)}; with no dispute it pays the seller.`}
         {line.state === "disputed" &&
           (canRule ? `Disputed. Anyone may convene the jury for ${duration((line.dispute?.rule_by ?? 0) - now)}; after that it pays the seller and the bond goes back.` : "Disputed, and the ruling deadline has passed: settling pays the seller and returns the bond.")}
-        {line.state === "failed" && `Judged unmet. The seller may redeliver for ${duration((line.redeliver_by ?? 0) - now)}; after that the buyer is refunded.`}
+        {line.state === "failed" &&
+          ((line.redeliver_by ?? 0) > now
+            ? `Judged unmet. The seller may redeliver for ${duration((line.redeliver_by ?? 0) - now)}; after that the buyer is refunded.`
+            : "Judged unmet. The redelivery window has closed; settling the deal refunds the buyer.")}
         {line.state === "released" && (line.lapsed ? "Paid to the seller: no ruling landed by the deadline; the bond went back." : "Paid to the seller.")}
         {line.state === "refunded" && "Refunded to the buyer."}
       </p>

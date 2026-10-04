@@ -30,31 +30,41 @@ export function App() {
       </main>
       <footer className="site-foot">
         <div className="wrap">
-          <div>
-            <a className="logo" href="#/" style={{ marginBottom: 12 }}>
-              <Mark size={28} />
-              <b style={{ fontSize: 22 }}>Clause</b>
-            </a>
-            <p style={{ margin: "12px 0 0", maxWidth: "34ch" }}>
-              Escrow paid per clause, disputed only by citing one. A GenLayer Intelligent Contract. MIT licensed.
-            </p>
+          <div className="foot-grid">
+            <div className="foot-brand">
+              <a className="logo" href="#/">
+                <Mark size={30} />
+                <b style={{ fontSize: 22 }}>Clause</b>
+              </a>
+              <p>Escrow paid per clause, disputed only by citing one. A GenLayer Intelligent Contract.</p>
+            </div>
+            <div>
+              <h4>Product</h4>
+              <ul>
+                <li><a href={href({ name: "deals" })}>Deals</a></li>
+                <li><a href={href({ name: "new" })}>Fund a deal</a></li>
+                <li><a href={href({ name: "how" })}>How it works</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4>Docs</h4>
+              <ul>
+                <li><a href={`${REPO}#readme`} target="_blank" rel="noreferrer">README ↗</a></li>
+                <li><a href={`${REPO}/blob/main/docs/ARCHITECTURE.md`} target="_blank" rel="noreferrer">Architecture ↗</a></li>
+                <li><a href={`${REPO}/blob/main/docs/THREAT-MODEL.md`} target="_blank" rel="noreferrer">Threat model ↗</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4>GenLayer</h4>
+              <ul>
+                <li><a href="https://genlayer.com" target="_blank" rel="noreferrer">genlayer.com ↗</a></li>
+                <li><a href="https://skills.genlayer.com" target="_blank" rel="noreferrer">Skills ↗</a></li>
+                <li><a href={REPO} target="_blank" rel="noreferrer">GitHub ↗</a></li>
+              </ul>
+            </div>
           </div>
-          <div>
-            <h4>Product</h4>
-            <ul>
-              <li><a href={href({ name: "deals" })}>App</a></li>
-              <li><a href={href({ name: "new" })}>Fund a deal</a></li>
-              <li><a href={href({ name: "how" })}>How it works</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4>Ecosystem</h4>
-            <ul>
-              <li><a href="https://genlayer.com" target="_blank" rel="noreferrer">genlayer.com</a></li>
-              <li><a href="https://skills.genlayer.com" target="_blank" rel="noreferrer">skills.genlayer.com</a></li>
-              <li><a href={REPO} target="_blank" rel="noreferrer">Source on GitHub</a></li>
-            </ul>
-          </div>
+          <p className="foot-line">// Built on GenLayer · made for paid work</p>
+          <p className="foot-line">© 2026 Clause · MIT licensed</p>
         </div>
       </footer>
     </>

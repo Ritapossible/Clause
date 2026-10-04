@@ -81,8 +81,9 @@ check("the note is shown as never reaching the jury", (await buyer.page.locator(
 await buyer.page.getByRole("button", { name: "Convene the jury" }).click();
 await buyer.page.getByText(/Jury: (Unmet|Met|Undetermined)/).waitFor({ timeout: 300000 });
 const text = await buyer.page.locator("main").innerText();
-check("the jury ruled", /Jury:\s*(Unmet|Met|Undetermined)/.test(text), (text.match(/Jury:\s*\w+/) ?? [""])[0]);
-check("2 cities against 'exactly 3' is unmet", /Jury:\s*Unmet/.test(text));
+// innerText follows CSS text-transform, and badges are set in capitals.
+check("the jury ruled", /Jury:\s*(Unmet|Met|Undetermined)/i.test(text), (text.match(/Jury:\s*\w+/) ?? [""])[0]);
+check("2 cities against 'exactly 3' is unmet", /Jury:\s*Unmet/i.test(text));
 
 console.log("\n[layout] phone width");
 for (const width of [390, 360]) {

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { appKit, themeVariablesFor } from "./chain/appkit";
 
 export type Theme = "light" | "dark";
-const KEY = "remit.theme";
+const KEY = "clause.theme";
 
 function systemTheme(): Theme {
   return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
