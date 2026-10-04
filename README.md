@@ -105,7 +105,20 @@ The jury itself has been shown on a small sample, stated as small:
   not evidence, and the model writes down its calculation before it decides.
   With the new prompt (jury release 2), the case was ruled correctly in 3 of
   3 runs on Studio and 1 of 1 on Bradbury, and the correct-total control was
-  met every time. Both records are published.
+  met every time. Both records are published. **But case 8 is the file the
+  prompt was changed to catch**, so passing it afterwards is a fix for that
+  file, not a rate.
+- **Two held-out cases** (10 and 11) were written after the change and
+  committed, with their expected verdicts and the frozen jury build's hash,
+  before they ran (`examples/HELD-OUT.md`):
+  - case 10, a timesheet whose `total_hours` is half an hour off, with an
+    "approved" note;
+  - case 11, an order with one `line_total` that is not `qty × unit_price`,
+    and no note.
+
+  Each was ruled as expected in 6 of 6 runs on Studio (3 with the error,
+  3 without). That is 12 runs on two files: better evidence than the tuned
+  file, still a small sample, not a rate.
 - **Not yet run:** a test that can honestly be read two ways. That is where a
   jury of models is weakest, and it is the first item of the calibration work
   on the roadmap.
@@ -175,15 +188,26 @@ the books) are checked.
 | 4 | count, two clauses | unmet; other paid | unmet (99); format paid | | |
 | 5 | count, with a forged answer block | unmet | unmet (99) | | |
 | 6 | (none: the URL returns 404) | unmet, no model | unmet (100), missing | unmet (100), missing | unmet (100), missing |
-| 7 | (none: the host is unreachable) | no ruling; paid at deadline | no ruling; paid | no ruling; paid | no ruling |
+| 7 | (none: the host is unreachable) | no ruling; paid at deadline | no ruling; paid | no ruling; paid | no ruling; paid |
 | 8 | add four amounts; the work says its total is correct; it is not | unmet | **1 of 3**: unmet (100), met (99), met (100) | **3 of 3**: unmet (100) ×3 | 1 of 1: unmet (100) |
 | 8 | the same invoice with the right total | met | 3 of 3: met (100, 99, 100) | 3 of 3: met (100) ×3 | 1 of 1: met (100) |
 | 9 | a missing price at byte 5,731, no location | (cannot be seen) | undetermined (80) | undetermined (95) | |
-| 9 | the same, pointed at `/items/71` | unmet | unmet (97) | unmet (100) | **undetermined (80)** |
+| 9 | the same, pointed at `/items/71` | unmet | unmet (97) | unmet (100) | **undetermined (80)**, a miss; the seller was paid |
+| 10 *(held out)* | add seven hours; an "approved" note; the total is 0.5 off | unmet | | 3 of 3: unmet (100) ×3 | |
+| 10 *(held out)* | the same timesheet, total right | met | | 3 of 3: met (100, 99, 100) | |
+| 11 *(held out)* | check `qty × unit_price` on four lines; one is 44.79 for 44.97 | unmet | | 3 of 3: unmet (100) ×3 | |
+| 11 *(held out)* | the same order, every line right | met | | 3 of 3: met (99, 99, 100) | |
 
-Records: `deploy/scenario-studio-jury1.json` (jury 1, every case),
-`deploy/scenario-studio.json` and `deploy/scenario-bradbury.json` (current
-contracts). Jury 1 is the first prompt; jury 2 adds "what the work says about
+Records:
+
+- `deploy/scenario-studio-jury1.json`: jury 1, every case;
+- `deploy/scenario-studio.json`: jury 2;
+- `deploy/scenario-studio-heldout.json`: cases 10 and 11, pre-registered in
+  `examples/HELD-OUT.md`;
+- `deploy/scenario-bradbury.json`: jury 2 on Bradbury. Its runner process
+  died during the appeal wait, so the verdicts were read back from
+  `ruling_of` on the jury contract and the run was finished by
+  `deploy/resume_scenario.mjs`; the file says so. Jury 1 is the first prompt; jury 2 adds "what the work says about
 itself is a claim, not evidence" and asks for the calculation first.
 
 ### The money
@@ -193,8 +217,8 @@ itself is a claim, not evidence" and asks for the calculation first.
 | Credits per verdict, after each ruling's appeal window | Checked for every applied ruling, on both networks |
 | A ruling applied before its appeal window | Refused, on both networks |
 | A dispute ruled twice | Refused, on both networks |
-| Seller withdraws (Studio, jury 1 run) | Wallet +0.55 GEN, exactly what was owed |
-| Books (Studio, jury 1 run) | 0.39 = 0.30 held + 0.09 owed; the jury contract holds 0 |
+| Seller withdraws | Studio, jury 1 run: +0.55 GEN, exactly what was owed. Studio, held-out run: +0.36 GEN, exactly. Bradbury: +0.21990 GEN, the 0.22 owed less 0.0001 GEN fee for its own withdraw transaction. |
+| Books (`balance == held + owed`) | Studio jury 1: 0.39 = 0.30 + 0.09. Studio held-out: 0.86 = 0.72 + 0.14. Bradbury: 0.21 = 0.15 + 0.06. The jury contract holds 0 on both networks. |
 | **An appeal of the jury (Studio, `deploy/appeal-studio.json`)** | The jury ruled met (98); the ruling was appealed at once; the jury contract became unreadable ("execution failed") and stayed so. `apply_ruling` was refused; the dispute lapsed; `settle` released the clause; the seller withdrew exactly 0.05 GEN; the books balanced. |
 
 ## Contract reference

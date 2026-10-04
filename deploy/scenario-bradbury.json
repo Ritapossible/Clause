@@ -1,277 +1,298 @@
 {
   "network": "bradbury",
-  "clause": "0xbFCdAb3741375D498082A0bc873b9dd3B7Fdd1E3",
-  "recorded_at": "2026-10-04T08:14:06.441Z",
-  "review_seconds": 900,
+  "escrow": "0x6A5c02527e1504f416c5e47F68129f1Afc1FbF02",
+  "jury": "0xD981E621967074cA72F72409380a90cB55bd02ED",
+  "jury_release": "clause-jury/2",
+  "appeal_seconds": 2400,
+  "recorded_at": "2026-10-04T14:34:04.946Z",
+  "note": "Phases 1-2 (fund, deliver, dispute, convene the jury) ran in scenario.mjs; its process died during the appeal wait, before writing this file, and their transaction hashes were not kept. Every verdict here is read back from ruling_of on the jury contract (see ruling_source); phases 3-5 ran in resume_scenario.mjs and carry their hashes.",
   "cases": {
-    "case 1a": {
+    "case 1b": {
+      "deal": 0,
+      "clause": "cities",
+      "expected": "met",
+      "delivery": "https://raw.githubusercontent.com/Ritapossible/Clause/main/examples/cities-three.json",
+      "locate": "",
+      "state_before": "disputed",
+      "ruling_source": "ruling_of(0x6A5c02527e1504f416c5e47F68129f1Afc1FbF02, 0, \"cities\") on 0xD981E621967074cA72F72409380a90cB55bd02ED",
+      "round": "1.1791106540",
+      "verdict": "met",
+      "reason": "test_met",
+      "confidence": 100,
+      "artifact": "verified",
+      "located": false,
+      "at": 1791106828,
+      "state": "released",
+      "apply_tx": "0x96b5ec94358a898ba036dc680704e778daf8f9b3bfaa14d39846156b655b6f52"
+    },
+    "case 1a (citing capitals)": {
+      "deal": 0,
       "refused": {
         "cited": "capitals",
         "reason": "no clause 'capitals' in the pinned spec; a dispute must cite one of: cities",
-        "at": 1791098636
+        "at": 1791106520
       }
     },
-    "case 1b": {
-      "verdict": "met",
-      "reason": "test_met",
-      "confidence": 100,
-      "artifact": "verified",
-      "state": "released",
-      "expected": "met",
-      "consensus": "AGREE",
-      "tx": "0x42d24f6625332f207d522fde985beef5b787c3e2c8020d2e19ac84f6710e34aa"
-    },
     "case 2": {
+      "deal": 1,
+      "clause": "cities",
+      "expected": "unmet",
+      "delivery": "https://raw.githubusercontent.com/Ritapossible/Clause/main/examples/cities-two.json",
+      "locate": "",
+      "state_before": "disputed",
+      "ruling_source": "ruling_of(0x6A5c02527e1504f416c5e47F68129f1Afc1FbF02, 1, \"cities\") on 0xD981E621967074cA72F72409380a90cB55bd02ED",
+      "round": "1.1791106579",
       "verdict": "unmet",
       "reason": "test_failed",
       "confidence": 100,
       "artifact": "verified",
+      "located": false,
+      "at": 1791106893,
       "state": "failed",
-      "expected": "unmet",
-      "consensus": "AGREE",
-      "tx": "0x70234e57035e8fcbb7afdfc61d47eade35686297fc96c4f8f691e5342104868d"
+      "apply_tx": "0xc21c05cb05bc872fcdf894d877f68d6a5388735f9d3f301314c0b25749e91469"
     },
-    "case 3": {
+    "case 6": {
+      "deal": 2,
+      "clause": "cities",
+      "expected": "unmet",
+      "delivery": "https://raw.githubusercontent.com/Ritapossible/Clause/main/examples/no-such-file.json",
+      "locate": "",
+      "state_before": "disputed",
+      "ruling_source": "ruling_of(0x6A5c02527e1504f416c5e47F68129f1Afc1FbF02, 2, \"cities\") on 0xD981E621967074cA72F72409380a90cB55bd02ED",
+      "round": "1.1791106636",
+      "verdict": "unmet",
+      "reason": "work_missing",
+      "confidence": 100,
+      "artifact": "missing",
+      "located": false,
+      "at": 1791106921,
+      "state": "failed",
+      "apply_tx": "0xc3ec7561b4a3750cc9ff312948a6b3aa4a8d341e57e97b068a7732ea825381e0"
+    },
+    "case 7": {
+      "deal": 3,
+      "clause": "cities",
+      "expected": "no ruling",
+      "delivery": "https://clause-unreachable.invalid/work.json",
+      "locate": "",
+      "state_before": "disputed",
+      "ruling_source": "ruling_of(0x6A5c02527e1504f416c5e47F68129f1Afc1FbF02, 3, \"cities\") on 0xD981E621967074cA72F72409380a90cB55bd02ED",
+      "state": "released",
+      "settle_tx": "0x5029b328f344900be3ed52ecd6b4850b772fac6530d3968afa513aedad395a32"
+    },
+    "case 8 wrong total, run 1": {
+      "deal": 4,
+      "clause": "total",
+      "expected": "unmet",
+      "delivery": "https://raw.githubusercontent.com/Ritapossible/Clause/main/examples/invoice-wrong.json",
+      "locate": "",
+      "state_before": "disputed",
+      "ruling_source": "ruling_of(0x6A5c02527e1504f416c5e47F68129f1Afc1FbF02, 4, \"total\") on 0xD981E621967074cA72F72409380a90cB55bd02ED",
+      "round": "1.1791106723",
+      "verdict": "unmet",
+      "reason": "test_failed",
+      "confidence": 100,
+      "artifact": "verified",
+      "located": false,
+      "at": 1791106953,
+      "state": "failed",
+      "apply_tx": "0x29cad66e9eca9e531c67bf546cc5d9bc85750ad11f8a3f37bb94b4a5031d7cdc"
+    },
+    "case 8 right total, run 1": {
+      "deal": 5,
+      "clause": "total",
+      "expected": "met",
+      "delivery": "https://raw.githubusercontent.com/Ritapossible/Clause/main/examples/invoice-right.json",
+      "locate": "",
+      "state_before": "disputed",
+      "ruling_source": "ruling_of(0x6A5c02527e1504f416c5e47F68129f1Afc1FbF02, 5, \"total\") on 0xD981E621967074cA72F72409380a90cB55bd02ED",
+      "round": "1.1791106764",
       "verdict": "met",
       "reason": "test_met",
       "confidence": 100,
       "artifact": "verified",
+      "located": false,
+      "at": 1791106975,
       "state": "released",
-      "expected": "met",
-      "consensus": "AGREE",
-      "tx": "0x34c74120232129eedaa21371a23ade1a4ad4c19461ea06f9bab7281f8208ba04"
+      "apply_tx": "0xe7894a7e56b44be1b747b58fc2cf4bd94235d55614b7efea3183d3a527dd2094"
     },
-    "case 4": {
-      "verdict": "unmet",
-      "reason": "test_failed",
-      "confidence": 100,
-      "artifact": "verified",
-      "state": "failed",
+    "case 9 with a location": {
+      "deal": 6,
+      "clause": "prices",
       "expected": "unmet",
-      "consensus": "AGREE",
-      "tx": "0x4f833787aec033197ae25b0887927cc973ef3f2f23271cdd52a49b0c3634cf69"
+      "delivery": "https://raw.githubusercontent.com/Ritapossible/Clause/main/examples/catalog-long.json",
+      "locate": "/items/71",
+      "state_before": "disputed",
+      "ruling_source": "ruling_of(0x6A5c02527e1504f416c5e47F68129f1Afc1FbF02, 6, \"prices\") on 0xD981E621967074cA72F72409380a90cB55bd02ED",
+      "round": "1.1791106815",
+      "verdict": "undetermined",
+      "reason": "ambiguous_test",
+      "confidence": 80,
+      "artifact": "verified",
+      "located": true,
+      "at": 1791107005,
+      "state": "released",
+      "apply_tx": "0x32f77295f6f66e06d11a29a7ab881ddde41080c5fc9e00fb64d717b2bf6e0e8e"
     },
-    "case 4 lines": [
-      [
-        "cities",
-        "failed",
-        "unmet"
-      ],
-      [
-        "format",
-        "released",
-        ""
-      ]
-    ],
-    "case 5": {
-      "verdict": "unmet",
-      "reason": "test_failed",
-      "confidence": 100,
-      "artifact": "verified",
-      "state": "failed",
-      "expected": "unmet",
-      "consensus": "AGREE",
-      "tx": "0xeb30344da62a3d95052c0481b2632a6fc3f5a721b3fe67ead03fddb828dfc691"
+    "withdraw": {
+      "owed": "220000000000000000",
+      "received": "219899330538925150",
+      "fee": "100669461074850",
+      "tx": "0xc9cb503c5d9207f09736315464324bcbb876af723023c89c42cd684bb17d30a2"
     }
   },
   "status": {
-    "release": "clause/1",
-    "deals": 5,
+    "release": "clause/2",
+    "jury": "0xd981e621967074ca72f72409380a90cb55bd02ed",
+    "appeal_seconds": 2400,
+    "deals": 7,
     "held": 150000000000000000,
-    "owed": 40000000000000000,
-    "balance": 190000000000000000,
+    "owed": 60000000000000000,
+    "balance": 210000000000000000,
     "bond_floor": 10000000000000000
   },
   "log": [
     {
-      "tx": "case 1: fund",
-      "hash": "0x9d80fc3219c2aaa58dafe72c8ed9d5b545d6b47b11687f701a4b53d6bd170d3d",
-      "consensus": "AGREE",
-      "leader": "return"
-    },
-    {
-      "tx": "case 1a: deliver three",
-      "hash": "0xc215bcc3415251de57bc54e69b295e873122c71127abf979382c9a46e1e9ac3f",
-      "consensus": "AGREE",
-      "leader": "return"
-    },
-    {
-      "tx": "case 1a: dispute citing \"capitals\"",
-      "hash": "0x64caf8683c7fbf46b62e870a31a755dfe77ea74d8b32e756f3be6e8ea9a89a02",
-      "consensus": "AGREE",
-      "leader": "return"
-    },
-    {
-      "check": "case 1a: a dispute citing a clause not in the spec is refused and recorded",
+      "check": "case 1a: the dispute citing a clause not in the spec is recorded as refused",
       "actual": "capitals",
       "expected": "capitals",
       "ok": true
     },
     {
-      "check": "case 1a: no jury convened, the clause is still in review",
-      "actual": "in_review",
-      "expected": "in_review",
+      "check": "case 6: a 404 is the seller's - unmet, no model",
+      "actual": "unmet/missing",
+      "expected": "unmet/missing",
       "ok": true
     },
     {
-      "check": "case 1a: the bond is credited back to the buyer",
-      "actual": "10000000000000000",
-      "expected": "10000000000000000",
+      "check": "case 7: an unreachable host left no ruling",
+      "actual": "true",
+      "expected": "true",
       "ok": true
     },
     {
-      "tx": "case 1b: the same demand cited on the real clause",
-      "hash": "0x5a3a17aa4f7e91cbfcc5a66c01e61d409eb33c310fb1689e2c3846d5b2a5b44b",
+      "tx": "case 1b: apply",
+      "hash": "0x96b5ec94358a898ba036dc680704e778daf8f9b3bfaa14d39846156b655b6f52",
       "consensus": "AGREE",
       "leader": "return"
     },
     {
-      "tx": "case 1b: rule",
-      "hash": "0x42d24f6625332f207d522fde985beef5b787c3e2c8020d2e19ac84f6710e34aa",
-      "consensus": "AGREE",
-      "leader": "return"
+      "check": "case 1b: the escrow applies the ruling",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
     },
     {
-      "check": "case 1b: seller credited per the verdict",
+      "check": "case 1b: met -> released, seller credited",
       "actual": "60000000000000000",
       "expected": "60000000000000000",
       "ok": true
     },
     {
-      "tx": "case 2: fund",
-      "hash": "0xf66330615434e6e3cc5edd8c5288c78d0f9b7db8f3e061bba3ba0990b28ac2c7",
+      "tx": "case 2: apply",
+      "hash": "0xc21c05cb05bc872fcdf894d877f68d6a5388735f9d3f301314c0b25749e91469",
       "consensus": "AGREE",
       "leader": "return"
     },
     {
-      "tx": "case 2: deliver two",
-      "hash": "0x31edf3f2201ac05d913286005ce07431fb648920dab6e7a59891cf357eae119b",
-      "consensus": "AGREE",
-      "leader": "return"
+      "check": "case 2: the escrow applies the ruling",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
     },
     {
-      "tx": "case 2: dispute citing \"cities\"",
-      "hash": "0xc1a7b13edae98aa336f2bdf9054dacf76a1f8f42f4c88061c6d0e6c9fff6aaa9",
-      "consensus": "AGREE",
-      "leader": "return"
-    },
-    {
-      "tx": "case 2: rule",
-      "hash": "0x70234e57035e8fcbb7afdfc61d47eade35686297fc96c4f8f691e5342104868d",
-      "consensus": "AGREE",
-      "leader": "return"
-    },
-    {
-      "check": "case 2: seller credited per the verdict",
+      "check": "case 2: unmet -> failed, seller credited",
       "actual": "0",
       "expected": "0",
       "ok": true
     },
     {
-      "tx": "case 3: fund",
-      "hash": "0x1ba1ed2741e489a69eb25d0084006d0d19f74bca963b535414c785ca364935ad",
+      "tx": "case 6: apply",
+      "hash": "0xc3ec7561b4a3750cc9ff312948a6b3aa4a8d341e57e97b068a7732ea825381e0",
       "consensus": "AGREE",
       "leader": "return"
     },
     {
-      "tx": "case 3: deliver three",
-      "hash": "0x04b1dab21c24422a4a78a5c5947b10b510a4b696272d6946ac9803b553596a64",
+      "check": "case 6: the escrow applies the ruling",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "case 6: unmet -> failed, seller credited",
+      "actual": "0",
+      "expected": "0",
+      "ok": true
+    },
+    {
+      "tx": "case 8 wrong total, run 1: apply",
+      "hash": "0x29cad66e9eca9e531c67bf546cc5d9bc85750ad11f8a3f37bb94b4a5031d7cdc",
       "consensus": "AGREE",
       "leader": "return"
     },
     {
-      "tx": "case 3: dispute citing \"cities\"",
-      "hash": "0x4337910df3f1e98ff36fd2ac5d1dac58dfbc8975e6bb407faa8476a33c45bcdb",
+      "check": "case 8 wrong total, run 1: the escrow applies the ruling",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "case 8 wrong total, run 1: unmet -> failed, seller credited",
+      "actual": "0",
+      "expected": "0",
+      "ok": true
+    },
+    {
+      "tx": "case 8 right total, run 1: apply",
+      "hash": "0xe7894a7e56b44be1b747b58fc2cf4bd94235d55614b7efea3183d3a527dd2094",
       "consensus": "AGREE",
       "leader": "return"
     },
     {
-      "tx": "case 3: rule",
-      "hash": "0x34c74120232129eedaa21371a23ade1a4ad4c19461ea06f9bab7281f8208ba04",
-      "consensus": "AGREE",
-      "leader": "return"
+      "check": "case 8 right total, run 1: the escrow applies the ruling",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
     },
     {
-      "check": "case 3: seller credited per the verdict",
+      "check": "case 8 right total, run 1: met -> released, seller credited",
       "actual": "60000000000000000",
       "expected": "60000000000000000",
       "ok": true
     },
     {
-      "tx": "case 4: fund",
-      "hash": "0xa05eaa5eae3e6c53eddb7d3602223db794779cda34d60c55ebc754084667abaf",
+      "tx": "case 9 with a location: apply",
+      "hash": "0x32f77295f6f66e06d11a29a7ab881ddde41080c5fc9e00fb64d717b2bf6e0e8e",
       "consensus": "AGREE",
       "leader": "return"
     },
     {
-      "tx": "case 4: deliver two",
-      "hash": "0x96b134be190d6b5fac968c4e57303c131e4c4be96a203c99805142089fd5b3aa",
-      "consensus": "AGREE",
-      "leader": "return"
-    },
-    {
-      "tx": "case 4: dispute citing \"cities\"",
-      "hash": "0xecbea1e38b017724d99f4ac74263771b969f3dec09979f2c10b1f84924627fdf",
-      "consensus": "AGREE",
-      "leader": "return"
-    },
-    {
-      "tx": "case 4: rule",
-      "hash": "0x4f833787aec033197ae25b0887927cc973ef3f2f23271cdd52a49b0c3634cf69",
-      "consensus": "AGREE",
-      "leader": "return"
-    },
-    {
-      "tx": "case 4: settle",
-      "hash": "0xdd9bb891d5fe2af1f541f1260f2cf6de5aa75acd072f7628e417d936f1bdad72",
-      "consensus": "AGREE",
-      "leader": "return"
-    },
-    {
-      "check": "case 4: the uncited clause released on its own clock",
-      "actual": "released",
-      "expected": "released",
+      "check": "case 9 with a location: the escrow applies the ruling",
+      "actual": "true",
+      "expected": "true",
       "ok": true
     },
     {
-      "check": "case 4: the cited clause follows its verdict",
-      "actual": "failed",
-      "expected": "failed",
+      "check": "case 9 with a location: undetermined -> released, seller credited",
+      "actual": "50000000000000000",
+      "expected": "50000000000000000",
       "ok": true
     },
     {
-      "check": "case 4: seller credited the format line",
-      "actual": "30000000000000000",
-      "expected": "30000000000000000",
+      "tx": "case 7: settle",
+      "hash": "0x5029b328f344900be3ed52ecd6b4850b772fac6530d3968afa513aedad395a32",
+      "consensus": "AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 7: with no ruling, the clause pays the seller at its deadline",
+      "actual": "released/true",
+      "expected": "released/true",
       "ok": true
-    },
-    {
-      "tx": "case 5: fund",
-      "hash": "0xe6c3dea380307e24ac684be618bb5a216e9c029913c69b5fd272f8d77ea3c811",
-      "consensus": "AGREE",
-      "leader": "return"
-    },
-    {
-      "tx": "case 5: deliver injected",
-      "hash": "0x30cc089bdf24487f1cc08f4a8bb6cd457ce2d3ae2fcd03a6fda7a44d87bdfb7e",
-      "consensus": "AGREE",
-      "leader": "return"
-    },
-    {
-      "tx": "case 5: dispute citing \"cities\"",
-      "hash": "0x594b3f26575ab774b8c20034f917b314b9663f34c787a0828c82a6eb1b3cc730",
-      "consensus": "AGREE",
-      "leader": "return"
-    },
-    {
-      "tx": "case 5: rule",
-      "hash": "0xeb30344da62a3d95052c0481b2632a6fc3f5a721b3fe67ead03fddb828dfc691",
-      "consensus": "AGREE",
-      "leader": "return"
     },
     {
       "tx": "withdraw",
-      "hash": "0xcf37fd59e74846874136dcee03e03e8f843e7124ba115ad0e692b52efbf2ac86",
+      "hash": "0xc9cb503c5d9207f09736315464324bcbb876af723023c89c42cd684bb17d30a2",
       "consensus": "AGREE",
       "leader": "return"
     },
@@ -282,21 +303,27 @@
       "ok": true
     },
     {
-      "check": "seller's wallet received what it was owed",
-      "actual": "149881467513099150",
-      "expected": "150000000000000000",
-      "ok": false
+      "check": "the seller's wallet received what it was owed, less its own transaction fee",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
     },
     {
-      "check": "nothing left owed",
+      "check": "nothing left owed to the seller",
       "actual": "0",
       "expected": "0",
       "ok": true
     },
     {
-      "check": "the contract holds exactly what is escrowed or owed",
-      "actual": "190000000000000000",
-      "expected": "190000000000000000",
+      "check": "the escrow holds exactly what is escrowed or owed",
+      "actual": "210000000000000000",
+      "expected": "210000000000000000",
+      "ok": true
+    },
+    {
+      "check": "the jury contract holds nothing",
+      "actual": "0",
+      "expected": "0",
       "ok": true
     }
   ]

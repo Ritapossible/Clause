@@ -49,7 +49,10 @@ and depend on the GenLayer platform where noted.
   caught the wrong total in only 1 of 3 runs, at confidence 99-100 on the
   misses. After the prompt change (self-claims are not evidence; calculate
   before deciding), it caught it in 3 of 3 runs on Studio and 1 of 1 on
-  Bradbury. Every verdict, misses included, is published.
+  Bradbury. That is the file the prompt was tuned on, so it is a fix for that
+  file, not a rate. Two held-out cases, pre-registered before they ran
+  (a timesheet and an order line), came back as registered in 12 of 12 runs.
+  Every verdict, misses included, is published.
 - **A location is not a guarantee.** Pointed at the missing price in case 9,
   the jury ruled unmet on Studio but undetermined on Bradbury.
 - **Not yet shown:** a test that can honestly be read two ways. That is where

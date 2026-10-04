@@ -146,6 +146,12 @@ correct.
   (`clause-jury/2`). With it, the wrong total was caught in 3 of 3 runs on
   Studio and 1 of 1 on Bradbury, and the right total was met every time.
 
+Case 8 is the file the prompt was changed to catch, so its 3 of 3 is a fix
+for that file, not a rate. Cases 10 and 11 were written after the change and
+pre-registered (`examples/HELD-OUT.md`): a timesheet total with an "approved"
+note, and a multiplication error in one order line. All 12 runs on Studio came
+back as registered. That is still a small sample.
+
 Confidence 100 on a wrong answer is the lesson: the number the model reports
 is not a measure of whether it is right.
 

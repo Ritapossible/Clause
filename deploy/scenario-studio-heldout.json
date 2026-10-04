@@ -1,0 +1,729 @@
+{
+  "network": "studio",
+  "escrow": "0xA3DE12a40Cf80B473B945C1f84a0BFE55976C3F2",
+  "jury": "0x7563c5F4e868B762351dA38ebc477b49bD91F006",
+  "jury_release": "clause-jury/2",
+  "only": [
+    "10",
+    "11"
+  ],
+  "appeal_seconds": 300,
+  "recorded_at": "2026-10-04T14:19:08.880Z",
+  "review_seconds": 900,
+  "seller_owed_before": "0",
+  "cases": {
+    "case 10 timesheet, wrong total, run 1": {
+      "expected": "unmet",
+      "rule_tx": "0x903adc68db4e2eef3f98283fd497134389b6713002e631215b3f2422db4e0719",
+      "rule": "applied",
+      "round": "1.1791122591",
+      "verdict": "unmet",
+      "reason": "test_failed",
+      "confidence": 100,
+      "artifact": "verified",
+      "located": false,
+      "at": 1791122875,
+      "state": "failed"
+    },
+    "case 10 timesheet, wrong total, run 2": {
+      "expected": "unmet",
+      "rule_tx": "0xfca35e1673b3edd2bc0d53864a96272c5490169d45dcf6ddc11901850dcde324",
+      "rule": "applied",
+      "round": "1.1791122613",
+      "verdict": "unmet",
+      "reason": "test_failed",
+      "confidence": 100,
+      "artifact": "verified",
+      "located": false,
+      "at": 1791122898,
+      "state": "failed"
+    },
+    "case 10 timesheet, wrong total, run 3": {
+      "expected": "unmet",
+      "rule_tx": "0x5b508f402b6e0eb173ea546ff9e07c577cd372ea210fef2ea0881251d7148028",
+      "rule": "applied",
+      "round": "1.1791122638",
+      "verdict": "unmet",
+      "reason": "test_failed",
+      "confidence": 100,
+      "artifact": "verified",
+      "located": false,
+      "at": 1791122911,
+      "state": "failed"
+    },
+    "case 10 timesheet, right total, run 1": {
+      "expected": "met",
+      "rule_tx": "0x6e682fabcfbb5fbffca3fd665603dd8b9b24c36ef9480af00c7e92a58e6f957c",
+      "rule": "applied",
+      "round": "1.1791122664",
+      "verdict": "met",
+      "reason": "test_met",
+      "confidence": 100,
+      "artifact": "verified",
+      "located": false,
+      "at": 1791122925,
+      "state": "released"
+    },
+    "case 10 timesheet, right total, run 2": {
+      "expected": "met",
+      "rule_tx": "0xfb68f02e27d6857f17affb4f8d75f5df4bb81ecc206e45434cf464901be77b94",
+      "rule": "applied",
+      "round": "1.1791122689",
+      "verdict": "met",
+      "reason": "test_met",
+      "confidence": 99,
+      "artifact": "verified",
+      "located": false,
+      "at": 1791122942,
+      "state": "released"
+    },
+    "case 10 timesheet, right total, run 3": {
+      "expected": "met",
+      "rule_tx": "0x22f69c130a8eff97b9797d619a7c6adec6ffe9d1c601581d8983d9d8f7c4ff0d",
+      "rule": "applied",
+      "round": "1.1791122712",
+      "verdict": "met",
+      "reason": "test_met",
+      "confidence": 100,
+      "artifact": "verified",
+      "located": false,
+      "at": 1791122968,
+      "state": "released"
+    },
+    "case 11 order, one wrong line, run 1": {
+      "expected": "unmet",
+      "rule_tx": "0x51813b605e8728b988ab11e886ed8c6ea6a3a3acd05b9554926e6c0455c111f2",
+      "rule": "applied",
+      "round": "1.1791122735",
+      "verdict": "unmet",
+      "reason": "test_failed",
+      "confidence": 100,
+      "artifact": "verified",
+      "located": false,
+      "at": 1791122988,
+      "state": "failed"
+    },
+    "case 11 order, one wrong line, run 2": {
+      "expected": "unmet",
+      "rule_tx": "0xfc8f7c05b63e88d921666f3ef9c904b03026078cd25fa0bb89219a2298182dc8",
+      "rule": "applied",
+      "round": "1.1791122764",
+      "verdict": "unmet",
+      "reason": "test_failed",
+      "confidence": 100,
+      "artifact": "verified",
+      "located": false,
+      "at": 1791123005,
+      "state": "failed"
+    },
+    "case 11 order, one wrong line, run 3": {
+      "expected": "unmet",
+      "rule_tx": "0x4b8a8b2763665e9b1e5a35772b267faff0335a196995c1aa6ae064f56465837b",
+      "rule": "applied",
+      "round": "1.1791122789",
+      "verdict": "unmet",
+      "reason": "test_failed",
+      "confidence": 100,
+      "artifact": "verified",
+      "located": false,
+      "at": 1791123021,
+      "state": "failed"
+    },
+    "case 11 order, all lines right, run 1": {
+      "expected": "met",
+      "rule_tx": "0x96c36f5954ab524d758ede9ba4f851506d54b909d9e3049456460eb0270e7d9e",
+      "rule": "applied",
+      "round": "1.1791122817",
+      "verdict": "met",
+      "reason": "test_met",
+      "confidence": 99,
+      "artifact": "verified",
+      "located": false,
+      "at": 1791123035,
+      "state": "released"
+    },
+    "case 11 order, all lines right, run 2": {
+      "expected": "met",
+      "rule_tx": "0x0745c99fd7ada16c35c02bed7f44b1422134c34faca3c6e753bdba5c459c8fbe",
+      "rule": "applied",
+      "round": "1.1791122842",
+      "verdict": "met",
+      "reason": "test_met",
+      "confidence": 99,
+      "artifact": "verified",
+      "located": false,
+      "at": 1791123055,
+      "state": "released"
+    },
+    "case 11 order, all lines right, run 3": {
+      "expected": "met",
+      "rule_tx": "0x0d0b3f4287219b0aa7a4f544fae453d45d0bae37a4a941350656fbe491799b77",
+      "rule": "applied",
+      "round": "1.1791122867",
+      "verdict": "met",
+      "reason": "test_met",
+      "confidence": 100,
+      "artifact": "verified",
+      "located": false,
+      "at": 1791123072,
+      "state": "released"
+    },
+    "withdraw": {
+      "owed": "360000000000000000",
+      "received": "360000000000000000",
+      "fee": "0"
+    }
+  },
+  "status": {
+    "release": "clause/2",
+    "jury": "0x7563c5f4e868b762351da38ebc477b49bd91f006",
+    "appeal_seconds": 300,
+    "deals": 25,
+    "held": 720000000000000000,
+    "owed": 140000000000000000,
+    "balance": 860000000000000000,
+    "bond_floor": 10000000000000000
+  },
+  "log": [
+    {
+      "tx": "case 10 timesheet, wrong total, run 1: fund",
+      "hash": "0x33ceba9854344bbcc528d77ab45db6f99a98e32bd6a542d39d4097beebceaa52",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 10 timesheet, wrong total, run 1: deliver tsWrong",
+      "hash": "0x121db81d54af23d3e87497c471ba7dc036f78038c27519d3d53f5e408d593f00",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 10 timesheet, wrong total, run 1: dispute \"hours\"",
+      "hash": "0x264c3e1d72c8a4460a74f7c46c1024a803ae61d2e6d12382fee15119610b9d46",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 10 timesheet, wrong total, run 2: fund",
+      "hash": "0xeb48bd34b03f4bc8230637f2ee7ec17bf5b231957885fa237d9c341b77ea6832",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 10 timesheet, wrong total, run 2: deliver tsWrong",
+      "hash": "0xc069e9b1ab56c1aacf5e2bb2076efc3a4727c4116cb5fd88c655f4cefd6f1c0b",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 10 timesheet, wrong total, run 2: dispute \"hours\"",
+      "hash": "0x14cda47be40f251be8bf4ae99be4fbbd467407cf703a2ac37d0edfca035668c8",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 10 timesheet, wrong total, run 3: fund",
+      "hash": "0x1a8fb43a98f343b307ef6e21502298b5b1af092daa078a11503c0086f368d4ca",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 10 timesheet, wrong total, run 3: deliver tsWrong",
+      "hash": "0x1c2b0117ee838612eba6cac3d8c9afeb80aa1da5b1555e4761bc308fd103c90d",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 10 timesheet, wrong total, run 3: dispute \"hours\"",
+      "hash": "0xcf1cc08b07ead9b9d4cf7fb0727a27d27891e1aea3a69d8b3cd900119ce35d7d",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 10 timesheet, right total, run 1: fund",
+      "hash": "0xd66335f7e749490c64e6b5d4f31651962e86836bc1bb84390b05e366dce6c48b",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 10 timesheet, right total, run 1: deliver tsRight",
+      "hash": "0xc8f452bf2633b75f7efeebd5452ceb1170c63d6fe0380772ce80e740c5827cae",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 10 timesheet, right total, run 1: dispute \"hours\"",
+      "hash": "0x8a2401ca054ed6d13b48e5946068cba7440d0467e1dc9335055f9da65a6ff5fd",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 10 timesheet, right total, run 2: fund",
+      "hash": "0x59c60a6821a51278b90215389779ce5480253e23fcdfc10945d1bf9eff8542a3",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 10 timesheet, right total, run 2: deliver tsRight",
+      "hash": "0x428122205835bea8a0a33191c61c112a6200f9800be34847ffa43e82fb504aec",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 10 timesheet, right total, run 2: dispute \"hours\"",
+      "hash": "0x84aadb0378cac5e5689149c61dbe3e9764abef88ae33a0b36f224747a11dbb11",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 10 timesheet, right total, run 3: fund",
+      "hash": "0x548b3ec49999c0c0557fb37548f8e861bfbcad06536672de987cf4734a28d5b0",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 10 timesheet, right total, run 3: deliver tsRight",
+      "hash": "0x860093ca1b7c47878051f259193c49c3099c34d0a2b1f28c1324f1191174ade1",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 10 timesheet, right total, run 3: dispute \"hours\"",
+      "hash": "0x493f05ffe380cfb2bc44a998d44392b0ad402ade7273b64f6f2be08910576dba",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 11 order, one wrong line, run 1: fund",
+      "hash": "0x3d209012a7dec86920b31eba7e085ced5cf2d81b326a341ce54418a9dd0f8e1e",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 11 order, one wrong line, run 1: deliver orderWrong",
+      "hash": "0xcf3a0f2cb18b6a0a3ef3cbdc2503fbdb7230c0f64e4d3fbdf9c5912960068f0d",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 11 order, one wrong line, run 1: dispute \"lines\"",
+      "hash": "0x47361afc5cef405516b94e4e2960173ab9b411239d865bf8328ed437441083e6",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 11 order, one wrong line, run 2: fund",
+      "hash": "0xce6c3bab9d3d4b1cf66156ac43d015dee5c54bb3c0091103496a6d98906aafbb",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 11 order, one wrong line, run 2: deliver orderWrong",
+      "hash": "0x34840873c67f8b0e757dcf8ac7621515cf2ee76932e2c7c4a47b89235d622fbc",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 11 order, one wrong line, run 2: dispute \"lines\"",
+      "hash": "0xe475f7166dc3913eb42a34229f897cfb681eda0d7e4049be0a81976c187811cd",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 11 order, one wrong line, run 3: fund",
+      "hash": "0xd6d2d8fde24f4fa0a9199e2a5e8167de85d5761e23f49a7d7af4e27d5f2a0835",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 11 order, one wrong line, run 3: deliver orderWrong",
+      "hash": "0x0087a5091d8d6c25ca3b35c83a2b8d8d2379aabe99a7010673d7ba0fbd333070",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 11 order, one wrong line, run 3: dispute \"lines\"",
+      "hash": "0xb43099dbe87a94c625bade87feb38b72f3f8eaf5c2cb31f5a06534507ee2a36f",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 11 order, all lines right, run 1: fund",
+      "hash": "0xc8a57c2aad69cff2bd730d6b6c5c27e274045fba060d2589daa25d8fb4c2f935",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 11 order, all lines right, run 1: deliver orderRight",
+      "hash": "0x105c337d47de91ff63ce78d5082871761be975853e8069460d67f7b663d80556",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 11 order, all lines right, run 1: dispute \"lines\"",
+      "hash": "0x13316b3a204a9374503093b2d4535347dd66ad9c35ef3db5ff2a46ca4fd7633a",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 11 order, all lines right, run 2: fund",
+      "hash": "0x536b77f35d5b6bda487c20f686a47373554bf773081ee09cc1811157624e4005",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 11 order, all lines right, run 2: deliver orderRight",
+      "hash": "0x86d9619896bbc2e609760cbf2e77c36017c0a7651a30c726f1da6a21e2c1a830",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 11 order, all lines right, run 2: dispute \"lines\"",
+      "hash": "0xf763dd5aab55a8958cfa233722ea166222f7ac84c6fbc9aacc4a607d675384ba",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 11 order, all lines right, run 3: fund",
+      "hash": "0x0a5981262c14a04dabe8f854860b1cbbde3992748f55ec48bbe910801470f35b",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 11 order, all lines right, run 3: deliver orderRight",
+      "hash": "0x37db00eaed84330de85ba3c6ac953d081157879022b229c32d12e4453c54cbc9",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 11 order, all lines right, run 3: dispute \"lines\"",
+      "hash": "0x4f7b07656932dcf21e005c41f8cf1695234128e911806de1cde032839c3f8c85",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 10 timesheet, wrong total, run 1: convene the jury",
+      "hash": "0x903adc68db4e2eef3f98283fd497134389b6713002e631215b3f2422db4e0719",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 10 timesheet, wrong total, run 2: convene the jury",
+      "hash": "0xfca35e1673b3edd2bc0d53864a96272c5490169d45dcf6ddc11901850dcde324",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 10 timesheet, wrong total, run 3: convene the jury",
+      "hash": "0x5b508f402b6e0eb173ea546ff9e07c577cd372ea210fef2ea0881251d7148028",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 10 timesheet, right total, run 1: convene the jury",
+      "hash": "0x6e682fabcfbb5fbffca3fd665603dd8b9b24c36ef9480af00c7e92a58e6f957c",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 10 timesheet, right total, run 2: convene the jury",
+      "hash": "0xfb68f02e27d6857f17affb4f8d75f5df4bb81ecc206e45434cf464901be77b94",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 10 timesheet, right total, run 3: convene the jury",
+      "hash": "0x22f69c130a8eff97b9797d619a7c6adec6ffe9d1c601581d8983d9d8f7c4ff0d",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 11 order, one wrong line, run 1: convene the jury",
+      "hash": "0x51813b605e8728b988ab11e886ed8c6ea6a3a3acd05b9554926e6c0455c111f2",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 11 order, one wrong line, run 2: convene the jury",
+      "hash": "0xfc8f7c05b63e88d921666f3ef9c904b03026078cd25fa0bb89219a2298182dc8",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 11 order, one wrong line, run 3: convene the jury",
+      "hash": "0x4b8a8b2763665e9b1e5a35772b267faff0335a196995c1aa6ae064f56465837b",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 11 order, all lines right, run 1: convene the jury",
+      "hash": "0x96c36f5954ab524d758ede9ba4f851506d54b909d9e3049456460eb0270e7d9e",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 11 order, all lines right, run 2: convene the jury",
+      "hash": "0x0745c99fd7ada16c35c02bed7f44b1422134c34faca3c6e753bdba5c459c8fbe",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 11 order, all lines right, run 3: convene the jury",
+      "hash": "0x0d0b3f4287219b0aa7a4f544fae453d45d0bae37a4a941350656fbe491799b77",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 10 timesheet, wrong total, run 1: apply",
+      "hash": "0x748258928e33a61b660a6ae58093a232f402415e1f21c8936295fd2083682fc1",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 10 timesheet, wrong total, run 1: the escrow applies the ruling",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "case 10 timesheet, wrong total, run 1: unmet -> failed, seller credited",
+      "actual": "0",
+      "expected": "0",
+      "ok": true
+    },
+    {
+      "tx": "case 10 timesheet, wrong total, run 2: apply",
+      "hash": "0x4c5be63fa99ec8a7a38f72ebee0dc3a9ac68ab4fca0f93a081747203183e293a",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 10 timesheet, wrong total, run 2: the escrow applies the ruling",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "case 10 timesheet, wrong total, run 2: unmet -> failed, seller credited",
+      "actual": "0",
+      "expected": "0",
+      "ok": true
+    },
+    {
+      "tx": "case 10 timesheet, wrong total, run 3: apply",
+      "hash": "0xe213618353a98e621ae222f45939c064dad1c39d8d30c7d550b804c8d7dc7dd1",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 10 timesheet, wrong total, run 3: the escrow applies the ruling",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "case 10 timesheet, wrong total, run 3: unmet -> failed, seller credited",
+      "actual": "0",
+      "expected": "0",
+      "ok": true
+    },
+    {
+      "tx": "case 10 timesheet, right total, run 1: apply",
+      "hash": "0x9bf3effba86718793d13199a640c16b36853ea3bcd267c1303e1b63208b0cb18",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 10 timesheet, right total, run 1: the escrow applies the ruling",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "case 10 timesheet, right total, run 1: met -> released, seller credited",
+      "actual": "60000000000000000",
+      "expected": "60000000000000000",
+      "ok": true
+    },
+    {
+      "tx": "case 10 timesheet, right total, run 2: apply",
+      "hash": "0x551d5ce79dd905c01f4f6c0ae08b314367ff28c4db58980a93e00346cbf1b0e6",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 10 timesheet, right total, run 2: the escrow applies the ruling",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "case 10 timesheet, right total, run 2: met -> released, seller credited",
+      "actual": "60000000000000000",
+      "expected": "60000000000000000",
+      "ok": true
+    },
+    {
+      "tx": "case 10 timesheet, right total, run 3: apply",
+      "hash": "0xc5d3ecd4ed174df5fb95cae387a9c978545cf19e471ce89382035af5cf848510",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 10 timesheet, right total, run 3: the escrow applies the ruling",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "case 10 timesheet, right total, run 3: met -> released, seller credited",
+      "actual": "60000000000000000",
+      "expected": "60000000000000000",
+      "ok": true
+    },
+    {
+      "tx": "case 11 order, one wrong line, run 1: apply",
+      "hash": "0xa4feacf9e5498eea12b926663a3fcb655f8a847af5bef675f1fc8c27bbb24121",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 11 order, one wrong line, run 1: the escrow applies the ruling",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "case 11 order, one wrong line, run 1: unmet -> failed, seller credited",
+      "actual": "0",
+      "expected": "0",
+      "ok": true
+    },
+    {
+      "tx": "case 11 order, one wrong line, run 2: apply",
+      "hash": "0x3b264e57a93dcc5adc688a76524838d313936563eabda3a736ed5af5ed3f3d5f",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 11 order, one wrong line, run 2: the escrow applies the ruling",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "case 11 order, one wrong line, run 2: unmet -> failed, seller credited",
+      "actual": "0",
+      "expected": "0",
+      "ok": true
+    },
+    {
+      "tx": "case 11 order, one wrong line, run 3: apply",
+      "hash": "0xfc2b3a9947ed70c3ed866ead339fd9701131e4b3b6d4a30b58683a57d73a90a8",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 11 order, one wrong line, run 3: the escrow applies the ruling",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "case 11 order, one wrong line, run 3: unmet -> failed, seller credited",
+      "actual": "0",
+      "expected": "0",
+      "ok": true
+    },
+    {
+      "tx": "case 11 order, all lines right, run 1: apply",
+      "hash": "0xead8309601c5bb77ebce15dbbb1a0a0edd2b085b17ad7e58643dffd2b6f14876",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 11 order, all lines right, run 1: the escrow applies the ruling",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "case 11 order, all lines right, run 1: met -> released, seller credited",
+      "actual": "60000000000000000",
+      "expected": "60000000000000000",
+      "ok": true
+    },
+    {
+      "tx": "case 11 order, all lines right, run 2: apply",
+      "hash": "0x57c12aba96e441fc2ccdf7e7b8a062b9901ea5272141db7d86da70d439f29cfd",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 11 order, all lines right, run 2: the escrow applies the ruling",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "case 11 order, all lines right, run 2: met -> released, seller credited",
+      "actual": "60000000000000000",
+      "expected": "60000000000000000",
+      "ok": true
+    },
+    {
+      "tx": "case 11 order, all lines right, run 3: apply",
+      "hash": "0xfb9e950cf0601a6b061b4b46941fc87b72e803f256e74be612cab7207d0ad0b0",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 11 order, all lines right, run 3: the escrow applies the ruling",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "case 11 order, all lines right, run 3: met -> released, seller credited",
+      "actual": "60000000000000000",
+      "expected": "60000000000000000",
+      "ok": true
+    },
+    {
+      "tx": "withdraw",
+      "hash": "0x1c87cf1ac0b01b03ecd054b246694c88bfd76c6088b6e45cc0d414bfa32f44e8",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "withdraw applied",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "the seller's wallet received what it was owed, less its own transaction fee",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "nothing left owed to the seller",
+      "actual": "0",
+      "expected": "0",
+      "ok": true
+    },
+    {
+      "check": "the escrow holds exactly what is escrowed or owed",
+      "actual": "860000000000000000",
+      "expected": "860000000000000000",
+      "ok": true
+    },
+    {
+      "check": "the jury contract holds nothing",
+      "actual": "0",
+      "expected": "0",
+      "ok": true
+    }
+  ]
+}
