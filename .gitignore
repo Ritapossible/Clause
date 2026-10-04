@@ -45,3 +45,4 @@ deploy/bisect*.mjs
 deploy/probe*.mjs
 deploy/try_file.mjs
 deploy/mkprefix.py
+frontend/e2e-*.png

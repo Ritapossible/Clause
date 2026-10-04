@@ -1,0 +1,74 @@
+[
+ {
+  "test": "The response contains exactly 3 city names",
+  "error": ""
+ },
+ {
+  "test": "The deliverable is JSON with a top-level key \"cities\"",
+  "error": ""
+ },
+ {
+  "test": "The article is between 800 and 1200 words",
+  "error": ""
+ },
+ {
+  "test": "Every heading is in English",
+  "error": ""
+ },
+ {
+  "test": "Do good work",
+  "error": "the acceptance test relies on taste ('good')"
+ },
+ {
+  "test": "The copy is high-quality and professional",
+  "error": "the acceptance test relies on taste ('high-quality')"
+ },
+ {
+  "test": "Everything works as expected for us",
+  "error": "the acceptance test names nothing checkable (a number, a quoted value, or a key/section/word count)"
+ },
+ {
+  "test": "short",
+  "error": "the acceptance test is under 12 characters"
+ },
+ {
+  "test": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "error": "the acceptance test is longer than 400 characters"
+ },
+ {
+  "test": "   padded test with 3 items   ",
+  "error": ""
+ },
+ {
+  "test": "It's the client's call",
+  "error": ""
+ },
+ {
+  "test": "Logo is well designed and 512 pixels",
+  "error": "the acceptance test relies on taste ('well')"
+ },
+ {
+  "test": "Has a table of contents",
+  "error": ""
+ },
+ {
+  "test": "Résumé lists 2 previous employers",
+  "error": ""
+ },
+ {
+  "test": "Contains the phrase 'thank you'",
+  "error": ""
+ },
+ {
+  "test": "Delivered as one PDF document",
+  "error": ""
+ },
+ {
+  "test": "All good-looking components",
+  "error": "the acceptance test names nothing checkable (a number, a quoted value, or a key/section/word count)"
+ },
+ {
+  "test": "Uses the brand colours throughout",
+  "error": "the acceptance test names nothing checkable (a number, a quoted value, or a key/section/word count)"
+ }
+]

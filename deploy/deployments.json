@@ -4,5 +4,11 @@
     "deploy_tx": "0x37ce231578849d1ae78006bb9aa2d98660d97fb5f06a787683f252b9ccfecd12",
     "bond_floor": "10000000000000000",
     "at": "2026-10-04T07:16:28.089Z"
+  },
+  "bradbury": {
+    "clause": "0xbFCdAb3741375D498082A0bc873b9dd3B7Fdd1E3",
+    "deploy_tx": "0x9e9ac9e8904b2c055cea9633ca4d0ffe2a114c6022e7c7f661b7261b4bd6473f",
+    "bond_floor": "10000000000000000",
+    "at": "2026-10-04T07:23:28.860Z"
   }
 }
