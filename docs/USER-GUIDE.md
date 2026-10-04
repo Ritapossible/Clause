@@ -122,6 +122,10 @@ amount, never less than 0.01 GEN.
   you point at. It sees those bytes labelled "a location the buyer chose",
   never your pointer text or your note.
 
+  A location gets the bytes in front of the jury; it does not guarantee the
+  jury acts on them. In the recorded runs, the same located defect was ruled
+  unmet on Studio and undetermined on Bradbury, where the seller was paid.
+
 ### 4. Convene the jury, then apply the ruling
 
 1. Anyone can press **Convene the jury** on a disputed clause: you, the

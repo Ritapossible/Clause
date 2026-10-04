@@ -83,6 +83,8 @@ is a normal response and an unreachable host raises. So:
 characters of the work. A dispute may carry a byte span or a JSON pointer,
 and each validator shows the jury those bytes of the verified work, labelled
 as a location. The pointer's text and the complaint never reach the prompt.
+Getting the bytes in front of the jury is not the same as the jury using
+them. Measured on the same catalog: unmet on Studio (97 with jury 1, 100 with jury 2), but **undetermined (80) on Bradbury**, where the jury called the test ambiguous and the seller was paid.
 
 ## What has been shown, and what has not
 
@@ -117,8 +119,8 @@ The jury itself has been shown on a small sample, stated as small:
     and no note.
 
   Each was ruled as expected in 6 of 6 runs on Studio (3 with the error,
-  3 without). That is 12 runs on two files: better evidence than the tuned
-  file, still a small sample, not a rate.
+  3 without). They are still arithmetic, the same check the prompt was changed to make it do, so they show the fix carries to other sums and products, not that the jury judges anything beyond arithmetic. Twelve confident arithmetic passes do not stand
+  in for the case below.
 - **Not yet run:** a test that can honestly be read two ways. That is where a
   jury of models is weakest, and it is the first item of the calibration work
   on the roadmap.

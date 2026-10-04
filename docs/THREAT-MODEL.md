@@ -150,7 +150,8 @@ Case 8 is the file the prompt was changed to catch, so its 3 of 3 is a fix
 for that file, not a rate. Cases 10 and 11 were written after the change and
 pre-registered (`examples/HELD-OUT.md`): a timesheet total with an "approved"
 note, and a multiplication error in one order line. All 12 runs on Studio came
-back as registered. That is still a small sample.
+back as registered. They are still arithmetic, the same check the prompt was changed to make it do, so they show the fix carries to other sums and products, not that the jury judges anything beyond arithmetic. The test with two honest readings has
+still not been run, and these runs do not replace it.
 
 Confidence 100 on a wrong answer is the lesson: the number the model reports
 is not a measure of whether it is right.
@@ -173,7 +174,10 @@ also says when the work was cut.
 **Test.** `test_a_location_shows_bytes_of_the_work_never_the_buyers_words`,
 `test_case_6_a_non_counting_test_and_a_located_defect`; mutants
 `pointer-text-shown`, `location-unchecked`. Measured: case 9, a catalog whose
-missing price is at byte 5,731.
+missing price is at byte 5,731. Pointed at `/items/71`: unmet on Studio with
+both prompts, but **undetermined (80, `ambiguous_test`) on Bradbury**, and the
+clause paid the seller (`deploy/scenario-bradbury.json`). The location
+arrived; the jury did not act on it.
 
 **Left.**
 

@@ -29,7 +29,8 @@ const STEPS: { t: string; hot?: boolean; body: JSX.Element }[] = [
         less than the floor). A dispute citing an id that is not in the spec, or late, or under-bonded, is refused and
         recorded: no jury, the bond credited back. A clause nobody disputes pays the seller when its window closes. If the
         problem is deep in the work, the buyer may point at it with a location (a byte span or a JSON pointer); the jury
-        sees those bytes, never the buyer's words.
+        sees those bytes, never the buyer's words. It does not always act on them: a located defect was unmet on Studio
+        and undetermined on Bradbury.
       </p>
     ),
   },

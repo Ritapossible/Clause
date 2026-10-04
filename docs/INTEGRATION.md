@@ -308,7 +308,9 @@ Agent tips:
 - Run `settle` and `apply_ruling` on a schedule for the deals you are part
   of. Nothing pays until someone calls them.
 - When a failure is deep in the work, send a location. The jury reads only the
-  first 4,000 characters, plus the slice you point at.
+  first 4,000 characters, plus the slice you point at. It may still rule
+  undetermined: a located defect was unmet on Studio and undetermined on
+  Bradbury.
 - Compare every deadline with `get_deal(...).now`.
 
 ## Limits

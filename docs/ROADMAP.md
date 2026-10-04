@@ -32,7 +32,7 @@ and depend on the GenLayer platform where noted.
 | The money does not depend on the jury: the escrow reads it only in `apply_ruling`, and `settle`/`withdraw` still pay if the jury contract is unreadable | Case 7 in the tests; an appeal of a real ruling on Studio (`deploy/appeal-studio.json`) |
 | A ruling waits out its appeal window before any GEN is credited | Checked on chain on both networks |
 | Work changed or removed from its URL is unmet; work nobody could fetch is no ruling | Cases 6 (a 404) and 7 (an unreachable host) on both networks |
-| A dispute can point the jury at a location deep in the work | Case 9: a missing price at byte 5,731 |
+| A dispute can put a location deep in the work in front of the jury | Case 9, a missing price at byte 5,731: unmet on Studio, **undetermined (80) on Bradbury**, where the seller was paid. The bytes arrive; the jury does not always use them. |
 | Every state has a clock in the escrow; `settle` resolves it | Cases 4 and 7; deadline tests |
 | A checkability gate on acceptance tests | Contract and in-browser, held equal by `parity.ts` |
 | Credit-then-withdraw; `balance == held + owed`; the jury holds nothing | Checked on chain after every scenario |
@@ -52,7 +52,9 @@ and depend on the GenLayer platform where noted.
   Bradbury. That is the file the prompt was tuned on, so it is a fix for that
   file, not a rate. Two held-out cases, pre-registered before they ran
   (a timesheet and an order line), came back as registered in 12 of 12 runs.
-  Every verdict, misses included, is published.
+  They are still arithmetic, the check the prompt was told to make, so they
+  are not evidence of judgment beyond that. Every verdict, misses included,
+  is published.
 - **A location is not a guarantee.** Pointed at the missing price in case 9,
   the jury ruled unmet on Studio but undetermined on Bradbury.
 - **Not yet shown:** a test that can honestly be read two ways. That is where
@@ -196,6 +198,9 @@ and not always plain text.
 **Done in `clause/2`:** a dispute can carry a location (a byte span or a JSON
 pointer), and the jury sees those bytes of the verified work, labelled as a
 location rather than an argument. The prompt says when the work was cut.
+**Not done:** making the jury act on it. On Bradbury the located catalog
+came back undetermined (80). Measure located cases across networks, the
+same pre-registered way, before claiming more.
 
 **Scope:**
 

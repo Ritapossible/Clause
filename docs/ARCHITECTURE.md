@@ -213,8 +213,9 @@ look; it is not an argument)":
   section says only "one JSON value inside the work".
 - The slice is the seller's bytes, disarmed like the rest of the work.
 
-This lets a buyer who is right about byte 5,731 show the jury byte 5,731,
-without putting the complaint back in the prompt.
+This lets a buyer who is right about byte 5,731 put byte 5,731 in front of
+the jury, without putting the complaint back in the prompt. It does not make
+the jury use it. Measured on the same catalog: unmet on Studio (97 with jury 1, 100 with jury 2), but **undetermined (80) on Bradbury**, where the jury called the test ambiguous and the seller was paid.
 
 ## The checkability gate
 
