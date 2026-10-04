@@ -65,6 +65,10 @@ MUTATIONS = [
      '                return json.dumps({"verdict": VERDICT_UNMET, "reason": "work_unverifiable"', '                return json.dumps({"verdict": VERDICT_MET, "reason": "work_unverifiable"', SHELL),
     ("seller-can-be-anyone-delivering", "only the seller delivers",
      '        if self._me() != deal["seller"]:', "        if False:", SHELL),
+    ("refusal-keeps-value", "a refused payable call credits its value back",
+     "        if value > 0:\n            self.owed[me]", "        if False:\n            self.owed[me]", SHELL),
+    ("refusal-reverts", "a refused dispute must not revert (a reverted call keeps its value)",
+     "            self._refuse(str(exc), bond)", "            raise Exception(str(exc))", SHELL),
     ("double-withdraw", "withdraw zeroes what it sends",
      "        self.owed[me] = u256(0)", "        pass", SHELL),
 ]

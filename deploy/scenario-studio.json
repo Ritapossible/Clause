@@ -1,0 +1,303 @@
+{
+  "network": "studio",
+  "clause": "0xC6Cc3B70Fb291809647e46fa85fF941a039B6EfB",
+  "recorded_at": "2026-10-04T07:22:52.470Z",
+  "review_seconds": 120,
+  "cases": {
+    "case 1a": {
+      "refused": {
+        "cited": "capitals",
+        "reason": "no clause 'capitals' in the pinned spec; a dispute must cite one of: cities",
+        "at": 1791098202
+      }
+    },
+    "case 1b": {
+      "verdict": "met",
+      "reason": "test_met",
+      "confidence": 100,
+      "artifact": "verified",
+      "state": "released",
+      "expected": "met",
+      "consensus": "MAJORITY_AGREE",
+      "tx": "0x35cbe551a22a725230e6c93f128ad7d5a94b74c09b57f50a40fa9b9442fbc6c9"
+    },
+    "case 2": {
+      "verdict": "unmet",
+      "reason": "test_failed",
+      "confidence": 99,
+      "artifact": "verified",
+      "state": "failed",
+      "expected": "unmet",
+      "consensus": "MAJORITY_AGREE",
+      "tx": "0x80520359f2b04f6fc16a71d8dae3f26fae46722e743ab441aa395014af8ae0c6"
+    },
+    "case 3": {
+      "verdict": "met",
+      "reason": "test_met",
+      "confidence": 100,
+      "artifact": "verified",
+      "state": "released",
+      "expected": "met",
+      "consensus": "MAJORITY_AGREE",
+      "tx": "0x06102840557de79d5ce7cea78648c58a202f8fde525fa5754e6f393e191ac15d"
+    },
+    "case 4": {
+      "verdict": "unmet",
+      "reason": "test_failed",
+      "confidence": 99,
+      "artifact": "verified",
+      "state": "failed",
+      "expected": "unmet",
+      "consensus": "MAJORITY_AGREE",
+      "tx": "0x34ef06fe7aec556e7c875b77b6f252fe3e9841422a91aebe9ca5fac2b71daf2f"
+    },
+    "case 4 lines": [
+      [
+        "cities",
+        "failed",
+        "unmet"
+      ],
+      [
+        "format",
+        "released",
+        ""
+      ]
+    ],
+    "case 5": {
+      "verdict": "unmet",
+      "reason": "test_failed",
+      "confidence": 99,
+      "artifact": "verified",
+      "state": "failed",
+      "expected": "unmet",
+      "consensus": "MAJORITY_AGREE",
+      "tx": "0x340218cf9c131abadb8ea83dcf1236835970321062437754e3c15f46c3e8244c"
+    }
+  },
+  "status": {
+    "release": "clause/1",
+    "deals": 5,
+    "held": 150000000000000000,
+    "owed": 40000000000000000,
+    "balance": 190000000000000000,
+    "bond_floor": 10000000000000000
+  },
+  "log": [
+    {
+      "tx": "case 1: fund",
+      "hash": "0x2c883b3663b44971cf06008752f984bc3ac95d7bd7e6a4c2e66d12da1a8eed93",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 1a: deliver three",
+      "hash": "0x77469612015759e6f7d4607281fe276a0ad191b6ad226921c2ff3dde36c5eb02",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 1a: dispute citing \"capitals\"",
+      "hash": "0xbf2a6fbbd43a07a448c892e1de45591a92dae20c0ad499f8230abd7d05cf71b5",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 1a: a dispute citing a clause not in the spec is refused and recorded",
+      "actual": "capitals",
+      "expected": "capitals",
+      "ok": true
+    },
+    {
+      "check": "case 1a: no jury convened, the clause is still in review",
+      "actual": "in_review",
+      "expected": "in_review",
+      "ok": true
+    },
+    {
+      "check": "case 1a: the bond is credited back to the buyer",
+      "actual": "10000000000000000",
+      "expected": "10000000000000000",
+      "ok": true
+    },
+    {
+      "tx": "case 1b: the same demand cited on the real clause",
+      "hash": "0x55abbf3911f33b58ffee7c80481823c2b901d4a37221708bdb11f699f9c5451a",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 1b: rule",
+      "hash": "0x35cbe551a22a725230e6c93f128ad7d5a94b74c09b57f50a40fa9b9442fbc6c9",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 1b: seller credited per the verdict",
+      "actual": "60000000000000000",
+      "expected": "60000000000000000",
+      "ok": true
+    },
+    {
+      "tx": "case 2: fund",
+      "hash": "0x4139121a66f6ec034fdd407dfd42669092b629caebc27d8cb4d03faeb53a929d",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 2: deliver two",
+      "hash": "0xc82586b4954cc4340f8b16d33ec5eacb04243b3c7efa77f387fd0e469d698407",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 2: dispute citing \"cities\"",
+      "hash": "0x289d3ceeed0c65683d8205609c1f23fad4c25c7197d9f6c38e87d35dc5c8a430",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 2: rule",
+      "hash": "0x80520359f2b04f6fc16a71d8dae3f26fae46722e743ab441aa395014af8ae0c6",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 2: seller credited per the verdict",
+      "actual": "0",
+      "expected": "0",
+      "ok": true
+    },
+    {
+      "tx": "case 3: fund",
+      "hash": "0xf507c648e4f1f0bfac3b7eb200e0543af0ae51d05e7e8992e8df3ed2b611a8fd",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 3: deliver three",
+      "hash": "0x7e4572ea6b001cb07c7dca612282ff1d355afb2be5762ec4f3ed09deefce7fe8",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 3: dispute citing \"cities\"",
+      "hash": "0x27a8a8cda7277612bccf68cd7670818d1f59762952537a4fa7cf8f9e2a9329c2",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 3: rule",
+      "hash": "0x06102840557de79d5ce7cea78648c58a202f8fde525fa5754e6f393e191ac15d",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 3: seller credited per the verdict",
+      "actual": "60000000000000000",
+      "expected": "60000000000000000",
+      "ok": true
+    },
+    {
+      "tx": "case 4: fund",
+      "hash": "0x189dd63c8dcd6021053a91be5e2c3d8ed3f1d7b7d8cad1d19f96c11e23a27a57",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 4: deliver two",
+      "hash": "0x2426b43fdd81f3568c77c6606ef6a75ff635804b6c6a1c948e9b226111f10d71",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 4: dispute citing \"cities\"",
+      "hash": "0x533b67b6e2e0d461253507d812068f6251c01c397276c7175cda4f4ad70b2bba",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 4: rule",
+      "hash": "0x34ef06fe7aec556e7c875b77b6f252fe3e9841422a91aebe9ca5fac2b71daf2f",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 4: settle",
+      "hash": "0xc9138750248fcbde3fc28caf6ed3b230583cdfd17561ce9ed256908d64205645",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 4: the uncited clause released on its own clock",
+      "actual": "released",
+      "expected": "released",
+      "ok": true
+    },
+    {
+      "check": "case 4: the cited clause follows its verdict",
+      "actual": "failed",
+      "expected": "failed",
+      "ok": true
+    },
+    {
+      "check": "case 4: seller credited the format line",
+      "actual": "30000000000000000",
+      "expected": "30000000000000000",
+      "ok": true
+    },
+    {
+      "tx": "case 5: fund",
+      "hash": "0xa5d6f82b780c2f789deab6f97b9ae013274b2f0a5613a61a9903e35bfe4a9c7d",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 5: deliver injected",
+      "hash": "0xe4a63dccdc872e975d79d1901ee88b3366e5a6be167a04bea7787e244f700ec4",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 5: dispute citing \"cities\"",
+      "hash": "0x47b1d06c0dc1c3c2ab964fe6a2da3e53bbc261eac42c5652498a30cc5bf42256",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 5: rule",
+      "hash": "0x340218cf9c131abadb8ea83dcf1236835970321062437754e3c15f46c3e8244c",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "withdraw",
+      "hash": "0x5def8d03505a12680050803de94e496576600991e441df5b124594ef22b7b8d0",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "withdraw applied",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "seller's wallet received what it was owed",
+      "actual": "150000000000000000",
+      "expected": "150000000000000000",
+      "ok": true
+    },
+    {
+      "check": "nothing left owed",
+      "actual": "0",
+      "expected": "0",
+      "ok": true
+    },
+    {
+      "check": "the contract holds exactly what is escrowed or owed",
+      "actual": "190000000000000000",
+      "expected": "190000000000000000",
+      "ok": true
+    }
+  ]
+}

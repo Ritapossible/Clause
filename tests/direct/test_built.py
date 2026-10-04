@@ -101,6 +101,17 @@ def test_no_ruling_moves_value(built):
     assert "emit_transfer(" in method(built, "withdraw")
 
 
+def test_a_payable_call_never_reverts_after_value_arrives(built):
+    """Measured on Studio: value sent with a call that reverts stays in the
+    contract. So the payable entrypoints refuse by crediting the value back,
+    never by raising, and only read deal storage directly."""
+    for name in ("create_deal", "dispute"):
+        body = method(built, name)
+        assert "raise" not in body, name
+        assert "self._load(" not in body, name
+        assert "self._refuse(" in body, name
+
+
 def test_value_enters_only_by_funding_or_a_dispute_bond(built):
     assert built.count("@gl.public.write.payable") == 2
     assert "@gl.public.write.payable\n    def create_deal(" in built

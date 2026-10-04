@@ -93,13 +93,18 @@ def scenario(suffix):
     # Funding is refused for an untestable clause or the wrong amount.
     tx("fund vague", "create_deal", SELLER, json.dumps([dict(CITIES, test="Do good work")]), 3600, 600, 1800, 900,
        sender=BUYER, value=CITIES["amount"])
+    out["refusal after fund vague"] = json.loads(c.refusal_of(BUYER))["reason"]
     tx("fund short", "create_deal", SELLER, json.dumps([CITIES]), 3600, 600, 1800, 900, sender=BUYER, value=CITIES["amount"] - 1)
+    out["refusal after fund short"] = json.loads(c.refusal_of(BUYER))["reason"]
+    out["refunded after refusals"] = c.owed_to(BUYER)
 
     # Case 1: matching work, an invented requirement.
     fund("deal 0", [CITIES])
     tx("deliver 0", "deliver", 0, THREE[0], THREE[2], sender=SELLER)
     tx("case 1a: cite a clause not in the spec", "dispute", 0, "capitals", "cities must be capitals", sender=BUYER, value=10 * GEN)
     out["case 1a: jury calls"] = len(model.prompts)
+    out["case 1a: deal"] = deal(0)
+    out["case 1a: refusal"] = json.loads(c.refusal_of(BUYER))
     tx("case 1b: new demand on a real clause", "dispute", 0, "cities", "cities must be capitals", sender=BUYER, value=10 * GEN)
     tx("rule 0", "rule", 0, "cities", sender=SELLER)
     out["case 1b"] = deal(0)["lines"][0]
@@ -192,14 +197,19 @@ def test_deployed_bytes_behave_exactly_like_the_tested_build(readable, deployed)
 
 
 def test_funding_needs_a_checkable_spec_and_the_exact_amount(readable):
-    assert "relies on judgement of taste" in readable["fund vague"]
-    assert "must equal the sum" in readable["fund short"]
+    assert readable["fund vague"] == -1 and "relies on taste" in readable["refusal after fund vague"]
+    assert readable["fund short"] == -1 and "must equal the clause amounts" in readable["refusal after fund short"]
 
 
 def test_case_1_an_invented_requirement_never_wins(readable):
     r = readable
-    assert "no clause 'capitals' in the pinned spec" in r["case 1a: cite a clause not in the spec"]
+    # Refused without reverting: recorded on the deal, no jury, bond back.
+    assert r["case 1a: cite a clause not in the spec"] == "ok"
     assert r["case 1a: jury calls"] == 0
+    refused = r["case 1a: deal"]["refused"]
+    assert refused[0]["cited"] == "capitals" and "no clause 'capitals' in the pinned spec" in refused[0]["reason"]
+    assert r["case 1a: deal"]["lines"][0]["state"] == "in_review"
+    assert r["case 1a: refusal"]["returned"] == 10 * GEN
     line = r["case 1b"]
     assert (line["state"], line["verdict"]) == ("released", "met")
 
@@ -227,6 +237,12 @@ def test_case_5_injection_unreadable_work_redelivery_and_deadlines(readable):
     assert "delivery deadline has passed" in r["deliver 6 late"]
     assert r["case 5d"] == "refunded"
     assert r["case 5e"] == ["refunded", "refunded"]
+
+
+def test_refused_payable_calls_return_their_value(readable):
+    """A reverted call keeps the value it carried (measured on Studio), so a
+    refusal never reverts: it credits the value back."""
+    assert readable["refunded after refusals"] == 2 * CITIES["amount"] - 1
 
 
 def test_every_gen_is_accounted_for(readable):

@@ -7,6 +7,10 @@ One contract holds every deal. A deal is one JSON record (``deals``); every
 rule that decides anything is in ``clause_core.py`` and tested there.
 
 **Money.** The buyer funds a deal with exactly the sum of its clause amounts.
+A payable call never reverts once value has arrived: measured on Studio, the
+value sent with a call that reverts stays in the contract, so a refused
+funding or a refused dispute is recorded instead and its value is credited
+straight back to the sender (``_refuse``).
 Nothing here pays out inside a ruling: a ruling or a deadline *credits* the
 party owed (``owed``), and ``withdraw`` sends a party what it is owed. A
 ruling therefore never depends on a transfer succeeding, and a deadline never
@@ -46,6 +50,7 @@ class Clause(gl.Contract):
     owed: TreeMap[str, u256]
     owed_total: u256
     held: u256
+    refusals: TreeMap[str, str]
 
     def __init__(self, bond_floor: int):
         if int(bond_floor) <= 0:
@@ -82,6 +87,15 @@ class Clause(gl.Contract):
     def _me(self) -> str:
         return str(gl.message.sender_address).lower()
 
+    def _refuse(self, reason: str, value: int) -> None:
+        """Refuse a payable call without reverting: record why, and credit
+        the value it carried back to the sender, to withdraw like any credit."""
+        me = self._me()
+        if value > 0:
+            self.owed[me] = u256(int(self.owed.get(me, u256(0))) + value)
+            self.owed_total = u256(int(self.owed_total) + value)
+        self.refusals[me] = json.dumps({"reason": str(reason)[:600], "at": self._now(), "returned": value})
+
     # ---------------------------------------------------------- entrypoints
 
     @gl.public.write.payable
@@ -96,21 +110,25 @@ class Clause(gl.Contract):
     ) -> int:
         """The buyer funds an escrow against a pinned spec. The GEN sent must
         equal the sum of the clause amounts, and every acceptance test must be
-        checkable (``acceptance_test_error``)."""
+        checkable (``acceptance_test_error``). Returns the deal id, or -1 when
+        refused - the value is then credited back and ``refusal_of`` says why."""
+        value = int(gl.message.value)
         try:
             clauses = json.loads(str(clauses_json))
         except Exception:
-            raise Exception("[EXPECTED] the spec is not valid JSON")
+            clauses = None
         timing = {
             "delivery_seconds": int(delivery_seconds),
             "review_seconds": int(review_seconds),
             "redelivery_seconds": int(redelivery_seconds),
             "ruling_seconds": int(ruling_seconds),
         }
-        value = int(gl.message.value)
-        errors = spec_errors(clauses, value=value, timing=timing, buyer=self._me(), seller=str(seller))
+        errors = ["the spec is not valid JSON"] if clauses is None else spec_errors(
+            clauses, value=value, timing=timing, buyer=self._me(), seller=str(seller)
+        )
         if errors:
-            raise Exception("[EXPECTED] " + "; ".join(errors))
+            self._refuse("; ".join(errors), value)
+            return -1
         deal_id = int(self.deal_count)
         deal = open_deal(deal_id=deal_id, buyer=self._me(), seller=str(seller), clauses=clauses, timing=timing, now=self._now())
         self._save(deal)
@@ -135,16 +153,29 @@ class Clause(gl.Contract):
     def dispute(self, deal_id: int, clause_id: str, text: str) -> None:
         """The buyer disputes one clause, citing its id from the pinned spec,
         inside its review window, posting the bond as the value of this call.
-        ``text`` is kept for people and never shown to the jury."""
-        deal = self._load(deal_id)
+        ``text`` is kept for people and never shown to the jury. A dispute that
+        cites no clause of the spec, or is late or under-bonded, is refused: it
+        is recorded on the deal, no jury runs, and the bond is credited back."""
         bond = int(gl.message.value)
+        if int(deal_id) < 0 or int(deal_id) >= int(self.deal_count):
+            self._refuse("unknown deal", bond)
+            return
+        deal = json.loads(self.deals[u256(int(deal_id))])
         try:
             open_dispute(
                 deal, clause_id=str(clause_id), by=self._me(), text=str(text), bond=bond,
                 floor=int(self.bond_floor), now=self._now(),
             )
         except ClauseError as exc:
-            raise Exception("[EXPECTED] " + str(exc))
+            # No jury, no state change: the dispute is refused and its bond
+            # goes back. This is where a complaint about a requirement that is
+            # not in the pinned spec ends.
+            self._refuse(str(exc), bond)
+            refused = deal.get("refused", [])
+            refused.append({"cited": str(clause_id)[:40], "reason": str(exc)[:300], "at": self._now()})
+            deal["refused"] = refused[-10:]
+            self._save(deal)
+            return
         self._save(deal)
         self.held = u256(int(self.held) + bond)
 
@@ -257,9 +288,13 @@ class Clause(gl.Contract):
     @gl.public.view
     def get_deal(self, deal_id: int) -> str:
         deal = self._load(deal_id)
-        deal["escrowed"] = escrowed(deal)
         deal["now"] = self._now()
         return json.dumps(deal)
+
+    @gl.public.view
+    def refusal_of(self, address: str) -> str:
+        """Why the address's last payable call was refused, if it was."""
+        return self.refusals.get(str(address).lower(), "{}")
 
     @gl.public.view
     def owed_to(self, address: str) -> int:
@@ -270,17 +305,6 @@ class Clause(gl.Contract):
         """The bond a dispute on this clause must post."""
         deal = self._load(deal_id)
         return dispute_bond(int(find_line(deal, str(clause_id))["amount"]), int(self.bond_floor))
-
-    @gl.public.view
-    def check_spec(self, clauses_json: str, value: int, buyer: str, seller: str, review_seconds: int) -> str:
-        """Every reason a spec could not be funded, before anything is signed."""
-        try:
-            clauses = json.loads(str(clauses_json))
-        except Exception:
-            return json.dumps(["the spec is not valid JSON"])
-        t = int(review_seconds)
-        timing = {"delivery_seconds": t, "review_seconds": t, "redelivery_seconds": t, "ruling_seconds": t}
-        return json.dumps(spec_errors(clauses, value=int(value), timing=timing, buyer=str(buyer), seller=str(seller)))
 
     @gl.public.view
     def status(self) -> str:

@@ -142,18 +142,18 @@ def acceptance_test_error(test):
     """
     text = str(test).strip()
     if len(text) < MIN_TEST:
-        return "the acceptance test is too short to check (at least %d characters)" % MIN_TEST
+        return "the acceptance test is under %d characters" % MIN_TEST
     if len(text) > MAX_TEXT:
         return "the acceptance test is longer than %d characters" % MAX_TEXT
     words = _words(text)
     for w in words:
         if w in VAGUE_WORDS:
-            return "the acceptance test relies on judgement of taste (%r); state what can be checked" % w
+            return "the acceptance test relies on taste (%r)" % w
     has_digit = any(ch.isdigit() for ch in text)
     has_quote = text.count('"') >= 2 or text.count("'") >= 2
     has_anchor = any(w in ANCHOR_WORDS for w in words)
     if not (has_digit or has_quote or has_anchor):
-        return "the acceptance test names nothing checkable: give a number, a quoted value or a structure (key, section, words, format)"
+        return "the acceptance test names nothing checkable (a number, a quoted value, or a key/section/word count)"
     return ""
 
 
@@ -163,7 +163,7 @@ def _clause_id_error(cid):
         return "a clause id is 1-%d characters" % MAX_ID
     for ch in text:
         if ch not in "abcdefghijklmnopqrstuvwxyz0123456789-_":
-            return "a clause id uses lowercase letters, digits, '-' and '_' only: %r" % text
+            return "a clause id is lowercase letters, digits, - and _: %r" % text
     return ""
 
 
@@ -203,11 +203,11 @@ def spec_errors(clauses, *, value, timing, buyer, seller):
             errors.append("%s (%s): %s" % (where, cid, e))
         amount = c.get("amount")
         if isinstance(amount, bool) or not isinstance(amount, int) or amount <= 0:
-            errors.append("%s: the amount must be a positive integer (atto-GEN)" % where)
+            errors.append("%s: the amount must be a positive integer" % where)
         else:
             total += amount
     if not errors and total != int(value):
-        errors.append("the GEN sent (%d) must equal the sum of the clause amounts (%d)" % (int(value), total))
+        errors.append("the GEN sent (%d) must equal the clause amounts (%d)" % (int(value), total))
     for key in TIMINGS:
         v = timing.get(key)
         if isinstance(v, bool) or not isinstance(v, int) or v < MIN_WINDOW or v > MAX_WINDOW:
@@ -394,7 +394,7 @@ def deliver(deal, *, uri, digest, now):
     else:
         targets = [l for l in deal["lines"] if l["state"] == LINE_FAILED and now <= int(l["redeliver_by"])]
         if not targets:
-            raise ClauseError("nothing to redeliver: no failed clause is inside its redelivery window")
+            raise ClauseError("nothing to redeliver")
     deal["delivery"] = {"uri": str(uri), "digest": str(digest).strip().lower(), "at": now}
     deal["deliveries"] = int(deal.get("deliveries", 0)) + 1
     for line in targets:
