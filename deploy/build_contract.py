@@ -28,7 +28,8 @@ OUT_DIR = os.path.join(SRC, "build")
 RUNNER = "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6"
 
 BUILDS = {
-    "clause": (["clause_core.py", "clause_prompts.py", "contract_shell.py"], "Clause"),
+    "clause": (["clause_core.py", "contract_shell.py"], "Clause"),
+    "clause_jury": (["clause_core.py", "clause_prompts.py", "jury_shell.py"], "ClauseJury"),
 }
 
 # The runner header must be followed IMMEDIATELY by code. Any comment line
@@ -44,10 +45,9 @@ import json
 
 # ---------------------------------------------------------------------------
 # GENERATED FILE - do not edit.
-# Built by deploy/build_contract.py from:
-#   contracts/clause_core.py      deterministic rules (pure, chain-free)
-#   contracts/clause_prompts.py   the jury's question and how it is read
-#   contracts/contract_shell.py   storage, entrypoints, consensus block
+# Built by deploy/build_contract.py from contracts/clause_core.py (the rules)
+# and, for the escrow, contract_shell.py; for the jury, clause_prompts.py and
+# jury_shell.py.
 # ---------------------------------------------------------------------------
 ''' % RUNNER
 

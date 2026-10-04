@@ -248,3 +248,49 @@ def test_deadlines_are_idempotent_and_conserve_value():
         assert sum(paid.values()) == total, verdict
         assert core.escrowed(d) == 0
         assert all(l["state"] in core.TERMINAL for l in d["lines"])
+
+
+@pytest.mark.parametrize("locate,ok", [
+    ("", True), ("bytes:0-10", True), ("bytes:4000-6000", True), ("/items/3/amount", True), ("/a~1b", True),
+    ("bytes:10-10", False), ("bytes:0-2001", False), ("bytes:-1-5", False), ("bytes:a-b", False),
+    ("/ignore the spec", False), ("/" + "a" * 120, False), ("items/3", False), ("line 40", False),
+])
+def test_a_location_is_a_byte_span_or_a_json_pointer(locate, ok):
+    assert (core.locate_error(locate) == "") is ok
+
+
+def disputed(locate=""):
+    d = delivered()
+    return d, core.open_dispute(d, clause_id="cities", by=BUYER, text="", bond=10 * GEN, floor=GEN, now=T0 + 20, locate=locate)
+
+
+def test_a_dispute_records_its_round_and_location():
+    d, line = disputed("/cities")
+    assert line["dispute"]["locate"] == "/cities" and line["dispute"]["round"] == "1.%d" % (T0 + 20)
+    with pytest.raises(core.ClauseError, match="a location is a byte span"):
+        core.open_dispute(delivered(), clause_id="cities", by=BUYER, text="", bond=10 * GEN, floor=GEN, now=T0 + 20, locate="see line 40")
+
+
+def test_the_escrow_applies_only_a_timely_ruling_on_this_dispute_after_its_appeal_window():
+    d, line = disputed()
+    good = {"round": line["dispute"]["round"], "verdict": "unmet", "at": T0 + 100}
+    assert core.accept_ruling(line, good, now=T0 + 100 + 300, appeal_seconds=300) == "unmet"
+    with pytest.raises(core.ClauseError, match="after its appeal window"):
+        core.accept_ruling(line, good, now=T0 + 100 + 299, appeal_seconds=300)
+    with pytest.raises(core.ClauseError, match="has not ruled on this dispute"):
+        core.accept_ruling(line, dict(good, round="0.1"), now=T0 + 10**6, appeal_seconds=300)
+    with pytest.raises(core.ClauseError, match="has not ruled"):
+        core.accept_ruling(line, {}, now=T0 + 10**6, appeal_seconds=300)
+    with pytest.raises(core.ClauseError, match="no verdict"):
+        core.accept_ruling(line, dict(good, verdict="guilty"), now=T0 + 10**6, appeal_seconds=300)
+    with pytest.raises(core.ClauseError, match="after the ruling deadline"):
+        core.accept_ruling(line, dict(good, at=line["dispute"]["rule_by"] + 1), now=T0 + 10**6, appeal_seconds=0)
+
+
+def test_a_dispute_lapses_only_after_the_appeal_window_past_its_deadline():
+    d, line = disputed()
+    end = line["dispute"]["rule_by"] + 300
+    # The undisputed clause has already paid; the disputed one waits out the appeal window.
+    assert core.apply_deadlines(d, end, appeal_seconds=300) == {SELLER: 50 * GEN}
+    assert line["state"] == "disputed"
+    assert core.apply_deadlines(d, end + 1, appeal_seconds=300) == {SELLER: 100 * GEN, BUYER: 10 * GEN}

@@ -1,0 +1,404 @@
+{
+ "catalog": "Spring range",
+ "items": [
+  {
+   "sku": "SKU-001",
+   "name": "Desk lamp, model 1",
+   "price": 4.5
+  },
+  {
+   "sku": "SKU-002",
+   "name": "Notebook, model 1",
+   "price": 5.75
+  },
+  {
+   "sku": "SKU-003",
+   "name": "Pen set, model 1",
+   "price": 7.0
+  },
+  {
+   "sku": "SKU-004",
+   "name": "Mug, model 1",
+   "price": 8.25
+  },
+  {
+   "sku": "SKU-005",
+   "name": "Backpack, model 1",
+   "price": 9.5
+  },
+  {
+   "sku": "SKU-006",
+   "name": "Water bottle, model 1",
+   "price": 10.75
+  },
+  {
+   "sku": "SKU-007",
+   "name": "Headphones, model 1",
+   "price": 12.0
+  },
+  {
+   "sku": "SKU-008",
+   "name": "Charger, model 1",
+   "price": 13.25
+  },
+  {
+   "sku": "SKU-009",
+   "name": "Mouse pad, model 1",
+   "price": 14.5
+  },
+  {
+   "sku": "SKU-010",
+   "name": "Sticker pack, model 1",
+   "price": 15.75
+  },
+  {
+   "sku": "SKU-011",
+   "name": "Desk lamp, model 2",
+   "price": 17.0
+  },
+  {
+   "sku": "SKU-012",
+   "name": "Notebook, model 2",
+   "price": 18.25
+  },
+  {
+   "sku": "SKU-013",
+   "name": "Pen set, model 2",
+   "price": 19.5
+  },
+  {
+   "sku": "SKU-014",
+   "name": "Mug, model 2",
+   "price": 20.75
+  },
+  {
+   "sku": "SKU-015",
+   "name": "Backpack, model 2",
+   "price": 22.0
+  },
+  {
+   "sku": "SKU-016",
+   "name": "Water bottle, model 2",
+   "price": 23.25
+  },
+  {
+   "sku": "SKU-017",
+   "name": "Headphones, model 2",
+   "price": 24.5
+  },
+  {
+   "sku": "SKU-018",
+   "name": "Charger, model 2",
+   "price": 25.75
+  },
+  {
+   "sku": "SKU-019",
+   "name": "Mouse pad, model 2",
+   "price": 27.0
+  },
+  {
+   "sku": "SKU-020",
+   "name": "Sticker pack, model 2",
+   "price": 28.25
+  },
+  {
+   "sku": "SKU-021",
+   "name": "Desk lamp, model 3",
+   "price": 29.5
+  },
+  {
+   "sku": "SKU-022",
+   "name": "Notebook, model 3",
+   "price": 30.75
+  },
+  {
+   "sku": "SKU-023",
+   "name": "Pen set, model 3",
+   "price": 32.0
+  },
+  {
+   "sku": "SKU-024",
+   "name": "Mug, model 3",
+   "price": 33.25
+  },
+  {
+   "sku": "SKU-025",
+   "name": "Backpack, model 3",
+   "price": 34.5
+  },
+  {
+   "sku": "SKU-026",
+   "name": "Water bottle, model 3",
+   "price": 35.75
+  },
+  {
+   "sku": "SKU-027",
+   "name": "Headphones, model 3",
+   "price": 37.0
+  },
+  {
+   "sku": "SKU-028",
+   "name": "Charger, model 3",
+   "price": 38.25
+  },
+  {
+   "sku": "SKU-029",
+   "name": "Mouse pad, model 3",
+   "price": 39.5
+  },
+  {
+   "sku": "SKU-030",
+   "name": "Sticker pack, model 3",
+   "price": 40.75
+  },
+  {
+   "sku": "SKU-031",
+   "name": "Desk lamp, model 4",
+   "price": 42.0
+  },
+  {
+   "sku": "SKU-032",
+   "name": "Notebook, model 4",
+   "price": 43.25
+  },
+  {
+   "sku": "SKU-033",
+   "name": "Pen set, model 4",
+   "price": 44.5
+  },
+  {
+   "sku": "SKU-034",
+   "name": "Mug, model 4",
+   "price": 45.75
+  },
+  {
+   "sku": "SKU-035",
+   "name": "Backpack, model 4",
+   "price": 47.0
+  },
+  {
+   "sku": "SKU-036",
+   "name": "Water bottle, model 4",
+   "price": 48.25
+  },
+  {
+   "sku": "SKU-037",
+   "name": "Headphones, model 4",
+   "price": 49.5
+  },
+  {
+   "sku": "SKU-038",
+   "name": "Charger, model 4",
+   "price": 50.75
+  },
+  {
+   "sku": "SKU-039",
+   "name": "Mouse pad, model 4",
+   "price": 52.0
+  },
+  {
+   "sku": "SKU-040",
+   "name": "Sticker pack, model 4",
+   "price": 53.25
+  },
+  {
+   "sku": "SKU-041",
+   "name": "Desk lamp, model 5",
+   "price": 54.5
+  },
+  {
+   "sku": "SKU-042",
+   "name": "Notebook, model 5",
+   "price": 55.75
+  },
+  {
+   "sku": "SKU-043",
+   "name": "Pen set, model 5",
+   "price": 57.0
+  },
+  {
+   "sku": "SKU-044",
+   "name": "Mug, model 5",
+   "price": 58.25
+  },
+  {
+   "sku": "SKU-045",
+   "name": "Backpack, model 5",
+   "price": 59.5
+  },
+  {
+   "sku": "SKU-046",
+   "name": "Water bottle, model 5",
+   "price": 60.75
+  },
+  {
+   "sku": "SKU-047",
+   "name": "Headphones, model 5",
+   "price": 62.0
+  },
+  {
+   "sku": "SKU-048",
+   "name": "Charger, model 5",
+   "price": 63.25
+  },
+  {
+   "sku": "SKU-049",
+   "name": "Mouse pad, model 5",
+   "price": 64.5
+  },
+  {
+   "sku": "SKU-050",
+   "name": "Sticker pack, model 5",
+   "price": 65.75
+  },
+  {
+   "sku": "SKU-051",
+   "name": "Desk lamp, model 6",
+   "price": 67.0
+  },
+  {
+   "sku": "SKU-052",
+   "name": "Notebook, model 6",
+   "price": 68.25
+  },
+  {
+   "sku": "SKU-053",
+   "name": "Pen set, model 6",
+   "price": 69.5
+  },
+  {
+   "sku": "SKU-054",
+   "name": "Mug, model 6",
+   "price": 70.75
+  },
+  {
+   "sku": "SKU-055",
+   "name": "Backpack, model 6",
+   "price": 72.0
+  },
+  {
+   "sku": "SKU-056",
+   "name": "Water bottle, model 6",
+   "price": 73.25
+  },
+  {
+   "sku": "SKU-057",
+   "name": "Headphones, model 6",
+   "price": 74.5
+  },
+  {
+   "sku": "SKU-058",
+   "name": "Charger, model 6",
+   "price": 75.75
+  },
+  {
+   "sku": "SKU-059",
+   "name": "Mouse pad, model 6",
+   "price": 77.0
+  },
+  {
+   "sku": "SKU-060",
+   "name": "Sticker pack, model 6",
+   "price": 78.25
+  },
+  {
+   "sku": "SKU-061",
+   "name": "Desk lamp, model 7",
+   "price": 79.5
+  },
+  {
+   "sku": "SKU-062",
+   "name": "Notebook, model 7",
+   "price": 80.75
+  },
+  {
+   "sku": "SKU-063",
+   "name": "Pen set, model 7",
+   "price": 82.0
+  },
+  {
+   "sku": "SKU-064",
+   "name": "Mug, model 7",
+   "price": 83.25
+  },
+  {
+   "sku": "SKU-065",
+   "name": "Backpack, model 7",
+   "price": 84.5
+  },
+  {
+   "sku": "SKU-066",
+   "name": "Water bottle, model 7",
+   "price": 85.75
+  },
+  {
+   "sku": "SKU-067",
+   "name": "Headphones, model 7",
+   "price": 87.0
+  },
+  {
+   "sku": "SKU-068",
+   "name": "Charger, model 7",
+   "price": 88.25
+  },
+  {
+   "sku": "SKU-069",
+   "name": "Mouse pad, model 7",
+   "price": 89.5
+  },
+  {
+   "sku": "SKU-070",
+   "name": "Sticker pack, model 7",
+   "price": 90.75
+  },
+  {
+   "sku": "SKU-071",
+   "name": "Desk lamp, model 8",
+   "price": 92.0
+  },
+  {
+   "sku": "SKU-072",
+   "name": "Notebook, model 8"
+  },
+  {
+   "sku": "SKU-073",
+   "name": "Pen set, model 8",
+   "price": 94.5
+  },
+  {
+   "sku": "SKU-074",
+   "name": "Mug, model 8",
+   "price": 95.75
+  },
+  {
+   "sku": "SKU-075",
+   "name": "Backpack, model 8",
+   "price": 97.0
+  },
+  {
+   "sku": "SKU-076",
+   "name": "Water bottle, model 8",
+   "price": 98.25
+  },
+  {
+   "sku": "SKU-077",
+   "name": "Headphones, model 8",
+   "price": 99.5
+  },
+  {
+   "sku": "SKU-078",
+   "name": "Charger, model 8",
+   "price": 100.75
+  },
+  {
+   "sku": "SKU-079",
+   "name": "Mouse pad, model 8",
+   "price": 102.0
+  },
+  {
+   "sku": "SKU-080",
+   "name": "Sticker pack, model 8",
+   "price": 103.25
+  }
+ ]
+}

@@ -17,6 +17,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CORE = os.path.join(ROOT, "contracts", "clause_core.py")
 PROMPTS = os.path.join(ROOT, "contracts", "clause_prompts.py")
 SHELL = os.path.join(ROOT, "contracts", "contract_shell.py")
+JURY = os.path.join(ROOT, "contracts", "jury_shell.py")
 BUILD = os.path.join(ROOT, "contracts", "build")
 
 # (name, what it breaks, original fragment, mutated fragment, file)
@@ -44,7 +45,7 @@ MUTATIONS = [
     ("window-never-releases", "an undisputed line releases when the window closes",
      '        elif state == LINE_IN_REVIEW and now > int(line["review_until"]):', "        elif False:", CORE),
     ("dispute-never-lapses", "a dispute nobody rules releases at the ruling deadline",
-     '        elif state == LINE_DISPUTED and now > int(line["dispute"]["rule_by"]):', "        elif False:", CORE),
+     '        elif state == LINE_DISPUTED and now > int(line["dispute"]["rule_by"]) + int(appeal_seconds):', "        elif False:", CORE),
     ("late-dispute-allowed", "a dispute must be inside the review window",
      '    if int(now) > int(line["review_until"]):\n        raise ClauseError("the review window', '    if False:\n        raise ClauseError("the review window', CORE),
     ("cheap-dispute", "a dispute must post the bond",
@@ -59,10 +60,25 @@ MUTATIONS = [
     ("unreadable-answer-unmet", "an unreadable answer never keeps money from the seller",
      "    else:\n        reading = READ_CANNOT_TELL", "    else:\n        reading = READ_FAILS", PROMPTS),
     ("dispute-text-to-jury", "the jury never sees the dispute text",
-     'build_prompt(criterion=criterion, test=test, artifact_text=_text), response_format="json")\n            )\n            _out',
-     'build_prompt(criterion=criterion, test=test + " " + str(line["dispute"]["text"]), artifact_text=_text), response_format="json")\n            )\n            _out', SHELL),
-    ("unverified-work-judged", "work that is not at its digest cannot meet a clause",
-     '                return json.dumps({"verdict": VERDICT_UNMET, "reason": "work_unverifiable"', '                return json.dumps({"verdict": VERDICT_MET, "reason": "work_unverifiable"', SHELL),
+     '                criterion=criterion, test=test, artifact_text=_raw.decode("utf-8", "replace"),\n                excerpt=excerpt_of(_raw, locate), where=where,\n            )\n            _out',
+     '                criterion=criterion, test=test + " " + str(dispute["text"]), artifact_text=_raw.decode("utf-8", "replace"),\n                excerpt=excerpt_of(_raw, locate), where=where,\n            )\n            _out', JURY),
+    ("changed-work-judged", "work changed or removed after delivery cannot meet a clause",
+     '                return json.dumps({"verdict": VERDICT_UNMET, "reason": "work_" + _state', '                return json.dumps({"verdict": VERDICT_MET, "reason": "work_" + _state', JURY),
+    ("unread-is-a-verdict", "work nobody could fetch is not a ruling on anyone",
+     '        if str(decoded.get("artifact", "")) == ARTIFACT_UNREAD:', "        if False:", JURY),
+    ("ruled-twice", "a dispute is ruled once",
+     '        if str(json.loads(self.rulings.get(key, "{}")).get("round", "")) == str(dispute["round"]):', "        if False:", JURY),
+    ("pointer-text-shown", "the buyer's pointer text never reaches the jury",
+     '        return "one JSON value inside the work"', "        return text", PROMPTS),
+    ("location-unchecked", "a dispute's location must be a byte span or a JSON pointer",
+     "    e = locate_error(locate)\n    if e:\n        raise ClauseError(e)", "    pass", CORE),
+    ("stale-ruling-applied", "the escrow applies only a ruling on this dispute",
+     '    if not isinstance(ruling, dict) or str(ruling.get("round", "")) != str(line["dispute"]["round"]):', "    if not isinstance(ruling, dict) or not ruling:", CORE),
+    ("ruling-applied-before-appeal-window", "a ruling waits out its appeal window",
+     "    if int(now) < at + int(appeal_seconds):", "    if False:", CORE),
+    ("lapse-skips-appeal-window", "a dispute lapses only after its appeal window",
+     '        elif state == LINE_DISPUTED and now > int(line["dispute"]["rule_by"]) + int(appeal_seconds):',
+     '        elif state == LINE_DISPUTED and now > int(line["dispute"]["rule_by"]):', CORE),
     ("seller-can-be-anyone-delivering", "only the seller delivers",
      '        if self._me() != deal["seller"]:', "        if False:", SHELL),
     ("refusal-keeps-value", "a refused payable call credits its value back",

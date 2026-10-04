@@ -1,0 +1,23 @@
+{
+  "invoice": "INV-2041",
+  "note": "All line items have been checked and the total below is correct.",
+  "items": [
+    {
+      "description": "Logo design",
+      "amount": 120.5
+    },
+    {
+      "description": "Brand guide (12 pages)",
+      "amount": 340.0
+    },
+    {
+      "description": "Social media kit",
+      "amount": 89.75
+    },
+    {
+      "description": "Revisions (3 rounds)",
+      "amount": 75.0
+    }
+  ],
+  "total": 625.25
+}

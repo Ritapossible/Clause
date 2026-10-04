@@ -11,10 +11,12 @@ its sha256). For each clause the buyer may open a dispute inside the review
 window, but only by citing a clause id from the pinned spec - a complaint
 about a requirement that is not in the spec has nowhere to go. The jury then
 answers one question about that clause and that artifact: does the artifact
-fail this clause as written? It never sees the buyer's dispute text. Unmet
-keeps the line for the buyer (the seller may redeliver once); met or
-undetermined releases it to the seller. Every deadline resolves by arithmetic,
-so the escrow pays or refunds on its own clock whatever happens to a ruling.
+fail this clause as written? It never sees the buyer's dispute text; the
+buyer may only point at a location in the work. Unmet keeps the line for the
+buyer (the seller may redeliver once); met or undetermined releases it to the
+seller. The jury is a separate contract: the escrow only reads its ruling, and
+every deadline resolves by arithmetic, so the escrow pays or refunds on its
+own clock whatever happens to the jury.
 """
 
 import hashlib
@@ -43,9 +45,14 @@ VERDICT_MET = "met"
 VERDICT_UNDETERMINED = "undetermined"
 VERDICTS = (VERDICT_UNMET, VERDICT_MET, VERDICT_UNDETERMINED)
 
-ARTIFACT_VERIFIED = "verified"
-ARTIFACT_UNVERIFIED = "unverified"
-ARTIFACT_STATES = (ARTIFACT_VERIFIED, ARTIFACT_UNVERIFIED)
+# What fetching the delivery found. Only a definite answer from the server is
+# held against the seller; no answer at all is not a verdict on anyone.
+ARTIFACT_VERIFIED = "verified"  # read, and the bytes match the pinned digest
+ARTIFACT_CHANGED = "changed"  # read, and the bytes differ: the seller changed the work
+ARTIFACT_MISSING = "missing"  # the server said 404/410: the seller removed the work
+ARTIFACT_UNREAD = "unread"  # no answer (network error, 5xx, 429): no ruling at all
+ARTIFACT_STATES = (ARTIFACT_VERIFIED, ARTIFACT_CHANGED, ARTIFACT_MISSING, ARTIFACT_UNREAD)
+MISSING_STATUS = (404, 410)
 
 # A hesitant "fails" is not a failure: the seller is paid unless the clause
 # demonstrably failed. Applied to the leader and every validator alike.
@@ -58,6 +65,8 @@ MIN_TEST = 12
 MAX_TEXT = 400
 MIN_WINDOW = 60
 MAX_WINDOW = 90 * 86400
+MAX_EXCERPT = 2000  # bytes a dispute's location may span
+MAX_POINTER = 120
 BOND_BPS = 1000  # a dispute bond is 10% of the clause's amount, never below the floor
 BPS = 10000
 
@@ -165,6 +174,35 @@ def _clause_id_error(cid):
         if ch not in "abcdefghijklmnopqrstuvwxyz0123456789-_":
             return "a clause id is lowercase letters, digits, - and _: %r" % text
     return ""
+
+
+def _digits(text):
+    return text != "" and all(ch in "0123456789" for ch in text)
+
+
+def locate_error(locate):
+    """Why a dispute's location cannot be used, or "". A location tells the
+    jury where in the work to look - a byte span ``bytes:START-END`` or a JSON
+    pointer such as ``/items/3`` - and never what to conclude. Pointer text is
+    never shown to the jury; only the bytes it selects are."""
+    text = str(locate)
+    if text == "":
+        return ""
+    if text.startswith("bytes:"):
+        parts = text[6:].split("-")
+        if len(parts) != 2 or not _digits(parts[0]) or not _digits(parts[1]):
+            return "a byte span is bytes:START-END"
+        if int(parts[1]) <= int(parts[0]) or int(parts[1]) - int(parts[0]) > MAX_EXCERPT:
+            return "a byte span covers 1-%d bytes" % MAX_EXCERPT
+        return ""
+    if text.startswith("/"):
+        if len(text) > MAX_POINTER:
+            return "a JSON pointer is at most %d characters" % MAX_POINTER
+        for ch in text:
+            if ch not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/_-~.":
+                return "a JSON pointer uses letters, digits and / _ - ~ ."
+        return ""
+    return "a location is a byte span (bytes:START-END) or a JSON pointer (/key/0)"
 
 
 def spec_errors(clauses, *, value, timing, buyer, seller):
@@ -283,6 +321,26 @@ def _credit(credits, who, amount):
         credits[who] = credits.get(who, 0) + amount
 
 
+def accept_ruling(line, ruling, *, now, appeal_seconds):
+    """The verdict the escrow may apply from a ruling the jury contract
+    recorded. It must be about this dispute (its round), carry a known
+    verdict, have been made by the ruling deadline, and be ``appeal_seconds``
+    old, so an appeal of the jury's transaction has its window before any GEN
+    is credited."""
+    if line["state"] != LINE_DISPUTED:
+        raise ClauseError("clause %r is not disputed" % line["id"])
+    if not isinstance(ruling, dict) or str(ruling.get("round", "")) != str(line["dispute"]["round"]):
+        raise ClauseError("the jury has not ruled on this dispute")
+    if ruling.get("verdict") not in VERDICTS:
+        raise ClauseError("the ruling has no verdict")
+    at = _int(ruling.get("at"), "ruled at")
+    if at > int(line["dispute"]["rule_by"]):
+        raise ClauseError("the ruling came after the ruling deadline")
+    if int(now) < at + int(appeal_seconds):
+        raise ClauseError("the ruling can be applied from %d, after its appeal window" % (at + int(appeal_seconds)))
+    return ruling["verdict"]
+
+
 def apply_ruling(line, *, verdict, buyer, seller, now, redelivery_seconds):
     """A ruling on a disputed line. Returns the credits it makes.
 
@@ -314,9 +372,11 @@ def apply_ruling(line, *, verdict, buyer, seller, now, redelivery_seconds):
     return credits
 
 
-def apply_deadlines(deal, now):
+def apply_deadlines(deal, now, appeal_seconds=0):
     """Resolve every line whose clock has run out. Pure arithmetic: no jury,
-    no other contract. Returns the credits made.
+    no other contract. Returns the credits made. A dispute lapses
+    ``appeal_seconds`` after its ruling deadline, so a ruling made in time can
+    always be applied first.
 
     - funded, and the delivery deadline passed with nothing delivered: refund.
     - in review, and the review window closed without a dispute: release.
@@ -335,7 +395,7 @@ def apply_deadlines(deal, now):
         elif state == LINE_IN_REVIEW and now > int(line["review_until"]):
             line["state"] = LINE_RELEASED
             _credit(credits, seller, int(line["amount"]))
-        elif state == LINE_DISPUTED and now > int(line["dispute"]["rule_by"]):
+        elif state == LINE_DISPUTED and now > int(line["dispute"]["rule_by"]) + int(appeal_seconds):
             line["state"] = LINE_RELEASED
             line["lapsed"] = True
             _credit(credits, seller, int(line["amount"]))
@@ -417,9 +477,10 @@ def find_line(deal, clause_id):
     )
 
 
-def open_dispute(deal, *, clause_id, by, text, bond, floor, now):
+def open_dispute(deal, *, clause_id, by, text, bond, floor, now, locate=""):
     """The buyer disputes one clause, inside its review window, with a bond.
-    ``text`` is kept for people; it is never shown to the jury."""
+    ``text`` is kept for people; it is never shown to the jury. ``locate`` may
+    point the jury at a part of the work (``locate_error``)."""
     if normalize_address(by) != deal["buyer"]:
         raise ClauseError("only the buyer may dispute")
     line = find_line(deal, clause_id)
@@ -430,12 +491,17 @@ def open_dispute(deal, *, clause_id, by, text, bond, floor, now):
     required = dispute_bond(int(line["amount"]), int(floor))
     if int(bond) < required:
         raise ClauseError("the dispute bond for clause %r is %d" % (line["id"], required))
+    e = locate_error(locate)
+    if e:
+        raise ClauseError(e)
     line["state"] = LINE_DISPUTED
     line["dispute"] = {
         "bond": int(bond),
         "text": str(text)[:1000],
         "opened_at": int(now),
         "rule_by": int(now) + int(deal["timing"]["ruling_seconds"]),
+        "locate": str(locate),
+        "round": "%d.%d" % (int(deal.get("deliveries", 0)), int(now)),
     }
     return line
 

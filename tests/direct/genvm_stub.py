@@ -73,8 +73,9 @@ class _Evm:
 
 
 class _Response:
-    def __init__(self, body):
+    def __init__(self, body, status=200):
         self.body = body
+        self.status = status
 
 
 class Runtime:
@@ -138,6 +139,10 @@ class Runtime:
             def balance(self):
                 return rt.balances.get(self.__dict__.get("_stub_address"), 0)
 
+            @property
+            def address(self):
+                return self.__dict__.get("_stub_address")
+
             def __getattr__(self, name):
                 # Storage fields are annotated on the class and start empty.
                 ann = {}
@@ -169,7 +174,15 @@ class Runtime:
         class _Web:
             @staticmethod
             def get(uri):
-                return _Response(rt.web[uri])
+                # Measured on Studio: a 404 is a response with its status; an
+                # unreachable host raises. rt.web maps a URI to bytes (200), to
+                # an int status, or is missing (unreachable).
+                if uri not in rt.web:
+                    raise Exception("NondetException: unreachable %s" % uri)
+                found = rt.web[uri]
+                if isinstance(found, int):
+                    return _Response(b"Not Found", found)
+                return _Response(found)
 
         class _Nondet:
             web = _Web
