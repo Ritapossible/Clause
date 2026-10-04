@@ -328,6 +328,11 @@ The roadmap is the last page of the docs. It covers:
 The first item on it is the one this README admits is missing: jury cases
 with two honest readings, run repeatedly, with every verdict published.
 
+## Author
+
+Rita Egwuatu ([@Ritapossible](https://github.com/Ritapossible)), built with
+Claude Code on [GenLayer](https://genlayer.com).
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
