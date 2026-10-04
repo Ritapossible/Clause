@@ -49,9 +49,10 @@ export function App() {
             <div>
               <h4>Docs</h4>
               <ul>
-                <li><a href={`${REPO}#readme`} target="_blank" rel="noreferrer">README ↗</a></li>
+                <li><a href={`${REPO}/blob/main/docs/USER-GUIDE.md`} target="_blank" rel="noreferrer">User guide ↗</a></li>
+                <li><a href={`${REPO}/blob/main/docs/INTEGRATION.md`} target="_blank" rel="noreferrer">Integration ↗</a></li>
+                <li><a href={`${REPO}/blob/main/docs/ROADMAP.md`} target="_blank" rel="noreferrer">Roadmap ↗</a></li>
                 <li><a href={`${REPO}/blob/main/docs/ARCHITECTURE.md`} target="_blank" rel="noreferrer">Architecture ↗</a></li>
-                <li><a href={`${REPO}/blob/main/docs/THREAT-MODEL.md`} target="_blank" rel="noreferrer">Threat model ↗</a></li>
               </ul>
             </div>
             <div>

@@ -36,6 +36,9 @@ export function SiteHeader() {
               {l.label}
             </a>
           ))}
+          <a href="https://github.com/Ritapossible/Clause/blob/main/docs/README.md" target="_blank" rel="noreferrer">
+            Docs
+          </a>
           <a href="https://github.com/Ritapossible/Clause" target="_blank" rel="noreferrer">
             GitHub
           </a>
@@ -56,6 +59,9 @@ export function SiteHeader() {
               {l.label}
             </a>
           ))}
+          <a href="https://github.com/Ritapossible/Clause/blob/main/docs/README.md" target="_blank" rel="noreferrer">
+            Docs
+          </a>
           <a href="https://github.com/Ritapossible/Clause" target="_blank" rel="noreferrer">
             GitHub
           </a>

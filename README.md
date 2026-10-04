@@ -13,7 +13,8 @@ The jury never sees the buyer's complaint. If the complaint is about something
 the spec never asked for, it has no clause to cite, so it goes nowhere.
 
 **Live on GenLayer Studio and the Bradbury testnet** ·
-[Architecture](docs/ARCHITECTURE.md) · [Threat model](docs/THREAT-MODEL.md) ·
+[Documentation](docs/README.md) · [User guide](docs/USER-GUIDE.md) ·
+[Integration](docs/INTEGRATION.md) · [Roadmap](docs/ROADMAP.md) ·
 built following [skills.genlayer.com](https://skills.genlayer.com)
 
 ---
@@ -27,6 +28,8 @@ built following [skills.genlayer.com](https://skills.genlayer.com)
 - [On-chain results](#on-chain-results)
 - [Contract reference](#contract-reference)
 - [Security and limits](#security-and-limits)
+- [Roadmap](#roadmap)
+- [Documentation](#documentation)
 - [Development](#development)
 - [Project layout](#project-layout)
 - [License](#license)
@@ -181,7 +184,7 @@ A spec is a JSON list of 1 to 8 clauses, with each amount in wei:
     "id": "cities",
     "criterion": "A list of African cities for the travel page",
     "test": "The response contains exactly 3 city names",
-    "amount": "50000000000000000"
+    "amount": 50000000000000000
   }
 ]
 ```
@@ -213,6 +216,33 @@ These limits are known and not solved:
   it should, but that is a small sample.
 - **Appeals are not part of the demo.** On Studio, an appeal has been measured
   to leave the appealed contract unreadable.
+
+## Roadmap
+
+Clause is a working demo on testnets. [docs/ROADMAP.md](docs/ROADMAP.md) sets
+out the path to a product, in four phases, each with acceptance criteria:
+
+| Phase | Goal | Highlights |
+| --- | --- | --- |
+| 1. Usable on testnet (0-3 months) | Real users and agents complete paid work without help | Early acceptance and cancel; a keeper and notifications; an indexer; a delivery helper with pinning; multi-file work and a higher text limit; a spec assistant; a published jury accuracy report; SDKs and an MCP server |
+| 2. Trust and economics (3-6 months) | Safe between strangers, and self-funding | Appeals; private delivery; a protocol fee and caller rewards; seller reputation and stake; change orders; milestones; stable-value escrow |
+| 3. Production readiness (6-12 months) | Real value on GenLayer mainnet | Audit and bug bounty; a release registry; caps and a staged rollout; monitoring; legal; mainnet |
+| 4. Ecosystem (12 months +) | The default way to pay for checkable work | Embeddable checkout; platform integrations; an open spec standard; multi-party deals; attested evidence |
+
+The design rules that never change are listed at the top of the roadmap: a
+dispute cites a clause, the jury never sees the complaint, every clock is in
+the escrow, and no admin can move a deal's money.
+
+## Documentation
+
+| Document | For |
+| --- | --- |
+| [User guide](docs/USER-GUIDE.md) | Buyers and sellers: funding, writing acceptance tests, delivering, disputing, deadlines, refusals, FAQ |
+| [Integration guide](docs/INTEGRATION.md) | Developers and agents: genlayer-js calls, outcomes, method reference, deal record, spec format |
+| [Architecture](docs/ARCHITECTURE.md) | How the contract works inside |
+| [Threat model](docs/THREAT-MODEL.md) | Attacks, defences, tests, and what is left |
+| [Build, deploy and release](docs/DEPLOYMENT.md) | Maintainers |
+| [Roadmap](docs/ROADMAP.md) | The path from demo to product |
 
 ## Development
 

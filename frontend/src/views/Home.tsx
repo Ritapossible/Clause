@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { href, useApp } from "../state";
-import { NETWORKS } from "../chain/networks";
 import { readStatus } from "../chain/clause";
 
 const CASES: [string, string, string, string][] = [
@@ -40,7 +39,6 @@ function useDealCount() {
 }
 
 export function Home() {
-  const { network } = useApp();
   const deals = useDealCount();
   return (
     <>
@@ -49,7 +47,7 @@ export function Home() {
           <div>
             <span className="kicker live">
               <span>
-                Deals on {NETWORKS[network].short} <b>{deals === null ? "…" : deals.toLocaleString()}</b>
+                Deals on GenLayer <b>{deals === null ? "…" : deals.toLocaleString()}</b>
               </span>
             </span>
             <h1 className="display">

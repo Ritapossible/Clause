@@ -41,7 +41,7 @@ export async function retry(label, fn, tries = 4) {
   throw last;
 }
 
-// Remit binds on acceptance, not finality, so that is what the scripts wait for.
+// Clause binds on acceptance, not finality, so that is what the scripts wait for.
 export const WAIT = "ACCEPTED";
 
 /**
