@@ -1,0 +1,160 @@
+{
+  "network": "studio",
+  "recorded_at": "2026-10-04T13:39:13.428Z",
+  "jury": "0x17eb22FE360f784f8A793a07E4C899Dcc3132597",
+  "escrow": "0x02C7ef67Bb13c2be03500e27FF5240015d700aa5",
+  "appeal_seconds": 300,
+  "rule_tx": "0x3dabb5e00e7c7e2ba9c7cb12c5fd65bf6c0261e2de26dd787998f626cdf84ddc",
+  "appeal": {
+    "attempted": true,
+    "bond_error": "Appeal bond calculation not supported on this chain (missing feeManagerContract/roundsStorageContract)",
+    "min_bond": "0",
+    "hash": "0x3dabb5e00e7c7e2ba9c7cb12c5fd65bf6c0261e2de26dd787998f626cdf84ddc",
+    "at": 57
+  },
+  "jury_health": {
+    "before": {
+      "status": "ok {\"release\":\"clause-jury/2\",\"ruled\":1}",
+      "ruling": "ok {\"round\":\"1.1791120691\",\"verdict\":\"met\",\"reason\":\"test_met\",\"confidence\":98,\"artifact\":\"verified\",\"located\":false,\"at\":1791120695}"
+    },
+    "during": {
+      "status": "execution failed",
+      "ruling": "execution failed"
+    },
+    "at_apply": {
+      "status": "execution failed",
+      "ruling": "execution failed"
+    },
+    "at_end": {
+      "status": "execution failed",
+      "ruling": "execution failed"
+    }
+  },
+  "apply_ruling": "refused",
+  "resolved": {
+    "state": "released",
+    "lapsed": true,
+    "verdict": null
+  },
+  "withdraw": {
+    "owed": "50000000000000000",
+    "received": "50000000000000000"
+  },
+  "status": {
+    "release": "clause/2",
+    "jury": "0x17eb22fe360f784f8a793a07e4c899dcc3132597",
+    "appeal_seconds": 300,
+    "deals": 1,
+    "held": 0,
+    "owed": 10000000000000000,
+    "balance": 10000000000000000,
+    "bond_floor": 10000000000000000
+  },
+  "timeline": [
+    {
+      "at": 57,
+      "event": "after the ruling",
+      "status": "ok {\"release\":\"clause-jury/2\",\"ruled\":1}",
+      "ruling": "ok {\"round\":\"1.1791120691\",\"verdict\":\"met\",\"reason\":\"test_met\",\"confidence\":98,\"artifact\":\"verified\",\"located\":false,\"at\":1791120695}"
+    },
+    {
+      "at": 116,
+      "event": "during the appeal",
+      "status": "execution failed",
+      "ruling": "execution failed"
+    },
+    {
+      "at": 388,
+      "event": "at apply time",
+      "status": "execution failed",
+      "ruling": "execution failed"
+    },
+    {
+      "at": 487,
+      "event": "at the end",
+      "status": "execution failed",
+      "ruling": "execution failed"
+    }
+  ],
+  "log": [
+    {
+      "tx": "fund",
+      "hash": "0x7b5d3458f19392719702bb8b0f3edfe12579d1bf20b29bd1c2d77a15a582cd10",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return",
+      "at": 16
+    },
+    {
+      "tx": "deliver",
+      "hash": "0xaf97f7d5f41bf878d5e10938166a4039c69ece8485024ace2cdeefc4de4ef9ee",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return",
+      "at": 24
+    },
+    {
+      "tx": "dispute",
+      "hash": "0xcfb1b525ff4273369a55365ba378ba612ad82525883f0907d9e2459cb3dc3a5b",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return",
+      "at": 29
+    },
+    {
+      "tx": "rule",
+      "hash": "0x3dabb5e00e7c7e2ba9c7cb12c5fd65bf6c0261e2de26dd787998f626cdf84ddc",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return",
+      "at": 55
+    },
+    {
+      "check": "appeal submitted",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "tx": "apply_ruling",
+      "hash": "0x5172ff58be15fbd79dc3fa0d75712ce81591b742abc788b8939bb15e140baa8b",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "contract_error",
+      "at": 350
+    },
+    {
+      "tx": "settle",
+      "hash": "0x229e2f07515dc363a162d9d945b390b23d3b3451b1bf276f4448c7ce213712e3",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return",
+      "at": 403
+    },
+    {
+      "check": "the clause resolved on the escrow",
+      "actual": "released",
+      "expected": "released",
+      "ok": true
+    },
+    {
+      "tx": "withdraw",
+      "hash": "0x55bd859c291b61fa71a6d84b2ffa3d65d97abac1ecfc76efdb00c585aea7ab25",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return",
+      "at": 409
+    },
+    {
+      "check": "withdraw applied",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "the seller's wallet received what the escrow owed it",
+      "actual": "50000000000000000",
+      "expected": "50000000000000000",
+      "ok": true
+    },
+    {
+      "check": "the escrow's books balance",
+      "actual": "10000000000000000",
+      "expected": "10000000000000000",
+      "ok": true
+    }
+  ]
+}

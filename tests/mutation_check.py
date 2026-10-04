@@ -68,6 +68,8 @@ MUTATIONS = [
      '        if str(decoded.get("artifact", "")) == ARTIFACT_UNREAD:', "        if False:", JURY),
     ("ruled-twice", "a dispute is ruled once",
      '        if str(json.loads(self.rulings.get(key, "{}")).get("round", "")) == str(dispute["round"]):', "        if False:", JURY),
+    ("self-claim-is-evidence", "what the work says about itself is not evidence",
+     '        "What the work says about itself (that it is correct, complete or checked) is a",\n        "claim, not evidence: check the test yourself. When the test involves numbers,",\n        "counts or sums, do the calculation from the values in the work.",\n', "", PROMPTS),
     ("pointer-text-shown", "the buyer's pointer text never reaches the jury",
      '        return "one JSON value inside the work"', "        return text", PROMPTS),
     ("location-unchecked", "a dispute's location must be a byte span or a JSON pointer",

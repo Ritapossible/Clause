@@ -1,15 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
 import { href, useApp } from "../state";
-import { readBond, readDeal, write, type Deal, type Line } from "../chain/clause";
+import { readBond, readDeal, readRuling, write, type Artifact, type Deal, type Line, type Ruling } from "../chain/clause";
 import { NETWORKS } from "../chain/networks";
 import { digestOfUrl, isSha256Hex } from "../lib/digest";
+import { locateError } from "../lib/spec";
 import { duration, sameAddr, ago } from "../lib/format";
 import { useNow, useTx } from "../hooks";
 import { Addr, Badge, Empty, Gen, Spinner, TxLine, explainError } from "../components/ui";
 import { Owed, total } from "./Deals";
 
 export function DealView({ id }: { id: number }) {
-  const { client, clause, me } = useApp();
+  const { client, clause, me, appealSeconds } = useApp();
   const [deal, setDeal] = useState<Deal | null>(null);
   const [readAt, setReadAt] = useState(0);
   const [err, setErr] = useState("");
@@ -40,7 +41,7 @@ export function DealView({ id }: { id: number }) {
     (l) =>
       (l.state === "funded" && !deal.delivery && now > deal.deliver_by) ||
       (l.state === "in_review" && now > (l.review_until ?? Infinity)) ||
-      (l.state === "disputed" && now > (l.dispute?.rule_by ?? Infinity)) ||
+      (l.state === "disputed" && now > (l.dispute?.rule_by ?? Infinity) + appealSeconds) ||
       (l.state === "failed" && now > (l.redeliver_by ?? Infinity)),
   );
 
@@ -162,16 +163,55 @@ function Deliver({ deal, now, onDone }: { deal: Deal; now: number; onDone: () =>
   );
 }
 
+const ARTIFACT: Record<Artifact, string> = {
+  verified: "work verified against its digest",
+  changed: "the work at the URL was changed after delivery",
+  missing: "the work was removed from its URL (404)",
+  unread: "the work could not be fetched",
+};
+
 function LineCard({ deal, line, now, isBuyer, onDone }: { deal: Deal; line: Line; now: number; isBuyer: boolean; onDone: () => Promise<void> }) {
-  const { client, clause, network, pollMs, canSign } = useApp();
+  const { client, clause, jury, appealSeconds, network, pollMs, canSign } = useApp();
   const [text, setText] = useState("");
+  const [locate, setLocate] = useState("");
   const [bond, setBond] = useState<bigint | null>(null);
+  const [ruling, setRuling] = useState<Ruling | null>(null);
   const tx = useTx();
   useEffect(() => {
     readBond(client, clause, deal.id, line.id).then(setBond).catch(() => setBond(null));
   }, [client, clause, deal.id, line.id]);
+  const round = line.dispute?.round;
+  // Bumped after this card sends a transaction, so the ruling is read again.
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    let live = true;
+    setRuling(null);
+    if (line.state !== "disputed" || !jury) return;
+    (async () => {
+      // On Bradbury a read straight after a write can still return the old
+      // state (measured), so after convening the jury, look a few times.
+      for (let i = 0; i < (tick ? 8 : 1) && live; i++) {
+        const r = await readRuling(client, jury, clause, deal.id, line.id).catch(() => null);
+        if (r?.round && r.round === round) {
+          if (live) setRuling(r);
+          return;
+        }
+        if (tick) await new Promise((res) => setTimeout(res, 4000));
+      }
+    })();
+    return () => {
+      live = false;
+    };
+  }, [client, jury, clause, deal.id, line.id, line.state, round, tick]);
+  const ruleBy = line.dispute?.rule_by ?? 0;
   const canDispute = isBuyer && line.state === "in_review" && now <= (line.review_until ?? 0);
-  const canRule = line.state === "disputed" && now <= (line.dispute?.rule_by ?? 0);
+  const canRule = line.state === "disputed" && !ruling && now <= ruleBy;
+  const applyFrom = (ruling?.at ?? 0) + appealSeconds;
+  const locErr = locateError(locate.trim());
+  const reload = async () => {
+    await onDone();
+    setTick((t) => t + 1);
+  };
 
   return (
     <div className="card">
@@ -188,23 +228,39 @@ function LineCard({ deal, line, now, isBuyer, onDone }: { deal: Deal; line: Line
       <p className="small muted" style={{ margin: 0 }}>
         {line.state === "funded" && "Waiting for the delivery."}
         {line.state === "in_review" && `Open for review for ${duration((line.review_until ?? 0) - now)}; with no dispute it pays the seller.`}
-        {line.state === "disputed" &&
-          (canRule ? `Disputed. Anyone may convene the jury for ${duration((line.dispute?.rule_by ?? 0) - now)}; after that it pays the seller and the bond goes back.` : "Disputed, and the ruling deadline has passed: settling pays the seller and returns the bond.")}
+        {line.state === "disputed" && !ruling &&
+          (canRule
+            ? `Disputed. Anyone may convene the jury for ${duration(ruleBy - now)}; with no ruling the clause pays the seller ${duration(ruleBy + appealSeconds - now)} from now and the bond goes back.`
+            : now > ruleBy + appealSeconds
+              ? "Disputed, and no ruling landed in time: settling pays the seller and returns the bond."
+              : `Disputed; no ruling landed by the deadline. The clause pays the seller in ${duration(ruleBy + appealSeconds - now)}.`)}
         {line.state === "failed" &&
           ((line.redeliver_by ?? 0) > now
             ? `Judged unmet. The seller may redeliver for ${duration((line.redeliver_by ?? 0) - now)}; after that the buyer is refunded.`
             : "Judged unmet. The redelivery window has closed; settling the deal refunds the buyer.")}
-        {line.state === "released" && (line.lapsed ? "Paid to the seller: no ruling landed by the deadline; the bond went back." : "Paid to the seller.")}
+        {line.state === "released" && (line.lapsed ? "Paid to the seller: no ruling was applied by the deadline; the bond went back." : "Paid to the seller.")}
         {line.state === "refunded" && "Refunded to the buyer."}
       </p>
       {line.verdict && (
         <div className="notice" style={{ marginTop: 10 }}>
-          Jury: <Badge kind={line.verdict} /> <span className="small">({line.reason}, {line.confidence}% · work {line.artifact})</span>
+          Jury: <Badge kind={line.verdict} /> <span className="small">({line.reason}, {line.confidence}% · {line.artifact ? ARTIFACT[line.artifact] ?? line.artifact : ""})</span>
+        </div>
+      )}
+      {ruling?.verdict && (
+        <div className="notice" style={{ marginTop: 10 }}>
+          Jury: <Badge kind={ruling.verdict} /> <span className="small">({ruling.reason}, {ruling.confidence}% · {ruling.artifact ? ARTIFACT[ruling.artifact] ?? ruling.artifact : ""})</span>
+          <div className="small" style={{ marginTop: 6 }}>
+            Recorded by the jury contract. {now >= applyFrom
+              ? "Its appeal window has passed: anyone may apply it to the escrow."
+              : `The escrow can apply it in ${duration(applyFrom - now)}, after its appeal window.`}
+          </div>
         </div>
       )}
       {line.dispute && (
         <p className="small" style={{ marginTop: 10 }}>
-          Dispute by the buyer, bond <Gen atto={line.dispute.bond} />. Their note, kept for people and <b>never shown to the jury</b>: “{line.dispute.text || "(none)"}”
+          Dispute by the buyer, bond <Gen atto={line.dispute.bond} />
+          {line.dispute.locate ? <>, pointing the jury at <span className="mono">{line.dispute.locate}</span></> : null}. Their note, kept for
+          people and <b>never shown to the jury</b>: “{line.dispute.text || "(none)"}”
         </p>
       )}
 
@@ -212,9 +268,18 @@ function LineCard({ deal, line, now, isBuyer, onDone }: { deal: Deal; line: Line
         <div style={{ marginTop: 12 }}>
           <textarea rows={2} placeholder="Your note (people see it; the jury does not - it reads only the clause and the work)" value={text}
             onChange={(e) => setText(e.target.value)} style={{ width: "100%" }} />
+          <label className="field" style={{ marginTop: 10 }}>
+            Location in the work (optional)
+            <input className="mono" placeholder="/items/71  or  bytes:5600-5800" value={locate} onChange={(e) => setLocate(e.target.value)} />
+            <span className="hint">
+              {locate && locErr
+                ? locErr
+                : "Where to look, if the problem is deep in the work: the jury reads only the first 4,000 characters, plus the bytes you point at. It sees the bytes, never your pointer or your note."}
+            </span>
+          </label>
           <div className="row" style={{ marginTop: 8 }}>
-            <button className="btn primary" disabled={!canSign || tx.pending || bond === null}
-              onClick={() => tx.run((h) => write(client, clause, "dispute", [deal.id, line.id, text], pollMs, h, bond ?? 0n), onDone)}>
+            <button className="btn primary" disabled={!canSign || tx.pending || bond === null || !!locErr}
+              onClick={() => tx.run((h) => write(client, clause, "dispute", [deal.id, line.id, text, locate.trim()], pollMs, h, bond ?? 0n), reload)}>
               {tx.pending ? <Spinner /> : null} Dispute "{line.id}" with a bond of {bond === null ? "…" : <Gen atto={bond} />}
             </button>
             <span className="hint">Back if the clause is unmet or undetermined; paid to the seller if it is met.</span>
@@ -223,14 +288,24 @@ function LineCard({ deal, line, now, isBuyer, onDone }: { deal: Deal; line: Line
       )}
       {canRule && (
         <div className="row" style={{ marginTop: 12 }}>
-          <button className="btn primary" disabled={!canSign || tx.pending}
-            onClick={() => tx.run((h) => write(client, clause, "rule", [deal.id, line.id], pollMs, h), onDone)}>
+          <button className="btn primary" disabled={!canSign || tx.pending || !jury}
+            onClick={() => tx.run((h) => write(client, jury, "rule", [clause, deal.id, line.id], pollMs, h), reload)}>
             {tx.pending ? <Spinner /> : null} Convene the jury
           </button>
           <span className="hint">Validators fetch the work, check its digest, and each answer: does it fail this clause as written?</span>
         </div>
       )}
-      <TxLine network={network} pending={tx.pending} hash={tx.hash} outcome={tx.outcome} refusalHint="The contract refused." />
+      {ruling?.verdict && line.state === "disputed" && (
+        <div className="row" style={{ marginTop: 12 }}>
+          <button className="btn primary" disabled={!canSign || tx.pending || now < applyFrom}
+            onClick={() => tx.run((h) => write(client, clause, "apply_ruling", [deal.id, line.id], pollMs, h), reload)}>
+            {tx.pending ? <Spinner /> : null} Apply the ruling
+          </button>
+          <span className="hint">The escrow reads the jury contract here, and nowhere else.</span>
+        </div>
+      )}
+      <TxLine network={network} pending={tx.pending} hash={tx.hash} outcome={tx.outcome}
+        refusalHint={canRule ? "If the work could not be fetched, nothing was ruled; you can convene the jury again." : "The contract refused."} />
       {tx.err && <div className="notice bad">{tx.err}</div>}
       <p className="small muted" style={{ marginTop: 8 }}>
         On {NETWORKS[network].short}. Times are the contract's clock.

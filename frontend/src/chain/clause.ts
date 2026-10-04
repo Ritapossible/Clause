@@ -18,13 +18,29 @@ export interface Line {
   state: LineState;
   review_until?: number;
   redeliver_by?: number;
-  dispute?: { bond: string; text: string; opened_at: number; rule_by: number };
+  dispute?: { bond: string; text: string; opened_at: number; rule_by: number; locate?: string; round?: string };
   verdict?: Verdict;
   reason?: string;
   confidence?: number;
-  artifact?: "verified" | "unverified";
+  artifact?: Artifact;
   decided_at?: number;
+  ruled_at?: number;
   lapsed?: boolean;
+}
+
+/** What fetching the delivery found: only a definite answer from the server
+ *  counts against the seller; no answer is no ruling. */
+export type Artifact = "verified" | "changed" | "missing" | "unread";
+
+/** A ruling as the jury contract recorded it, before the escrow applies it. */
+export interface Ruling {
+  round?: string;
+  verdict?: Verdict;
+  reason?: string;
+  confidence?: number;
+  artifact?: Artifact;
+  located?: boolean;
+  at?: number;
 }
 
 export interface Deal {
@@ -45,6 +61,8 @@ export interface Deal {
 
 export interface Status {
   release: string;
+  jury?: string;
+  appeal_seconds?: number;
   deals: number;
   held: string;
   owed: string;
@@ -71,6 +89,10 @@ export async function readStatus(c: Client, clause: string): Promise<Status> {
 
 export async function readDeal(c: Client, clause: string, id: number): Promise<Deal> {
   return parseLossless<Deal>(await c.readContract({ address: clause as Addr, functionName: "get_deal", args: [id] }));
+}
+
+export async function readRuling(c: Client, jury: string, escrow: string, id: number, clauseId: string): Promise<Ruling> {
+  return parseLossless<Ruling>(await c.readContract({ address: jury as Addr, functionName: "ruling_of", args: [escrow, id, clauseId] }));
 }
 
 export async function readOwed(c: Client, clause: string, who: string): Promise<bigint> {

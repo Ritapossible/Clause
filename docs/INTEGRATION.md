@@ -1,4 +1,4 @@
-# Clause - Integration guide
+# Integration guide
 
 This guide is for developers and AI agents that use Clause from code: a
 marketplace that funds deals for its users, an agent that hires another agent,
@@ -18,13 +18,16 @@ calls below. There is no backend and no API key.
 
 ## Addresses
 
-| Network | Clause contract | genlayer-js chain |
-| --- | --- | --- |
-| GenLayer Studio | `0xC6Cc3B70Fb291809647e46fa85fF941a039B6EfB` | `studionet` |
-| Bradbury testnet | `0xbFCdAb3741375D498082A0bc873b9dd3B7Fdd1E3` | `testnetBradbury` |
+Clause is two contracts per network: the **escrow** (holds GEN, deals, credits
+and clocks) and the **jury** (runs the model, records rulings, holds nothing).
 
-The canonical list is `deploy/deployments.json`. Read it from there rather
-than hard-coding these.
+| Network | Escrow | Jury | genlayer-js chain |
+| --- | --- | --- | --- |
+| GenLayer Studio | `0xA3DE12a40Cf80B473B945C1f84a0BFE55976C3F2` | `0x7563c5F4e868B762351dA38ebc477b49bD91F006` | `studionet` |
+| Bradbury testnet | `0x6A5c02527e1504f416c5e47F68129f1Afc1FbF02` | `0xD981E621967074cA72F72409380a90cB55bd02ED` | `testnetBradbury` |
+
+The canonical list, with each network's `appeal_seconds`, is
+`deploy/deployments.json`. Read it from there rather than hard-coding these.
 
 ## Concepts
 
@@ -37,6 +40,9 @@ than hard-coding these.
 - **Verdicts:** `unmet`, `met`, `undetermined`.
 - **Credit, then withdraw.** No call except `withdraw` sends GEN. Rulings,
   deadlines and refusals credit `owed[address]`.
+- **Rule, then apply.** `jury.rule(escrow, deal, clause)` records a ruling on
+  the jury contract. `escrow.apply_ruling(deal, clause)` applies it once it is
+  `appeal_seconds` old. Until then, nothing moves.
 - **Time.** All times are Unix seconds from the contract's clock. `get_deal`
   returns `now`, so compare deadlines against it, not against your machine's
   clock.
@@ -53,7 +59,8 @@ npm install genlayer-js
 import { createClient, createAccount } from "genlayer-js";
 import { studionet } from "genlayer-js/chains";   // or testnetBradbury
 
-const CLAUSE = "0xC6Cc3B70Fb291809647e46fa85fF941a039B6EfB";
+const CLAUSE = "0xA3DE12a40Cf80B473B945C1f84a0BFE55976C3F2";   // the escrow
+const JURY = "0x7563c5F4e868B762351dA38ebc477b49bD91F006";
 const account = createAccount(process.env.PRIVATE_KEY);
 const client = createClient({ chain: studionet, account });
 
@@ -107,6 +114,16 @@ not mean "applied":
 On Bradbury, a receipt can arrive while the round is still `IDLE`. Poll
 `getTransaction` until the round is decided before concluding anything.
 
+**Rulings.** Convening the jury is a write to the jury contract; applying
+the ruling is a later write to the escrow:
+
+```js
+await client.writeContract({ address: JURY, functionName: "rule", args: [CLAUSE, dealId, "cities"] });
+const ruling = JSON.parse(await client.readContract({ address: JURY, functionName: "ruling_of", args: [CLAUSE, dealId, "cities"] }));
+// ...once ruling.at + appeal_seconds has passed on the contract's clock:
+await client.writeContract({ address: CLAUSE, functionName: "apply_ruling", args: [dealId, "cities"] });
+```
+
 **Payable calls never refuse by reverting.** `create_deal` and `dispute`
 record a refusal and credit the value back. Their transaction is *applied*
 even when refused. To tell the difference:
@@ -118,28 +135,45 @@ even when refused. To tell the difference:
 
 ## Method reference
 
-### Writes
+### Escrow writes
 
 | Method | Value | Caller | Effect | Reverts with |
 | --- | --- | --- | --- | --- |
 | `create_deal(seller, clauses_json, delivery_seconds, review_seconds, redelivery_seconds, ruling_seconds) -> int` | the exact clause total | buyer | Opens a deal; returns its id. On any spec error: returns -1, credits the value back, records `refusal_of(buyer)`. | never |
 | `deliver(deal_id, uri, digest)` | none | seller | The first delivery (all `funded` lines go to `in_review`), or a redelivery (only `failed` lines inside their window). | `only the seller may deliver`, `the delivery deadline has passed`, `nothing to redeliver`, `the delivery digest must be 64 hex characters`, `the delivery must be an http(s) URL`, `unknown deal` |
-| `dispute(deal_id, clause_id, text)` | at least `bond_for(deal_id, clause_id)` | buyer | The line goes to `disputed`, and the bond is held. On any error: the reason is recorded on the deal and in `refusal_of`, and the value is credited back. | never |
-| `rule(deal_id, clause_id)` | none | anyone | Runs the jury on a `disputed` line, then applies the verdict and credits. | `clause is not disputed`, `the ruling deadline has passed; settle releases the clause`, `no clause … in the pinned spec`, `unknown deal` |
-| `settle(deal_id)` | none | anyone | Applies every passed deadline on the deal. A no-op if none has passed. | `unknown deal` |
-| `withdraw()` | none | anyone | Sends the caller everything it is owed. | `nothing is owed to this address` |
+| `dispute(deal_id, clause_id, text, locate)` | at least `bond_for(deal_id, clause_id)` | buyer | The line goes to `disputed`, and the bond is held. `locate` is `""`, a byte span `bytes:START-END` (1-2,000 bytes), or a JSON pointer `/a/0`. On any error: the reason is recorded on the deal and in `refusal_of`, and the value is credited back. | never |
+| `apply_ruling(deal_id, clause_id)` | none | anyone | Reads the jury's ruling on this dispute and applies it, if it is about this dispute's round, was made by the ruling deadline, and is `appeal_seconds` old. | `the jury has not ruled on this dispute`, `the ruling can be applied from …, after its appeal window`, `the ruling came after the ruling deadline`, `clause … is not disputed`, `unknown deal` |
+| `settle(deal_id)` | none | anyone | Applies every passed deadline on the deal. A no-op if none has passed. Never reads the jury. | `unknown deal` |
+| `withdraw()` | none | anyone | Sends the caller everything it is owed. Never reads the jury. | `nothing is owed to this address` |
+
+### Jury writes
+
+| Method | Caller | Effect | Reverts with |
+| --- | --- | --- | --- |
+| `rule(escrow, deal_id, clause_id)` | anyone | Reads the disputed clause from `escrow`, fetches the work, runs the jury, and records the ruling for this dispute's round. | `clause is not disputed`, `the ruling deadline has passed; …`, `this dispute is already ruled; …`, `the work could not be fetched, so nothing was ruled; …` |
 
 Every revert message starts with `[EXPECTED]`.
 
 ### Views
 
-| Method | Returns |
-| --- | --- |
-| `status() -> str` | JSON: `release` (`"clause/1"`), `deals` (count), `held`, `owed`, `balance`, `bond_floor`. Invariant: `balance == held + owed`. |
-| `get_deal(deal_id) -> str` | The deal record as JSON (below), plus `now`. |
-| `bond_for(deal_id, clause_id) -> int` | The bond a dispute on that clause must post: `max(floor, amount * 10%)`. |
-| `owed_to(address) -> int` | What the address can withdraw. |
-| `refusal_of(address) -> str` | JSON `{reason, at, returned}` for the address's last refused payable call, or `{}`. |
+| Contract | Method | Returns |
+| --- | --- | --- |
+| Escrow | `status() -> str` | JSON: `release` (`"clause/2"`), `jury`, `appeal_seconds`, `deals` (count), `held`, `owed`, `balance`, `bond_floor`. Invariant: `balance == held + owed`. |
+| Escrow | `get_deal(deal_id) -> str` | The deal record as JSON (below), plus `now`. |
+| Escrow | `bond_for(deal_id, clause_id) -> int` | The bond a dispute on that clause must post: `max(floor, amount * 10%)`. |
+| Escrow | `owed_to(address) -> int` | What the address can withdraw. |
+| Escrow | `refusal_of(address) -> str` | JSON `{reason, at, returned}` for the address's last refused payable call, or `{}`. |
+| Jury | `ruling_of(escrow, deal_id, clause_id) -> str` | JSON `{round, verdict, reason, confidence, artifact, located, at}`, or `{}`. |
+| Jury | `status() -> str` | JSON: `release` (`"clause-jury/1"`), `ruled` (count). |
+
+### What the jury found (`artifact`)
+
+| Value | Meaning | Ruling |
+| --- | --- | --- |
+| `verified` | 2xx and the bytes match the digest | The model's reading |
+| `changed` | 2xx and the bytes differ | `unmet`, no model call |
+| `missing` | 404 or 410 | `unmet`, no model call |
+| `unread` | No answer (network error, 5xx, 429) | None: `rule` is refused and nothing is recorded |
 
 ### Verdict effects
 
@@ -155,7 +189,7 @@ Every revert message starts with `[EXPECTED]`.
 | --- | --- | --- | --- |
 | `funded` | no delivery and `now > deliver_by` | `refunded` | buyer: amount |
 | `in_review` | `now > review_until` | `released` | seller: amount |
-| `disputed` | `now > dispute.rule_by` | `released`, `lapsed: true` | seller: amount; buyer: bond |
+| `disputed` | `now > dispute.rule_by + appeal_seconds` | `released`, `lapsed: true` | seller: amount; buyer: bond |
 | `failed` | `now > redeliver_by` | `refunded` | buyer: amount |
 
 ## The deal record
@@ -179,12 +213,14 @@ Every revert message starts with `[EXPECTED]`.
       "amount": 50000000000000000,
       "state": "failed",
       "review_until": 1767000800,
-      "dispute": { "bond": 10000000000000000, "text": "Only two cities.", "opened_at": 1767000600, "rule_by": 1767002400 },
+      "dispute": { "bond": 10000000000000000, "text": "Only two cities.", "opened_at": 1767000600, "rule_by": 1767002400,
+                   "locate": "", "round": "1.1767000600" },
       "verdict": "unmet",
       "reason": "test_failed",
       "confidence": 99,
-      "artifact": "verified",       // or "unverified"
-      "decided_at": 1767000650,
+      "artifact": "verified",       // verified | changed | missing
+      "ruled_at": 1767000650,       // when the jury recorded the ruling
+      "decided_at": 1767000960,     // when the escrow applied it
       "redeliver_by": 1767002450
     }
   ],
@@ -194,7 +230,8 @@ Every revert message starts with `[EXPECTED]`.
 ```
 
 Fields appear as the deal progresses: `review_until` on delivery, `dispute` on
-a dispute, `verdict`/`reason`/`confidence`/`artifact`/`decided_at` on a ruling,
+a dispute, `verdict`/`reason`/`confidence`/`artifact`/`ruled_at`/`decided_at`
+when a ruling is applied,
 `redeliver_by` on unmet, `lapsed` on a lapsed dispute. `refused` keeps the last
 10 refused disputes.
 
@@ -241,8 +278,9 @@ To check a spec before sending anything, use the same rules the app uses:
 3. Call `deliver(deal_id, url, digest)`.
 
 During a ruling, each validator fetches the URL, hashes the body and compares
-the result with the digest. A mismatch, an error or a missing file makes the
-artifact `unverified`, which is ruled `unmet` without a model call.
+the result with the digest. Different bytes (`changed`) or a 404/410
+(`missing`) are ruled `unmet` without a model call. No answer at all
+(`unread`) is no ruling: `rule` is refused, and can be called again.
 
 ## An agent-to-agent flow
 
@@ -256,7 +294,8 @@ seller: poll get_deal(deal_id) until it sees the deal; do the work
 seller: upload the file; deliver(deal_id, url, sha256)
 buyer:  fetch url, check each test locally
         - all pass: do nothing (or settle after review_until)
-        - "keys" fails: dispute(deal_id, "keys", "") value=bond_for(deal_id,"keys"); rule(deal_id, "keys")
+        - "keys" fails at item 37: dispute(deal_id, "keys", "", "/37") value=bond_for(deal_id,"keys")
+          jury.rule(escrow, deal_id, "keys"); after appeal_seconds: escrow.apply_ruling(deal_id, "keys")
 seller: if a line is "failed": fix, redeliver before redeliver_by
 anyone: settle(deal_id) after the windows close
 both:   withdraw()
@@ -266,8 +305,10 @@ Agent tips:
 
 - Check acceptance tests deterministically on your side before disputing.
   A dispute the jury finds met costs the bond.
-- Run `settle` on a schedule for the deals you are part of. Nothing pays until
-  someone calls it.
+- Run `settle` and `apply_ruling` on a schedule for the deals you are part
+  of. Nothing pays until someone calls them.
+- When a failure is deep in the work, send a location. The jury reads only the
+  first 4,000 characters, plus the slice you point at.
 - Compare every deadline with `get_deal(...).now`.
 
 ## Limits
@@ -277,7 +318,8 @@ Agent tips:
 | Clauses per deal | 8 |
 | Text per criterion or test | 400 characters |
 | Dispute note | 1,000 characters stored |
-| Work the jury reads | The first 4,000 characters of the delivery, as UTF-8 text |
+| Work the jury reads | The first 4,000 characters of the delivery, as UTF-8 text, plus up to 2,000 bytes at the dispute's location |
+| Appeal window | `appeal_seconds` per escrow: 300 on Studio, 2,400 on Bradbury |
 | Windows | 60 seconds to 90 days |
 | Redeliveries | One per unmet ruling, within its window |
 | Currency | Native GEN only |

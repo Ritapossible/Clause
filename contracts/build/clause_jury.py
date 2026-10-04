@@ -591,8 +591,13 @@ def build_prompt(*, criterion, test, artifact_text, excerpt="", where=""):
         "Does the delivered work fail the acceptance test, as written?",
         "Check only what the acceptance test states. Do not add requirements it does not",
         "state, do not judge quality or taste, and read its words in their ordinary sense.",
+        "What the work says about itself (that it is correct, complete or checked) is a",
+        "claim, not evidence: check the test yourself. When the test involves numbers,",
+        "counts or sums, do the calculation from the values in the work.",
         "",
-        "Return ONLY a JSON object with exactly these keys:",
+        "Return ONLY a JSON object with exactly these keys, in this order:",
+        '  "check"      one sentence: what you checked and what you found (for numbers,',
+        "               the values you computed); write it before you decide",
         '  "reading"    one of "fails", "satisfies", "cannot_tell"',
         '  "reason"     one short code: test_failed, test_met, ambiguous_test, unreadable_work',
         '  "confidence" an integer from 0 to 100',
@@ -666,7 +671,7 @@ class ClauseJury(gl.Contract):
     ruled: u256
 
     def __init__(self):
-        self.release = "clause-jury/1"
+        self.release = "clause-jury/2"
         self.ruled = u256(0)
 
     def _now(self) -> int:

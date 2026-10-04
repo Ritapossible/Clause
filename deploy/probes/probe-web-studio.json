@@ -1,0 +1,44 @@
+{
+  "network": "studio",
+  "address": "0xEaFe9FC0B2d3903b1FDF5B747D80E2d41909d50c",
+  "recorded_at": "2026-10-04T09:04:25.888Z",
+  "out": {
+    "https://raw.githubusercontent.com/Ritapossible/Clause/main/examples/cities-three.json": {
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return",
+      "result": {
+        "raised": false,
+        "status": 200,
+        "attrs": [
+          "body",
+          "headers",
+          "status"
+        ],
+        "body_len": 40
+      }
+    },
+    "https://raw.githubusercontent.com/Ritapossible/Clause/main/examples/no-such-file.json": {
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return",
+      "result": {
+        "raised": false,
+        "status": 404,
+        "attrs": [
+          "body",
+          "headers",
+          "status"
+        ],
+        "body_len": 14
+      }
+    },
+    "https://clause-unreachable.invalid/work.json": {
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return",
+      "result": {
+        "raised": true,
+        "type": "NondetException",
+        "msg": "{'causes': ['TLD_FORBIDDEN'], 'ctx': {'tld': 'invalid', 'url': 'https://clause-unreachable.invalid/work.json'}}"
+      }
+    }
+  }
+}

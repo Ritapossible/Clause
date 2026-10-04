@@ -53,6 +53,31 @@ function words(text: string): string[] {
 const strip = (s: string) => s.replace(/^\s+|\s+$/gu, "");
 const pyLen = (s: string) => [...s].length;
 
+const MAX_EXCERPT = 2000;
+const MAX_POINTER = 120;
+const POINTER_CHARS = /^[A-Za-z0-9/_\-~.]*$/;
+const digits = (t: string) => /^[0-9]+$/.test(t);
+
+/** Mirrors clause_core.locate_error: a dispute's location is "", a byte span
+ *  bytes:START-END (1-2000 bytes), or a JSON pointer like /items/3. */
+export function locateError(locate: string): string {
+  const text = String(locate);
+  if (text === "") return "";
+  if (text.startsWith("bytes:")) {
+    const parts = text.slice(6).split("-");
+    if (parts.length !== 2 || !digits(parts[0]) || !digits(parts[1])) return "a byte span is bytes:START-END";
+    const [a, b] = parts.map((p) => BigInt(p));
+    if (b <= a || b - a > BigInt(MAX_EXCERPT)) return `a byte span covers 1-${MAX_EXCERPT} bytes`;
+    return "";
+  }
+  if (text.startsWith("/")) {
+    if ([...text].length > MAX_POINTER) return `a JSON pointer is at most ${MAX_POINTER} characters`;
+    if (!POINTER_CHARS.test(text)) return "a JSON pointer uses letters, digits and / _ - ~ .";
+    return "";
+  }
+  return "a location is a byte span (bytes:START-END) or a JSON pointer (/key/0)";
+}
+
 export function acceptanceTestError(test: string): string {
   const text = strip(String(test));
   if (pyLen(text) < MIN_TEST) return `the acceptance test is under ${MIN_TEST} characters`;

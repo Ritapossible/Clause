@@ -1,4 +1,4 @@
-# Clause - Roadmap: from demo to a usable product
+# Roadmap: from demo to a usable product
 
 Clause works today, on two networks, for the cases it was built to show. This
 document covers what separates it from something people and agents rely on
@@ -22,24 +22,45 @@ and depend on the GenLayer platform where noted.
 
 ## Where Clause is today
 
-**Release `clause/1`: a working demo.**
+**Release `clause/2`: a working demo, as two contracts.**
 
 | Works | Evidence |
 | --- | --- |
 | Escrow per clause, funded in GEN, on Studio and Bradbury | Deployed contracts, `deploy/deployments.json` |
-| A dispute must cite a clause of the pinned spec | Case 1a on both networks |
-| The jury reads the clause and the work, never the complaint | Cases 1b and 3 on both networks |
-| Injection in the work does not steer the jury | Case 5 on both networks |
-| Every state has a clock in the escrow; `settle` resolves it | Case 4; deadline tests |
+| **A dispute must cite a clause of the pinned spec.** A complaint about a requirement that was never pinned never reaches a model. | Case 1a on both networks. This is the claim that does not depend on a model at all. |
+| The jury reads the clause and the work, never the complaint | Cases 1b and 3: the complaint is never an input |
+| The money does not depend on the jury: the escrow reads it only in `apply_ruling`, and `settle`/`withdraw` still pay if the jury contract is unreadable | Case 7 in the tests; an appeal of a real ruling on Studio (`deploy/appeal-studio.json`) |
+| A ruling waits out its appeal window before any GEN is credited | Checked on chain on both networks |
+| Work changed or removed from its URL is unmet; work nobody could fetch is no ruling | Cases 6 (a 404) and 7 (an unreachable host) on both networks |
+| A dispute can point the jury at a location deep in the work | Case 9: a missing price at byte 5,731 |
+| Every state has a clock in the escrow; `settle` resolves it | Cases 4 and 7; deadline tests |
 | A checkability gate on acceptance tests | Contract and in-browser, held equal by `parity.ts` |
-| Credit-then-withdraw; `balance == held + owed` | Checked on chain after every scenario |
-| A web app for both parties, phone-ready | Two-person browser e2e on Studio |
-| 75 tests, 24 killed mutants, a gas-budget test | `tests/` |
+| Credit-then-withdraw; `balance == held + owed`; the jury holds nothing | Checked on chain after every scenario |
+| A web app for both parties, phone-ready, with the docs built in | Two-person browser e2e on Studio |
+| 102 tests, 31 killed mutants, a gas-budget test per contract | `tests/` |
+
+**What the jury has and has not been shown.**
+
+- **Counting.** Cases 1b, 2, 3, 4 and 5 check a list of names against
+  "exactly 3". A model passes them if it can count. They show that the
+  complaint never arrives, not that the jury judges well.
+- **More than counting.** Case 8 is an invoice whose note says the total is
+  correct, while the numbers do not add up. With the first prompt, the jury
+  caught the wrong total in only 1 of 3 runs, at confidence 99-100 on the
+  misses. After the prompt change (self-claims are not evidence; calculate
+  before deciding), it caught it in 3 of 3 runs on Studio and 1 of 1 on
+  Bradbury. Every verdict, misses included, is published.
+- **A location is not a guarantee.** Pointed at the missing price in case 9,
+  the jury ruled unmet on Studio but undetermined on Bradbury.
+- **Not yet shown:** a test that can honestly be read two ways. That is where
+  a jury of models is weakest, and it is the first thing the calibration
+  corpus (1.7) must cover.
 
 **What makes it a demo, not a product:** it has had no real users. The jury's
-accuracy is shown on six cases, not measured on hundreds. The work must be
-public and short. Nothing tells a party a clock is running out. Nobody has
-audited it. It runs only on testnets, in a currency with no value.
+accuracy is measured on a handful of cases, not hundreds. The work must be
+public, and the jury reads only its first 4,000 characters plus a location.
+Nothing tells a party a clock is running out. Nobody has audited it. It runs
+only on testnets, in a currency with no value.
 
 ## What does not change
 
@@ -67,12 +88,12 @@ proposal that breaks one is out of scope.
 | G2 | Nobody is told when a window opens or closes, and nothing pays until someone calls `settle` | Both | 1.2 |
 | G3 | No per-party index; the app reads every deal one by one | Both, integrators | 1.3 |
 | G4 | The seller must find stable hosting and compute a digest themselves | Sellers | 1.4 |
-| G5 | The jury reads one URL, as text, up to 4,000 characters | Sellers of real work | 1.5 |
+| G5 | The jury reads one URL, as text, up to 4,000 characters. *Partly closed:* a dispute can point at up to 2,000 bytes anywhere in the work. | Sellers of real work | 1.5 |
 | G6 | Writing checkable tests is a skill most buyers don't have | Buyers | 1.6 |
-| G7 | Jury accuracy is shown on 6 cases, not measured | Everyone | 1.7 |
+| G7 | Jury accuracy is shown on a handful of cases, only one of which needs more than counting; no test with two honest readings has been run | Everyone | 1.7 |
 | G8 | Agents must hand-write genlayer-js calls | Agent builders | 1.8 |
-| G9 | The contract is within 0.5 KB of Bradbury's deploy budget | Development | 1.9 |
-| G10 | No appeals | The losing party of a wrong ruling | 2.1 |
+| G9 | ~~The contract is within 0.5 KB of Bradbury's deploy budget~~ *Closed by the split:* the escrow is 16.3 KB and the jury 8.7 KB | Development | 1.9 |
+| G10 | An appeal can no longer freeze the money, but the escrow does not follow an appeal that reverses a ruling after it was applied | The losing party of a wrong ruling | 2.1 |
 | G11 | Delivered work is public | Anyone with confidential work | 2.2 |
 | G12 | Nobody is paid to call `rule` or `settle`; the project has no revenue | Sustainability | 2.3 |
 | G13 | No track record for sellers; nothing at stake for a seller who delivers junk | Buyers | 2.4 |
@@ -169,6 +190,10 @@ under a minute, and a pre-flight check catches an over-long or binary file.
 **Why.** Real deliverables are several files, longer than 4,000 characters,
 and not always plain text.
 
+**Done in `clause/2`:** a dispute can carry a location (a byte span or a JSON
+pointer), and the jury sees those bytes of the verified work, labelled as a
+location rather than an argument. The prompt says when the work was cut.
+
 **Scope:**
 
 - **A manifest delivery.** The seller delivers a JSON manifest listing files
@@ -209,11 +234,17 @@ a review panel.
 
 ### 1.7 Jury calibration and a public accuracy report
 
-**Why.** "Every case ended where it should" is six cases. A product needs a
-measured error rate, published before people rely on it.
+**Why.** Most recorded cases so far test counting. One (case 8, an invoice
+total) needs arithmetic, and it is run three times each way. A product needs
+a measured error rate, published before people rely on it.
 
 **Scope:**
 
+- **First: tests with two honest readings.** A clause whose acceptance test
+  can fairly be read two ways, against work that satisfies one reading and
+  not the other, each run several times on fresh deals. Every verdict is
+  published, including releases. This is where a model jury is weakest, and
+  the product's claims should not go past what these runs show.
 - **A labelled corpus** of at least 300 (clause, work, expected verdict)
   cases. It covers each acceptance-test pattern, near-misses (2 vs 3, 799 vs
   800 words), ambiguous tests, adversarial work (injection, structure
@@ -252,22 +283,13 @@ learn receipt shapes and lossless JSON.
 **Done when** two independent agents complete a deal, with a dispute and a
 redelivery, using only the MCP server.
 
-### 1.9 Contract size budget
+### 1.9 Contract size budget - done
 
-**Why.** The deployed file is 18,983 bytes against a budget of about
-19.5 KB. Items 1.1, 1.3 and 1.5 do not fit as written.
-
-**Scope** (pick by measurement):
-
-- **Split the contract:** a rules library contract holding the pure
-  functions, and a thin escrow calling it. The cost is one more address to
-  verify, and cross-contract call latency.
-- **Move the text** of the checkability gate's word lists into storage,
-  written once at deploy.
-- **Raise the budget** if GenLayer's gas limits change.
-
-**Done when** every Phase 1 contract item fits, with a 10% margin, and the
-size test enforces the new budget.
+**Done in `clause/2`.** The deployed file was 18,983 bytes against a budget of
+about 19.5 KB, so no Phase 1 contract item fitted. Splitting the money from
+the jury solved it: the escrow is 16,316 bytes and the jury 8,660, and each
+has its own size test. Keep a 10% margin on each as items 1.1, 1.3 and 1.5
+land.
 
 ### 1.10 Product polish
 
@@ -299,25 +321,36 @@ months.
 
 ### 2.1 Appeals
 
-**Why.** A wrong ruling is final today. A wrong unmet costs a seller a
-redelivery and possibly the clause; a wrong met costs a buyer the clause.
+**Why.** A wrong unmet costs a seller a redelivery and possibly the clause; a
+wrong met costs a buyer the clause.
+
+**Done in `clause/2`:**
+
+- **An appeal cannot freeze the money.** Rulings run on a separate jury
+  contract. The escrow reads it only in `apply_ruling`, so if an appeal leaves
+  the jury unreadable (measured on Studio), the dispute lapses on the
+  escrow's own clock, and `settle` and `withdraw` still pay.
+- **A ruling waits `appeal_seconds`** (sized to the network's finality)
+  before the escrow can apply it, so GenLayer's own appeal of the jury's
+  transaction has its window before any GEN is credited.
 
 **Scope:**
 
-- An **appeal window** after a ruling, during which the losing side posts a
-  larger bond, and a larger validator set rules again. This uses GenLayer's
-  own appeal mechanism where it is stable, or a second `rule` round with more
-  validators.
-- Credits from a ruling are **deferred** until the appeal window closes,
-  which keeps rule 5.
-- **One appeal per ruling.** The appeal's ruling is final, and the loser's
-  bond goes to the winner.
-- **Blocked on the platform:** an appeal on Studio has been measured to leave
-  the appealed contract unreadable ([THREAT-MODEL.md](THREAT-MODEL.md) T10).
-  Ship only after that is fixed, and after testing it on Bradbury.
+- **Follow a reversal.** The escrow applies a ruling once it is
+  `appeal_seconds` old. If an appeal reverses it later, the escrow does not
+  follow. Options, by measurement:
+  - read the jury's *finalised* state, once a way to do that from a contract
+    is measured;
+  - or a second `rule` round with a larger validator set and a larger bond,
+    run inside the appeal window. Its ruling replaces the first, and the
+    loser's bond goes to the winner.
+- **One appeal per ruling**, and the result is final.
+- **Measure on Bradbury,** where a Remit appeal round did not finish in 75
+  minutes.
 
 **Done when** an appealed ruling on Bradbury reverses a seeded wrong verdict,
-both bonds settle correctly, and the invariant holds.
+the escrow applies the final ruling, both bonds settle correctly, and the
+invariant holds.
 
 ### 2.2 Private delivery
 
@@ -566,8 +599,8 @@ passes", which a model reading text cannot check today.
 ## Sequencing
 
 ```
-Phase 1 (0-3 mo)    1.9 size budget ─┬─► 1.1 accept/cancel ─► 1.3 index views
-                                     └─► 1.5 manifest + limits
+Phase 1 (0-3 mo)    1.9 size budget (done) ─┬─► 1.1 accept/cancel ─► 1.3 index views
+                                     └─► 1.5 manifest + limits (locations done)
                     1.7 calibration ─────► gates every prompt change from here on
                     1.2 keeper/notify,  1.4 delivery helper,  1.6 assistant,  1.8 SDK/MCP,  1.10 polish
 
@@ -585,8 +618,8 @@ Phase 4 (12 mo +)   4.1 checkout,  4.2 integrations,  4.3 open standard,  4.4 mu
 
 Three things decide the pace:
 
-- **The contract size budget (1.9)** gates most contract features. Do it
-  first.
+- **The contract size budget (1.9)** gated most contract features. The split
+  in `clause/2` cleared it.
 - **The calibration corpus (1.7)** gates every jury change. Do it in
   parallel, and early.
 - **Platform dependencies:** stable appeals, token support and mainnet. When
@@ -604,6 +637,7 @@ Three things decide the pace:
 | Deadlines settled by keepers, not by hand | 0% | 100% on Bradbury | 100% | 100% |
 | Median time to fund a deal (first-time user) | n/a | < 5 min | < 3 min | < 2 min |
 | Conservation invariant | holds | holds, monitored | holds, monitored | holds, alerting, audited |
+| Jury cases beyond counting, on chain | 1 (×3 each way) | 30 | 300 (corpus) | 300+, every release |
 | Agent deals via SDK or MCP | 0 | 10 | 200 | 2,000 |
 
 ## Risks and open questions
@@ -614,7 +648,7 @@ Three things decide the pace:
 | Specs that pass the gate but stay arguable | High | Disputes the jury resolves as undetermined, which pays the seller | Assistant and templates (1.6); show the undetermined rate per test pattern |
 | Sellers fail to keep work at its digest | Medium | Honest work ruled unmet | Pinning and pre-flight (1.4) |
 | Platform bugs (appeals, receipt shapes, gas) | Medium | Delays; stuck transactions | Measure on Studio and Bradbury before relying on a feature; keep every clock in the escrow |
-| The contract outgrows the deploy budget | High | Features blocked | 1.9 first |
+| A contract outgrows the deploy budget | Low since the split | Features blocked | A size test per contract; move rules into a library contract if needed |
 | Legal treatment of escrow in some places | Medium | Front-end restrictions | 3.5; the contract stays a tool, not a custodian |
 | Low volume makes fees and keepers uneconomic | Medium | Slow settlement | Anyone can settle (rule 4); team-run keeper until rewards cover it |
 

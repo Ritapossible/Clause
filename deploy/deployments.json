@@ -1,14 +1,22 @@
 {
   "studio": {
-    "clause": "0xC6Cc3B70Fb291809647e46fa85fF941a039B6EfB",
-    "deploy_tx": "0x37ce231578849d1ae78006bb9aa2d98660d97fb5f06a787683f252b9ccfecd12",
+    "clause": "0xA3DE12a40Cf80B473B945C1f84a0BFE55976C3F2",
+    "deploy_tx": "0xdbbe0500a907adc17e83c6e72c72bf335363db69b54269169300ecaec0089bd6",
+    "jury": "0x7563c5F4e868B762351dA38ebc477b49bD91F006",
+    "jury_deploy_tx": "0x925d5342e8805999adc46f902871c6c1c2df80b5e218355dfe031593198e8ea1",
     "bond_floor": "10000000000000000",
-    "at": "2026-10-04T07:16:28.089Z"
+    "appeal_seconds": 300,
+    "release": "clause/2",
+    "at": "2026-10-04T09:28:34.738Z"
   },
   "bradbury": {
-    "clause": "0xbFCdAb3741375D498082A0bc873b9dd3B7Fdd1E3",
-    "deploy_tx": "0x9e9ac9e8904b2c055cea9633ca4d0ffe2a114c6022e7c7f661b7261b4bd6473f",
+    "clause": "0x6A5c02527e1504f416c5e47F68129f1Afc1FbF02",
+    "deploy_tx": "0xf30a80e4156218de7991be62d9bd7ca33f71a3de536e8b5e730264493dd4964e",
+    "jury": "0xD981E621967074cA72F72409380a90cB55bd02ED",
+    "jury_deploy_tx": "0x7d7d7ea8c2d0a90ff9a899fbc882a236f43644d66d164a7b8fc76a0bb33bd02a",
     "bond_floor": "10000000000000000",
-    "at": "2026-10-04T07:23:28.860Z"
+    "appeal_seconds": 2400,
+    "release": "clause/2",
+    "at": "2026-10-04T09:34:37.929Z"
   }
 }

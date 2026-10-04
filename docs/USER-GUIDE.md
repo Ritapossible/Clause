@@ -1,4 +1,4 @@
-# Clause - User guide
+# User guide
 
 This guide is for the two people in a deal: the **buyer**, who pays for work,
 and the **seller**, who does it. It covers how to use the web app, how to write
@@ -45,8 +45,9 @@ Buyer funds  ──►  Seller delivers  ──►  Review window  ──►  Pa
    │                    │                     │
    │ no delivery        │                     │ buyer disputes one clause, by id, with a bond
    │ by the deadline    │                     ▼
-   ▼                    │                Jury rules on that clause
-Refunded to buyer       │                 ├─ met ────────────► paid to seller (+ the bond)
+   ▼                    │                Jury rules on that clause; the escrow applies
+Refunded to buyer       │                the ruling after its appeal window
+                        │                 ├─ met ────────────► paid to seller (+ the bond)
                         │                 ├─ undetermined ───► paid to seller (bond back to buyer)
                         │                 └─ unmet ──────────► held for the buyer (bond back)
                         │                                        │
@@ -79,7 +80,7 @@ Open **Fund a deal**.
    | --- | --- | --- | --- |
    | Delivery by | 1 hour | 7 days | How long after funding the seller has to deliver. If nothing is delivered in time, everything is refunded. |
    | Review window | 5 minutes (30 on Bradbury) | 3 days | How long after delivery you have to dispute a clause. After that, it pays. |
-   | Ruling deadline | 30 minutes | 2 days | How long after a dispute a ruling can land. If nobody rules in time, the clause pays the seller and your bond comes back. |
+   | Ruling deadline | 30 minutes | 2 days | How long after a dispute the jury can be convened. If no ruling is applied by this deadline plus the appeal window, the clause pays the seller and your bond comes back. |
    | Redelivery | 30 minutes | 3 days | How long the seller has to redeliver after an unmet ruling. If nobody redelivers, the clause is refunded. |
 
    Each window can be anything from 60 seconds to 90 days.
@@ -112,12 +113,27 @@ amount, never less than 0.01 GEN.
 - You can only dispute clauses in the spec. If your objection is not in any
   clause's acceptance test, the jury will find the clause met, and you lose
   the bond.
+- **Location (optional).** If the problem is deep in the work, point the jury
+  at it:
+  - a JSON pointer such as `/items/71` (the 72nd item of `items`);
+  - or a byte span such as `bytes:5600-5800` (up to 2,000 bytes).
 
-### 4. Convene the jury
+  The jury reads only the first 4,000 characters of the work, plus the bytes
+  you point at. It sees those bytes labelled "a location the buyer chose",
+  never your pointer text or your note.
 
-Anyone can press **Convene the jury** on a disputed clause: you, the seller, or
-anyone else. On Studio a round takes about 20 seconds; on Bradbury it takes
-minutes. See [the jury](#the-jury) for what each verdict does.
+### 4. Convene the jury, then apply the ruling
+
+1. Anyone can press **Convene the jury** on a disputed clause: you, the
+   seller, or anyone else. The jury is its own contract. On Studio a round
+   takes about 20 seconds; on Bradbury it takes minutes.
+2. The ruling shows on the clause at once, but the escrow applies it only
+   after its **appeal window**: 5 minutes on Studio, 40 on Bradbury. Then
+   anyone can press **Apply the ruling**.
+
+If the work could not be fetched at all, nothing is ruled. Convene the jury
+again before the deadline. See [the jury](#the-jury) for what each verdict
+does.
 
 ### 5. Withdraw
 
@@ -175,9 +191,9 @@ Rules of thumb:
 - **One URL per delivery**, fetched over http(s) and read as text (UTF-8).
   Plain text, Markdown, JSON, CSV and HTML source all work. PDFs and images
   arrive as bytes the model cannot read.
-- **The first 4,000 characters.** Anything after that is not shown to the
-  jury. Put what the clauses check near the top, or keep the work short.
-  Raising this limit is on the [roadmap](ROADMAP.md).
+- **The first 4,000 characters,** plus up to 2,000 bytes the buyer points at
+  in a dispute. Put what the clauses check near the top where you can, or
+  keep the work short. Raising this limit is on the [roadmap](ROADMAP.md).
 
 ## For sellers
 
@@ -194,9 +210,14 @@ Rules of thumb:
 3. Press **Deliver** before the delivery deadline.
 
 **Keep the URL alive and unchanged until every clause is paid.** If a
-dispute happens, every validator fetches the URL and hashes the bytes. If the
-bytes are missing or different, the work counts as **unverified**, and an
-unverified delivery is ruled unmet without a model call.
+dispute happens, every validator fetches the URL and hashes the bytes:
+
+| What the server says | What happens |
+| --- | --- |
+| The bytes match the digest | The jury reads the work |
+| The bytes are different | Unmet, without a model call: you changed the work you pinned |
+| 404 or 410 | Unmet, without a model call: you removed the work you pinned |
+| No answer (network error, server error) | Nothing is ruled. The jury can be convened again; if nothing lands by the deadline, the clause pays you |
 
 ### Get paid
 
@@ -217,21 +238,23 @@ clause is refunded to the buyer when the window closes.
   clause, and the jury reads only the clause.
 - A frivolous dispute costs the buyer: when the jury finds the clause met, you
   receive the clause amount **and** the buyer's bond.
-- The buyer cannot stall payment. If nobody convenes the jury before the
-  ruling deadline, the clause pays you.
+- The buyer cannot stall payment. If no ruling is applied by the ruling
+  deadline plus the appeal window, the clause pays you.
+- A network failure while the jury runs is not held against you. Only a
+  definite answer from your server (different bytes, or a 404) is.
 
 ## The jury
 
 When a disputed clause is ruled, each GenLayer validator independently:
 
 1. fetches the delivery URL and checks its sha256;
-2. reads the clause (what was asked and the acceptance test) and the work,
-   and nothing else;
+2. reads the clause (what was asked and the acceptance test), the work, and
+   the bytes at the buyer's location if there is one, and nothing else;
 3. answers: *does the delivered work fail this clause, as written?*
 
 | Verdict | When | The clause | The bond |
 | --- | --- | --- | --- |
-| **unmet** | The work clearly fails the test (confidence 60 or more), or the work could not be verified | Held for the buyer; the seller may redeliver once | Back to the buyer |
+| **unmet** | The work clearly fails the test (confidence 60 or more), or the work was changed or removed from its URL | Held for the buyer; the seller may redeliver once | Back to the buyer |
 | **met** | The work satisfies the test | Paid to the seller | Paid to the seller |
 | **undetermined** | A hesitant fail, or a test that can honestly be read both ways | Paid to the seller | Back to the buyer |
 
@@ -239,6 +262,12 @@ The jury fails closed toward paying the seller, because the buyer brings the
 dispute. An unmet ruling stands only if validators re-answering the question
 agree. If a round fails to reach consensus, anyone can convene the jury again
 before the ruling deadline.
+
+**The money does not depend on the jury.** The jury is a separate contract.
+The escrow, which holds the GEN, reads it only when someone applies a ruling.
+If the jury contract ever became unreadable (for example during an appeal),
+every clock in the escrow would still pay or refund, and withdraw would still
+work.
 
 ## Deadlines and settle
 
@@ -249,7 +278,7 @@ anyone calls `settle` (the **Apply the deadlines that have passed** button):
 | --- | --- | --- |
 | Awaiting delivery | Delivery deadline | Refunded to the buyer |
 | In review | Review window | Paid to the seller |
-| Disputed | Ruling deadline | Paid to the seller; bond back to the buyer |
+| Disputed | Ruling deadline + appeal window, with no ruling applied | Paid to the seller; bond back to the buyer |
 | Unmet, awaiting redelivery | Redelivery window | Refunded to the buyer |
 
 The deal page shows each clock, measured by the contract's own time. Nothing
@@ -284,6 +313,7 @@ reason. Common ones:
 | `clause 'x' is not open for review (it is released)` | The clause has already resolved. |
 | `the review window for clause 'x' has closed` | Too late to dispute; the clause pays. |
 | `the dispute bond for clause 'x' is …` | Send at least the bond the app shows. |
+| `a location is a byte span (bytes:START-END) or a JSON pointer (/key/0)` | Fix or clear the location field. |
 
 Other calls (deliver, rule, withdraw) refuse by reverting, and they carry no
 GEN, so nothing is lost:
@@ -295,7 +325,10 @@ GEN, so nothing is lost:
 | `nothing to redeliver` | No clause is unmet and inside its redelivery window. |
 | `the delivery digest must be 64 hex characters` | Use **Compute digest**. |
 | `clause is not disputed` | Only a disputed clause can be ruled. |
-| `the ruling deadline has passed; settle releases the clause` | Press settle. |
+| `the ruling deadline has passed; settle releases the clause` | Wait out the appeal window, then press settle. |
+| `the work could not be fetched, so nothing was ruled; …` | The server did not answer. Convene the jury again before the deadline. |
+| `this dispute is already ruled; apply_ruling applies it` | Press **Apply the ruling** once its appeal window has passed. |
+| `the ruling can be applied from …, after its appeal window` | Wait for the appeal window. |
 | `nothing is owed to this address` | There is nothing to withdraw. |
 
 ## FAQ
@@ -311,8 +344,11 @@ so treat delivered work as public. Private delivery is on the roadmap.
 
 **Who pays for the jury?** Whoever convenes it pays that transaction's gas.
 
-**Can a ruling be appealed?** Not in this release. See
-[THREAT-MODEL.md](THREAT-MODEL.md) T10 and the roadmap.
+**Can a ruling be appealed?** GenLayer lets anyone appeal the jury's
+transaction during its appeal window. The escrow waits out that window before
+applying a ruling, and it keeps paying on its own clocks even if an appeal
+leaves the jury contract unreadable. See [THREAT-MODEL.md](THREAT-MODEL.md)
+T11.
 
 **What if the jury is wrong?** A wrong unmet gives the seller one redelivery
 before the buyer is refunded. A wrong met pays the seller. The narrow question

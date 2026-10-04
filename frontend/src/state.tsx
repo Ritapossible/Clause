@@ -4,7 +4,13 @@ import { loadBurner, makeClient, type Client, type Wallet } from "./chain/wallet
 import { useExternalWallet, type ExternalWallet } from "./chain/useExternalWallet";
 import { networkIdOfChain } from "./chain/appkit";
 
-export type Route = { name: "home" } | { name: "deals" } | { name: "deal"; id: number } | { name: "new" } | { name: "how" };
+export type Route =
+  | { name: "home" }
+  | { name: "deals" }
+  | { name: "deal"; id: number }
+  | { name: "new" }
+  | { name: "how" }
+  | { name: "docs"; page: string; anchor?: string };
 
 export const APP_ROUTES = new Set(["deals", "deal", "new"]);
 
@@ -15,6 +21,8 @@ export function parseRoute(hash: string): Route {
   if (path === "/app" || path === "/app/") return { name: "deals" };
   if (path === "/app/new") return { name: "new" };
   if (path === "/how") return { name: "how" };
+  const doc = path.match(/^\/docs(?:\/([a-z0-9-]+))?(?:\/([^/]+))?\/?$/);
+  if (doc) return { name: "docs", page: doc[1] ?? "introduction", anchor: doc[2] ? decodeURIComponent(doc[2]) : undefined };
   return { name: "home" };
 }
 
@@ -30,6 +38,8 @@ export function href(r: Route): string {
       return "#/app/new";
     case "how":
       return "#/how";
+    case "docs":
+      return `#/docs/${r.page}${r.anchor ? `/${encodeURIComponent(r.anchor)}` : ""}`;
   }
 }
 
@@ -50,6 +60,8 @@ interface AppState {
   me: string;
   /** The Clause contract on the app's network. */
   clause: string;
+  jury: string;
+  appealSeconds: number;
   client: Client;
   pollMs: number;
 }
@@ -135,6 +147,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     canSign,
     me: wallet.kind === "none" ? "" : wallet.address.toLowerCase(),
     clause: NETWORKS[network].clause ?? "",
+    jury: NETWORKS[network].jury ?? "",
+    appealSeconds: NETWORKS[network].appealSeconds,
     client,
     pollMs: NETWORKS[network].pollMs,
   };

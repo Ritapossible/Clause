@@ -70,5 +70,65 @@
  {
   "test": "Uses the brand colours throughout",
   "error": "the acceptance test names nothing checkable (a number, a quoted value, or a key/section/word count)"
+ },
+ {
+  "locate": "",
+  "error": ""
+ },
+ {
+  "locate": "bytes:0-10",
+  "error": ""
+ },
+ {
+  "locate": "bytes:4000-6000",
+  "error": ""
+ },
+ {
+  "locate": "bytes:10-10",
+  "error": "a byte span covers 1-2000 bytes"
+ },
+ {
+  "locate": "bytes:0-2001",
+  "error": "a byte span covers 1-2000 bytes"
+ },
+ {
+  "locate": "bytes:-1-5",
+  "error": "a byte span is bytes:START-END"
+ },
+ {
+  "locate": "bytes:a-b",
+  "error": "a byte span is bytes:START-END"
+ },
+ {
+  "locate": "bytes:5",
+  "error": "a byte span is bytes:START-END"
+ },
+ {
+  "locate": "/items/71",
+  "error": ""
+ },
+ {
+  "locate": "/a~1b/0",
+  "error": ""
+ },
+ {
+  "locate": "/ignore the spec",
+  "error": "a JSON pointer uses letters, digits and / _ - ~ ."
+ },
+ {
+  "locate": "/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "error": "a JSON pointer is at most 120 characters"
+ },
+ {
+  "locate": "items/3",
+  "error": "a location is a byte span (bytes:START-END) or a JSON pointer (/key/0)"
+ },
+ {
+  "locate": "line 40",
+  "error": "a location is a byte span (bytes:START-END) or a JSON pointer (/key/0)"
+ },
+ {
+  "locate": "/ünï",
+  "error": "a JSON pointer uses letters, digits and / _ - ~ ."
  }
 ]

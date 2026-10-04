@@ -30,8 +30,14 @@ TESTS = [
     "Uses the brand colours throughout",
 ]
 
+LOCATIONS = [
+    "", "bytes:0-10", "bytes:4000-6000", "bytes:10-10", "bytes:0-2001", "bytes:-1-5", "bytes:a-b", "bytes:5",
+    "/items/71", "/a~1b/0", "/ignore the spec", "/" + "a" * 120, "items/3", "line 40", "/ünï",
+]
+
 if __name__ == "__main__":
     out = [{"test": t, "error": core.acceptance_test_error(t)} for t in TESTS]
+    out += [{"locate": l, "error": core.locate_error(l)} for l in LOCATIONS]
     path = os.path.join(os.path.dirname(__file__), "fixtures", "spec_vectors.json")
     with open(path, "w") as h:
         json.dump(out, h, indent=1, ensure_ascii=False)

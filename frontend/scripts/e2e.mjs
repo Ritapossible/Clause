@@ -75,21 +75,24 @@ check("delivered; both clauses open for review", (await seller.page.getByText("O
 console.log("\n[flow] the buyer disputes 'cities' and convenes the jury");
 await buyer.page.reload();
 await buyer.page.getByPlaceholder(/Your note/).first().fill("Only two cities.");
+await buyer.page.getByPlaceholder(/items\/71/).first().fill("/cities");
 await buyer.page.getByRole("button", { name: /Dispute "cities"/ }).click();
 await buyer.page.getByRole("button", { name: "Convene the jury" }).waitFor({ timeout: 180000 });
 check("the note is shown as never reaching the jury", (await buyer.page.locator("main").innerText()).includes("never shown to the jury"));
+check("the location is recorded on the dispute", (await buyer.page.locator("main").innerText()).includes("pointing the jury at /cities"));
 await buyer.page.getByRole("button", { name: "Convene the jury" }).click();
 await buyer.page.getByText(/Jury: (Unmet|Met|Undetermined)/).waitFor({ timeout: 300000 });
 const text = await buyer.page.locator("main").innerText();
 // innerText follows CSS text-transform, and badges are set in capitals.
 check("the jury ruled", /Jury:\s*(Unmet|Met|Undetermined)/i.test(text), (text.match(/Jury:\s*\w+/) ?? [""])[0]);
 check("2 cities against 'exactly 3' is unmet", /Jury:\s*Unmet/i.test(text));
+check("the ruling waits out its appeal window before the escrow applies it", /after its appeal window/.test(text) && (await buyer.page.getByRole("button", { name: "Apply the ruling" }).count()) === 1);
 
 console.log("\n[layout] phone width");
 for (const width of [390, 360]) {
   await buyer.page.setViewportSize({ width, height: 844 });
   const wide = [];
-  for (const route of ["#/", "#/how", "#/app", "#/app/new", `#/app/deal/${dealId}`]) {
+  for (const route of ["#/", "#/how", "#/app", "#/app/new", `#/app/deal/${dealId}`, "#/docs", "#/docs/roadmap", "#/docs/integration"]) {
     await buyer.page.goto(`${BASE}/?net=studio${route}`);
     await buyer.page.waitForTimeout(2500);
     const o = await buyer.page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);

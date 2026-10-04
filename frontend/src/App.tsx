@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { APP_ROUTES, href, useApp } from "./state";
 import { AppBar, SiteHeader } from "./components/Header";
 import { Mark } from "./components/icons";
@@ -6,6 +7,11 @@ import { How } from "./views/How";
 import { Deals } from "./views/Deals";
 import { NewDeal } from "./views/NewDeal";
 import { DealView } from "./views/DealView";
+import { Spinner } from "./components/ui";
+
+// The docs page carries the markdown renderer and every document; load it
+// only when someone opens it.
+const Docs = lazy(() => import("./views/Docs").then((m) => ({ default: m.Docs })));
 
 const REPO = "https://github.com/Ritapossible/Clause";
 
@@ -20,6 +26,11 @@ export function App() {
       <main id="main">
         {route.name === "home" && <Home />}
         {route.name === "how" && <How />}
+        {route.name === "docs" && (
+          <Suspense fallback={<div className="wrap" style={{ padding: "48px 16px" }}><Spinner /></div>}>
+            <Docs />
+          </Suspense>
+        )}
         {inApp && (
           <div className="wrap app-main" style={{ paddingTop: 28 }}>
             {route.name === "deals" && <Deals />}
@@ -49,10 +60,10 @@ export function App() {
             <div>
               <h4>Docs</h4>
               <ul>
-                <li><a href={`${REPO}/blob/main/docs/USER-GUIDE.md`} target="_blank" rel="noreferrer">User guide ↗</a></li>
-                <li><a href={`${REPO}/blob/main/docs/INTEGRATION.md`} target="_blank" rel="noreferrer">Integration ↗</a></li>
-                <li><a href={`${REPO}/blob/main/docs/ROADMAP.md`} target="_blank" rel="noreferrer">Roadmap ↗</a></li>
-                <li><a href={`${REPO}/blob/main/docs/ARCHITECTURE.md`} target="_blank" rel="noreferrer">Architecture ↗</a></li>
+                <li><a href={href({ name: "docs", page: "user-guide" })}>User guide</a></li>
+                <li><a href={href({ name: "docs", page: "integration" })}>Integration</a></li>
+                <li><a href={href({ name: "docs", page: "architecture" })}>Architecture</a></li>
+                <li><a href={href({ name: "docs", page: "roadmap" })}>Roadmap</a></li>
               </ul>
             </div>
             <div>

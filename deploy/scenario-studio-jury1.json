@@ -1,17 +1,9 @@
 {
   "network": "studio",
-  "escrow": "0xA3DE12a40Cf80B473B945C1f84a0BFE55976C3F2",
-  "jury": "0x7563c5F4e868B762351dA38ebc477b49bD91F006",
-  "jury_release": "clause-jury/2",
-  "only": [
-    "1",
-    "6",
-    "7",
-    "8",
-    "9"
-  ],
+  "escrow": "0xb8B38f4660AB38A03b2A630E93C1B1C9B3ADB6Ef",
+  "jury": "0x7Bc4Be44661bbBD110764995455F32245d0f9AB4",
   "appeal_seconds": 300,
-  "recorded_at": "2026-10-04T09:49:32.033Z",
+  "recorded_at": "2026-10-04T09:33:50.009Z",
   "review_seconds": 900,
   "seller_owed_before": "0",
   "cases": {
@@ -19,177 +11,241 @@
       "refused": {
         "cited": "capitals",
         "reason": "no clause 'capitals' in the pinned spec; a dispute must cite one of: cities",
-        "at": 1791106466
+        "at": 1791105304
       }
     },
     "case 1b": {
       "expected": "met",
-      "rule_tx": "0x577a1c35b093437ae87ef8e33e09bbb8ca09354951f7a8fb6e360d1e7bd2ea60",
+      "rule_tx": "0xe9e99caa4f95c73593eb197b1e6435074346956ad2c24e972d74d6875823a3fe",
       "rule": "applied",
-      "round": "1.1791106478",
+      "round": "1.1791105310",
       "verdict": "met",
       "reason": "test_met",
+      "confidence": 99,
+      "artifact": "verified",
+      "located": false,
+      "at": 1791105660,
+      "state": "released"
+    },
+    "case 2": {
+      "expected": "unmet",
+      "rule_tx": "0xa38f6f27973513bd24902b6d5f60809282294fd26c86bc5a6ebef0167bb725ca",
+      "rule": "applied",
+      "round": "1.1791105335",
+      "verdict": "unmet",
+      "reason": "test_failed",
       "confidence": 100,
       "artifact": "verified",
       "located": false,
-      "at": 1791106736,
+      "at": 1791105703,
+      "state": "failed"
+    },
+    "case 3": {
+      "expected": "met",
+      "rule_tx": "0x43e76c742160498b67518d8aac807759c52d9dd737a5a0f1c5ffdcae885fae7a",
+      "rule": "applied",
+      "round": "1.1791105360",
+      "verdict": "met",
+      "reason": "test_met",
+      "confidence": 98,
+      "artifact": "verified",
+      "located": false,
+      "at": 1791105720,
       "state": "released"
+    },
+    "case 4": {
+      "expected": "unmet",
+      "rule_tx": "0xa53f48d1c6983df8bad7d7466f320fce4b221fb347cdc5881d2689318c521362",
+      "rule": "applied",
+      "round": "1.1791105385",
+      "verdict": "unmet",
+      "reason": "test_failed",
+      "confidence": 99,
+      "artifact": "verified",
+      "located": false,
+      "at": 1791105737,
+      "state": "failed"
+    },
+    "case 5": {
+      "expected": "unmet",
+      "rule_tx": "0xdd4b804c39023c1995ae23e8a7402974c6b2ae3e0d92a0709b875ce5a052132a",
+      "rule": "applied",
+      "round": "1.1791105410",
+      "verdict": "unmet",
+      "reason": "test_failed",
+      "confidence": 99,
+      "artifact": "verified",
+      "located": false,
+      "at": 1791105756,
+      "state": "failed"
     },
     "case 6": {
       "expected": "unmet",
-      "rule_tx": "0xaa962822bc66a73a0a3edf2b39b65ed315422314677a34bdcf1bb2b761346309",
+      "rule_tx": "0x59863e8c0a53c11a7cafcc52e1ca0e9f0c6c64f1190ffb4c5beb58f6d6d1b35c",
       "rule": "applied",
-      "round": "1.1791106500",
+      "round": "1.1791105435",
       "verdict": "unmet",
       "reason": "work_missing",
       "confidence": 100,
       "artifact": "missing",
       "located": false,
-      "at": 1791106766,
+      "at": 1791105770,
       "state": "failed"
     },
     "case 7": {
       "expected": "no ruling",
-      "rule_tx": "0x682df75f781306bbbbdd16381dfa332425fdcb17176881a1459ea0ebcd09499d",
+      "rule_tx": "0xd5f70290e40ae52f4e8828e819994553570931ff3daf81dd5430222ab3f32f78",
       "rule": "refused",
       "state": "released"
     },
     "case 8 wrong total, run 1": {
       "expected": "unmet",
-      "rule_tx": "0x55af349c9c018ca2c3f1b7b03b0d66d7c6f2dc53040627ed4a5af06c2eb4debb",
+      "rule_tx": "0x70b0b290850b2a15d03e3f987fa125d35163bc0eba4ef46f45760032f838a046",
       "rule": "applied",
-      "round": "1.1791106550",
+      "round": "1.1791105482",
       "verdict": "unmet",
       "reason": "test_failed",
       "confidence": 100,
       "artifact": "verified",
       "located": false,
-      "at": 1791106787,
+      "at": 1791105784,
       "state": "failed"
     },
     "case 8 wrong total, run 2": {
       "expected": "unmet",
-      "rule_tx": "0xae448fa1d87631bc682ee58560f5f608abe5d7c974de477d568b989245d33546",
+      "rule_tx": "0x132661f832d996ef5d8275c935815c640d20ffa485ab4feccd3ee76b6abdd84a",
       "rule": "applied",
-      "round": "1.1791106578",
-      "verdict": "unmet",
-      "reason": "test_failed",
-      "confidence": 100,
+      "round": "1.1791105501",
+      "verdict": "met",
+      "reason": "test_met",
+      "confidence": 99,
       "artifact": "verified",
       "located": false,
-      "at": 1791106801,
-      "state": "failed"
+      "at": 1791105807,
+      "state": "released"
     },
     "case 8 wrong total, run 3": {
       "expected": "unmet",
-      "rule_tx": "0x6e7eca5d47192c5a1a3f205d22e3d03d6ddd0bb61c013fcd61d14c9c1df00ad9",
+      "rule_tx": "0x9043dbf9ed9866e0cb02ca577712b109d3d03c7fe28b17db8d5028afece600dc",
       "rule": "applied",
-      "round": "1.1791106600",
-      "verdict": "unmet",
-      "reason": "test_failed",
-      "confidence": 100,
-      "artifact": "verified",
-      "located": false,
-      "at": 1791106817,
-      "state": "failed"
-    },
-    "case 8 right total, run 1": {
-      "expected": "met",
-      "rule_tx": "0x51967a22f04e70e6a0166859b5ce6529abffae5b396dfc7717790fa61a99a155",
-      "rule": "applied",
-      "round": "1.1791106625",
+      "round": "1.1791105526",
       "verdict": "met",
       "reason": "test_met",
       "confidence": 100,
       "artifact": "verified",
       "located": false,
-      "at": 1791106837,
+      "at": 1791105821,
+      "state": "released"
+    },
+    "case 8 right total, run 1": {
+      "expected": "met",
+      "rule_tx": "0xfe9854fc0aa8ddde8ed4b3a64135ab504da3db215eb89d4f2bda5d70ca618d63",
+      "rule": "applied",
+      "round": "1.1791105552",
+      "verdict": "met",
+      "reason": "test_met",
+      "confidence": 100,
+      "artifact": "verified",
+      "located": false,
+      "at": 1791105853,
       "state": "released"
     },
     "case 8 right total, run 2": {
       "expected": "met",
-      "rule_tx": "0xdeea683c520d4d330b90702bfb56d0f6b538f64c4087654152cc99f38ba19fec",
+      "rule_tx": "0x947fae2636265cd2788ae9061b3fbd35aa4462feb3051c448fa53d8788306723",
       "rule": "applied",
-      "round": "1.1791106650",
+      "round": "1.1791105574",
       "verdict": "met",
       "reason": "test_met",
-      "confidence": 100,
+      "confidence": 99,
       "artifact": "verified",
       "located": false,
-      "at": 1791106854,
+      "at": 1791105867,
       "state": "released"
     },
     "case 8 right total, run 3": {
       "expected": "met",
-      "rule_tx": "0xeb2c92592e2ae55dac2b5a68f2e87bbfa5f1fc78efe60eef01b3cd2961402cbd",
+      "rule_tx": "0x924242d3c2e0af0bdf911962ae4cb6a452aaf63999ad06bdcf45cdc0a0131861",
       "rule": "applied",
-      "round": "1.1791106678",
+      "round": "1.1791105599",
       "verdict": "met",
       "reason": "test_met",
       "confidence": 100,
       "artifact": "verified",
       "located": false,
-      "at": 1791106868,
+      "at": 1791105881,
       "state": "released"
     },
     "case 9 without a location": {
       "expected": "not visible to the jury",
-      "rule_tx": "0x539ed98790694da40d6a1b03d161ef379f10ccfdcb0a80a50923c67fff2205e8",
+      "rule_tx": "0xb1030f28c92abe4d6480e2454f3f8dd58387d8ee9f9e759f251916b68abd749a",
       "rule": "applied",
-      "round": "1.1791106703",
+      "round": "1.1791105630",
       "verdict": "undetermined",
-      "reason": "unreadable_work",
-      "confidence": 95,
+      "reason": "ambiguous_test",
+      "confidence": 80,
       "artifact": "verified",
       "located": false,
-      "at": 1791106888,
+      "at": 1791105895,
       "state": "released"
     },
     "case 9 with a location": {
       "expected": "unmet",
-      "rule_tx": "0xb62d486eee45c3ca7d5c484b44d0150b7094aca6bfd8df79758cd9abf70ded40",
+      "rule_tx": "0x8c32cbafb01e165ef430170dae3bc639ec94f0de2a6d942878264e7484b82315",
       "rule": "applied",
-      "round": "1.1791106729",
+      "round": "1.1791105653",
       "verdict": "unmet",
       "reason": "test_failed",
-      "confidence": 100,
+      "confidence": 97,
       "artifact": "verified",
       "located": true,
-      "at": 1791106905,
+      "at": 1791105912,
       "state": "failed"
     },
+    "case 4 lines": [
+      [
+        "cities",
+        "failed",
+        "unmet"
+      ],
+      [
+        "format",
+        "released",
+        ""
+      ]
+    ],
     "withdraw": {
-      "owed": "340000000000000000",
-      "received": "340000000000000000",
+      "owed": "550000000000000000",
+      "received": "550000000000000000",
       "fee": "0"
     }
   },
   "status": {
     "release": "clause/2",
-    "jury": "0x7563c5f4e868b762351da38ebc477b49bd91f006",
+    "jury": "0x7bc4be44661bbbd110764995455f32245d0f9ab4",
     "appeal_seconds": 300,
-    "deals": 11,
-    "held": 250000000000000000,
-    "owed": 80000000000000000,
-    "balance": 330000000000000000,
+    "deals": 15,
+    "held": 300000000000000000,
+    "owed": 90000000000000000,
+    "balance": 390000000000000000,
     "bond_floor": 10000000000000000
   },
   "log": [
     {
       "tx": "case 1: fund",
-      "hash": "0x88b217ddd109fa892a5d4d360191bf727e19677ec390dc9db0550105985deb76",
+      "hash": "0xd934639de85aa46077863d0622b25e29378ec2825497d16fdf3c8e5a1586f59b",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 1: deliver three",
-      "hash": "0xfdb54b177b7139e96821cda9e0529fddb176fe1a4b03de50fddc2777dc612532",
+      "hash": "0x18d16423cf51f0bb9e1804c3dff6c871e2dfa2b29a11fdc8f0322851c06f93d4",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 1: dispute citing \"capitals\"",
-      "hash": "0x3e65528c74c056ed1b48c0c1155b4fe30d24e11a1e08ca987bb0e728729cae38",
+      "hash": "0x9883a0384ec7f397feaa8df050714eea365fded82ee33f9f3426bff0cb98f45c",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
@@ -213,199 +269,271 @@
     },
     {
       "tx": "case 1: dispute \"cities\"",
-      "hash": "0x301bcf65fce775a27d598a9c2722ea422fc8bdf379c38049d30a83d382086187",
+      "hash": "0x5101b085e5eb47160f826060d02d998d4c97708c8a5df761cbea85db9bd525aa",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 2: fund",
+      "hash": "0xf57417f5693746dae43b62460f343223f4604f497d4c09d564c949700e8ec46a",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 2: deliver two",
+      "hash": "0x01a573495e73488ff40ff11ce92ad9a18d45a73f5228b298381b360e3f45fb04",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 2: dispute \"cities\"",
+      "hash": "0x9a5d3baacff7c5e66ffc55a9ca48818a94d63221444b0f86723f4f909194d57f",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 3: fund",
+      "hash": "0x68123c3989cab7d7c461b1bf840af08f6b8682891766332ca1a2d7ac7bc35560",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 3: deliver three",
+      "hash": "0xf0b32b4ad2031b14cf3afc7b259df11dbebbbb2cee293862e787def2120e22a3",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 3: dispute \"cities\"",
+      "hash": "0x78cfbdccfaa74db640e8244bc7886a6812a38c7a8344c24d4531a3d3c6f2544c",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 4: fund",
+      "hash": "0xec1959929f4110b8ac34312a24838ad912e61f2c986815c8ddc38e6eed7ac440",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 4: deliver two",
+      "hash": "0x9e2a7cec61a2e2317efb73e9112e8e700efeaaedd77843f8dc98aa51b5769489",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 4: dispute \"cities\"",
+      "hash": "0x7a0e9a9342f12c824182164514695694ebdd41a840ed9d62fa48372ffca58af4",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 5: fund",
+      "hash": "0x0a0690684eeb1305ee203fff3853aa356d5901a2f821e73ee508c4d97b601d35",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 5: deliver injected",
+      "hash": "0x57d5cf8337156cd16d10facc7d97af7ee75639ea482ebeb1bda87a616e0eb59a",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 5: dispute \"cities\"",
+      "hash": "0xf38b9a6b7f4287b3c069d7905e4bd80396d4903e932c292f3287367116299868",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 6: fund",
-      "hash": "0xea9fd2348d09d5d9b398ed4a14fe7d77b293d01453cf6539f16eb50f85e69c15",
+      "hash": "0xa8c0e0ad4a3076f55ff611df68c617d7c8c6c622025ec7322024c6483de43565",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 6: deliver missing",
-      "hash": "0x50970db5c6066fb53e89ad9685579281b65e25cdd26e36edcdb57d10af6c3022",
+      "hash": "0xc9d8edf4cb5b3a6e42dc1bf8cef07138c602590d9ee009c7f9a3db4ab6add424",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 6: dispute \"cities\"",
-      "hash": "0x754369685ef7e517208ac404c1b52f016e5869ceb05fd78c648a54786c96b910",
+      "hash": "0x82e74a7381a65569a4d554f3fdfc9ca879d0b3cba65ec23506efb3c538be2bf6",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 7: fund",
-      "hash": "0xeba4be22b0edc300118643ac9c7957d37b87e4686c962de6e7943cea6260c57e",
+      "hash": "0xeaf94dbaf1a7723a0fafee301a5d0b107019df646f36dc5793116625505200cf",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 7: deliver unreachable",
-      "hash": "0xd807d6e068199d8b5ffd3566342c38c99c6fb7b04cdf21310d8c6640a967fade",
+      "hash": "0xfd2d74021e8ef31013a29b5dee32f2a8c7ced573e8cf15e42baac862e723241a",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 7: dispute \"cities\"",
-      "hash": "0xa2ebd867cb556b87ee4aeffef27c5a5d4e82661bf489ba998967b911c2060fce",
+      "hash": "0xa750ad086e659bb15201f1613cc8986d0abdbececfc2c88933474a5ab298bf95",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 8 wrong total, run 1: fund",
-      "hash": "0x7f50da2af11772d5c749db8cd84f63c62151c9d2669236c912b1af957bc6e0bb",
+      "hash": "0x6406f8e047ee49a9b335774df667baa70c47d2f8c3e0ff80b25ad04be2fcae5e",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 8 wrong total, run 1: deliver wrong",
-      "hash": "0x00943b9a69cbcb63bb2a452b5c98246df6fe6752f48b87641af40e472650ed60",
+      "hash": "0x8baf81948241744e9d2a7b0b7e7fb25ae5e5c4ab4d27932b09c373ed87fa3cf4",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 8 wrong total, run 1: dispute \"total\"",
-      "hash": "0xb78834c6266696fb72c8d75c9059e01dd98afa6da1030b44e65f0cd73cefac13",
+      "hash": "0x74b2c1fe6321993057217849093eaf441f73edfa23c37f99aa6e6e4168d31ff0",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 8 wrong total, run 2: fund",
-      "hash": "0x3fa3469ebeeb11d5b6d8c10cca7602bf7f7cfc7f6bd73a19c53ef051edbcb7f5",
+      "hash": "0x1ea2dfc1cc38cc9547c179f2ac4fabcec40cb12f0b9f1860e5b0e9606ee66d5e",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 8 wrong total, run 2: deliver wrong",
-      "hash": "0x5de66799ec718ffefca87c399ffb7d7c10fde961afe247408b9735c1225a86cc",
+      "hash": "0x8ad4037a0cf791a56975c56ffbbc2adb9b72d834c4badb95e12de209044e0566",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 8 wrong total, run 2: dispute \"total\"",
-      "hash": "0x901c730061fb50b46c690a86b9812a2288311d2b1ed8184b37e778b9bbd0621e",
+      "hash": "0x50725a590b01566a12d43938a3001ca0dfc7215b9c48aba92b432bdce1cea251",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 8 wrong total, run 3: fund",
-      "hash": "0x53d521ba4f25ded23b0827fcf69c49dbe01094922d2f5bccce346bbcab4b3ffe",
+      "hash": "0x45b2c0f1d83f95b6ada3ab550f9711c1574310a9f57414c7441361a81838cc59",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 8 wrong total, run 3: deliver wrong",
-      "hash": "0x3210e2ada61ba4107e914ed9055ff1cfa457a58e9ba30da829a6e258001dd9bd",
+      "hash": "0x732aa239c177acf9f1255c24017dd70d383df75e54cf060c025c164095ebf8a0",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 8 wrong total, run 3: dispute \"total\"",
-      "hash": "0xb17e47359f01bd80d97224328b86902da892ee667d499f8bb117e90f89601c18",
+      "hash": "0x0cef42ab62e0a7b8b486f1b30cd26322e14b80c1442f23c5fca82e58837d73c5",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 8 right total, run 1: fund",
-      "hash": "0xe71803633bdc247dcae3d2e88a6aa9572c49a6c543158ec1c6b8dd61904452c0",
+      "hash": "0x2cdf56b81bf5e780a627890eb2c75c6d1c84d97f76091a43f9053ee1e64d5705",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 8 right total, run 1: deliver right",
-      "hash": "0xae7cb0cbfcb1352b736e96aad376e9998f6ced66a36784624d69702be2bdbbc9",
+      "hash": "0x28aa3990fde4588dda7d6f218dfb14c51de445c5c28532ef0a7af55daae5dba6",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 8 right total, run 1: dispute \"total\"",
-      "hash": "0x9c0e042da2ba57e79cfc8acb0f26c4656987c8b40b0ce6555d02d5bf4911c05d",
+      "hash": "0xb5ab35164e6b744838f2c08f862756a56f0569b2dbb99a6fa15d1abfa33a4ad9",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 8 right total, run 2: fund",
-      "hash": "0x46a5a59a63eba994990b806afff2a26042e3f6c2ebc5c2b5f8196d68a75e01b4",
+      "hash": "0xd69b320bee5dc9a94a08de2c27c3bc91f6db333f25e484462458b3d6383e7a6f",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 8 right total, run 2: deliver right",
-      "hash": "0x4a4e508d7b6e5e64d188b337ce4d629b57d9ac0e1d3df462c078569886ad2cd7",
+      "hash": "0x7836038c773725d2006dbad449ef8ad20d49d68e57c50ed29081eabed7b38c20",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 8 right total, run 2: dispute \"total\"",
-      "hash": "0x2978adf2d7bf88d76f8554d936b250706c258a9cf3ea8501d66361fc49512101",
+      "hash": "0x62f3d0570359c74da023038ace9da3e38889dc9d6eeeedb61f8c20a01ae28b16",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 8 right total, run 3: fund",
-      "hash": "0xdded87dd078d1bd39cb1b0b87bd56d920a72914d240dbcce7edd1aa7eaed29be",
+      "hash": "0x7a92a68df6dc6e6b46f3c665921f128d34ba715051948748d0d6698a63de3b59",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 8 right total, run 3: deliver right",
-      "hash": "0x9508fb263c8d23ee7b720bcc7ee3db9c1593a9a04970c111bb82b2010ed0adcb",
+      "hash": "0x34a6766755f66a517bf3494eea08e00a96c59ac94e3028b231b81f5cb687d2fd",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 8 right total, run 3: dispute \"total\"",
-      "hash": "0xebe5758c93c7618558032700d476e4e917636cff1e2ae239bb3ab2bbadabe495",
+      "hash": "0xbc5503a8e4989b4b4912325783cfc6924a008b7d24cbb3354b072ec35367bc68",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 9 without a location: fund",
-      "hash": "0x6620f5c86e403361126ef45832529c9798a58bfbd60f8217a59fcf316aa2a9f8",
+      "hash": "0x45b0f8fbb9228dc975b232f1b95794b6fa3e2314a6484699d251d92a799fd582",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 9 without a location: deliver catalog",
-      "hash": "0x34b740d40e15e7f529ce670318321f3ff2ddfd8202fb5a282a9b2c039456cf31",
+      "hash": "0x7ab4eee4f856e5a5090fd4fc64d1d7afc045469ab6252a96a0373daad6fa1223",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 9 without a location: dispute \"prices\"",
-      "hash": "0xa060b9cf01ca50a6b1b306555c63fd9032e95b6f2369761b43f9b541bdf0c842",
+      "hash": "0x1b5bb3b3bf717c1abb778171be179b94d2766861d9e07e08a9108af8ea3b32a5",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 9 with a location: fund",
-      "hash": "0x002ffbadc4437ab4e9c3aca2af19ee39b365b4c7267035821fc5b20738bc4079",
+      "hash": "0xd378d9ca23f231ceca3f12e41f06356524ea92266b17266ec22a48b4e55876c4",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 9 with a location: deliver catalog",
-      "hash": "0x489b4ecaad47d10a55797717b88c93a229465dcacd786ccbd69517d856e7e81c",
+      "hash": "0xf6dab363e31eb1c60d50f5c6ad86dc2eab69d22d3729dcadcefc8e388ae7d7c6",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 9 with a location: dispute \"prices\" at /items/71",
-      "hash": "0x602234c53e38d21a5a833c0c4f6cd5c69a11de5c44a881369e95c8c119f59e31",
+      "hash": "0xb4e67d4b71dec3904ea280b604b765ad4479fd60583b7f1f8adc2d1b2bf87167",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 1b: convene the jury",
-      "hash": "0x577a1c35b093437ae87ef8e33e09bbb8ca09354951f7a8fb6e360d1e7bd2ea60",
+      "hash": "0xe9e99caa4f95c73593eb197b1e6435074346956ad2c24e972d74d6875823a3fe",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 1b: apply at once",
-      "hash": "0x5da9c25cb46c51ef2df1e743afb47b64a12ea7440335020af6d4a2f672f5c956",
+      "hash": "0x3bd6f223248365e98481282eeb5c803c49db04fa897000af8f6d824fb5fb20b8",
       "consensus": "MAJORITY_AGREE",
       "leader": "contract_error"
     },
@@ -417,7 +545,7 @@
     },
     {
       "tx": "case 1b: convene again",
-      "hash": "0x7c4a4a13b65dc0c6de9f9c929aa0b312e778077d1685a273f345d7d48b45a614",
+      "hash": "0xdf45845c38158f3e9a6066c9b5bc8c7dcf5b480c78f4e24b0187ddbc1bfedd95",
       "consensus": "MAJORITY_AGREE",
       "leader": "contract_error"
     },
@@ -428,8 +556,32 @@
       "ok": true
     },
     {
+      "tx": "case 2: convene the jury",
+      "hash": "0xa38f6f27973513bd24902b6d5f60809282294fd26c86bc5a6ebef0167bb725ca",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 3: convene the jury",
+      "hash": "0x43e76c742160498b67518d8aac807759c52d9dd737a5a0f1c5ffdcae885fae7a",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 4: convene the jury",
+      "hash": "0xa53f48d1c6983df8bad7d7466f320fce4b221fb347cdc5881d2689318c521362",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 5: convene the jury",
+      "hash": "0xdd4b804c39023c1995ae23e8a7402974c6b2ae3e0d92a0709b875ce5a052132a",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
       "tx": "case 6: convene the jury",
-      "hash": "0xaa962822bc66a73a0a3edf2b39b65ed315422314677a34bdcf1bb2b761346309",
+      "hash": "0x59863e8c0a53c11a7cafcc52e1ca0e9f0c6c64f1190ffb4c5beb58f6d6d1b35c",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
@@ -441,7 +593,7 @@
     },
     {
       "tx": "case 7: convene the jury",
-      "hash": "0x682df75f781306bbbbdd16381dfa332425fdcb17176881a1459ea0ebcd09499d",
+      "hash": "0xd5f70290e40ae52f4e8828e819994553570931ff3daf81dd5430222ab3f32f78",
       "consensus": "MAJORITY_AGREE",
       "leader": "contract_error"
     },
@@ -453,55 +605,55 @@
     },
     {
       "tx": "case 8 wrong total, run 1: convene the jury",
-      "hash": "0x55af349c9c018ca2c3f1b7b03b0d66d7c6f2dc53040627ed4a5af06c2eb4debb",
+      "hash": "0x70b0b290850b2a15d03e3f987fa125d35163bc0eba4ef46f45760032f838a046",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 8 wrong total, run 2: convene the jury",
-      "hash": "0xae448fa1d87631bc682ee58560f5f608abe5d7c974de477d568b989245d33546",
+      "hash": "0x132661f832d996ef5d8275c935815c640d20ffa485ab4feccd3ee76b6abdd84a",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 8 wrong total, run 3: convene the jury",
-      "hash": "0x6e7eca5d47192c5a1a3f205d22e3d03d6ddd0bb61c013fcd61d14c9c1df00ad9",
+      "hash": "0x9043dbf9ed9866e0cb02ca577712b109d3d03c7fe28b17db8d5028afece600dc",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 8 right total, run 1: convene the jury",
-      "hash": "0x51967a22f04e70e6a0166859b5ce6529abffae5b396dfc7717790fa61a99a155",
+      "hash": "0xfe9854fc0aa8ddde8ed4b3a64135ab504da3db215eb89d4f2bda5d70ca618d63",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 8 right total, run 2: convene the jury",
-      "hash": "0xdeea683c520d4d330b90702bfb56d0f6b538f64c4087654152cc99f38ba19fec",
+      "hash": "0x947fae2636265cd2788ae9061b3fbd35aa4462feb3051c448fa53d8788306723",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 8 right total, run 3: convene the jury",
-      "hash": "0xeb2c92592e2ae55dac2b5a68f2e87bbfa5f1fc78efe60eef01b3cd2961402cbd",
+      "hash": "0x924242d3c2e0af0bdf911962ae4cb6a452aaf63999ad06bdcf45cdc0a0131861",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 9 without a location: convene the jury",
-      "hash": "0x539ed98790694da40d6a1b03d161ef379f10ccfdcb0a80a50923c67fff2205e8",
+      "hash": "0xb1030f28c92abe4d6480e2454f3f8dd58387d8ee9f9e759f251916b68abd749a",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 9 with a location: convene the jury",
-      "hash": "0xb62d486eee45c3ca7d5c484b44d0150b7094aca6bfd8df79758cd9abf70ded40",
+      "hash": "0x8c32cbafb01e165ef430170dae3bc639ec94f0de2a6d942878264e7484b82315",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 1b: apply",
-      "hash": "0xe5fbb719d5182bfc789c1857c8b2693772e32316cc100e4bacd5254896fba06b",
+      "hash": "0x28b190b4dffd39fc5082a3276159f658bfeca8a709c32d782817c142b84bd121",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
@@ -518,8 +670,80 @@
       "ok": true
     },
     {
+      "tx": "case 2: apply",
+      "hash": "0x7b2e901215c1a2e3505a0b794f58500be4a313c53f0b02fe2379443d6f2b593c",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 2: the escrow applies the ruling",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "case 2: unmet -> failed, seller credited",
+      "actual": "0",
+      "expected": "0",
+      "ok": true
+    },
+    {
+      "tx": "case 3: apply",
+      "hash": "0x95ea38f85af293362d7ff4ddd1ff9a19d2cafab459d20e10bd17541d5c490c29",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 3: the escrow applies the ruling",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "case 3: met -> released, seller credited",
+      "actual": "60000000000000000",
+      "expected": "60000000000000000",
+      "ok": true
+    },
+    {
+      "tx": "case 4: apply",
+      "hash": "0x5b4d733d2cc3fc9ec898794e1a7a6e853ea102cb9b82b5d519d681e5a9fabe00",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 4: the escrow applies the ruling",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "case 4: unmet -> failed, seller credited",
+      "actual": "0",
+      "expected": "0",
+      "ok": true
+    },
+    {
+      "tx": "case 5: apply",
+      "hash": "0xfbe25a55fdad36569f5f9783743f37cfb23da6108f60881750d43fb458e293e4",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 5: the escrow applies the ruling",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "case 5: unmet -> failed, seller credited",
+      "actual": "0",
+      "expected": "0",
+      "ok": true
+    },
+    {
       "tx": "case 6: apply",
-      "hash": "0x47bad15ecf63d36553c56194747e311b4a58dcb4597cf91ccbe1e4dc3f606805",
+      "hash": "0xaeb61e0b442dd92d440db4e0f34a8cd41a27e251d7bdf08dac491c59f6dec613",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
@@ -537,7 +761,7 @@
     },
     {
       "tx": "case 8 wrong total, run 1: apply",
-      "hash": "0x9cdefbe06ac882e5151b224e3a6ccb823750c25072226abde2751196cc6f1286",
+      "hash": "0x0a3f7d6b5f561b9127ac9f8c315e9778261d1cd56ca6deecb7c009668f5d4747",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
@@ -555,7 +779,7 @@
     },
     {
       "tx": "case 8 wrong total, run 2: apply",
-      "hash": "0xe3927c2729d2299099fcfc1706b2946a4b23de844618daebf3ffd71da160708b",
+      "hash": "0xf38647c6dd517b3adc7056b77f2e64f94198ec00983ba0b20abf86cdbfa1e251",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
@@ -566,14 +790,14 @@
       "ok": true
     },
     {
-      "check": "case 8 wrong total, run 2: unmet -> failed, seller credited",
-      "actual": "0",
-      "expected": "0",
+      "check": "case 8 wrong total, run 2: met -> released, seller credited",
+      "actual": "60000000000000000",
+      "expected": "60000000000000000",
       "ok": true
     },
     {
       "tx": "case 8 wrong total, run 3: apply",
-      "hash": "0xade872407ef69dac630d80a9f697f41761f47aad99c5ab8af3ff8066f6c7f0fc",
+      "hash": "0x15a67485ea00447e2e2267015c49a999d2cf03ba40f96896fc7f68b0a188122f",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
@@ -584,14 +808,14 @@
       "ok": true
     },
     {
-      "check": "case 8 wrong total, run 3: unmet -> failed, seller credited",
-      "actual": "0",
-      "expected": "0",
+      "check": "case 8 wrong total, run 3: met -> released, seller credited",
+      "actual": "60000000000000000",
+      "expected": "60000000000000000",
       "ok": true
     },
     {
       "tx": "case 8 right total, run 1: apply",
-      "hash": "0x33758bebd9e0f606575d77fae11d564500d37ac840c88343e5907e0d75e6ba70",
+      "hash": "0x2180b63f035e510f20f0fadc2bf9b85c61d10d01ab5371404db4d881bfe0f404",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
@@ -609,7 +833,7 @@
     },
     {
       "tx": "case 8 right total, run 2: apply",
-      "hash": "0x27f4c6aa89c3bd5d82f8ec38f1c6ca307778b3ae9bb586939617e81fac48c486",
+      "hash": "0x883602a25883f2270854da82bf88ff0fface52d07228c7716fe65e2fe44598b1",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
@@ -627,7 +851,7 @@
     },
     {
       "tx": "case 8 right total, run 3: apply",
-      "hash": "0x779da8fe36346c2cb1afec470aba61c681df9469a6fb8ad3ae5b28ee5d1e4e79",
+      "hash": "0xea1e5c837596bbe174eb1e564427ec84d85f3d87b34b688711b8ca15b8e2c2f2",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
@@ -645,7 +869,7 @@
     },
     {
       "tx": "case 9 without a location: apply",
-      "hash": "0x9df667d2e8a68e9e3ba9625c4cd6ad0e3d6505c95baca7395fb5ecaa418fc786",
+      "hash": "0x2c8cdb72bea07c9d5d319f18de8595a6bca638668e2ab03723755ee201f8bc87",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
@@ -663,7 +887,7 @@
     },
     {
       "tx": "case 9 with a location: apply",
-      "hash": "0x3f6e10579e402889fdaa3f03e2044e9fe24e9f09caf249cbfe45417b5c3b12f1",
+      "hash": "0x0349cd616b9bba5cc86610436783596484019672fc109b505ab502c0efcd9b03",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
@@ -681,7 +905,7 @@
     },
     {
       "tx": "case 7: settle",
-      "hash": "0x91f1dbbffa3367bc9d6a89b5c70d7d3b905cd9005c5942bf50d8a70ad6914d8f",
+      "hash": "0x27596b0e7fe9000d81e6bc8cd54a9ec52f6bc8d5412159f4657bda5594b8ca73",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
@@ -692,8 +916,20 @@
       "ok": true
     },
     {
+      "tx": "case 4: settle",
+      "hash": "0xdc5f2a6dbe54eefe762aca3ed83390043c053616413ad4549d3d109e94974ea7",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 4: the uncited clause released on its own clock",
+      "actual": "released",
+      "expected": "released",
+      "ok": true
+    },
+    {
       "tx": "withdraw",
-      "hash": "0xe0d9cc0c3790a6843b921d742784ea571ee674fd0e6a8b452a2d45b85f07eeea",
+      "hash": "0xf60d27ff4616df3161f965ab729259bf913292dfff6b40fa24756a29388c3b21",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
@@ -717,8 +953,8 @@
     },
     {
       "check": "the escrow holds exactly what is escrowed or owed",
-      "actual": "330000000000000000",
-      "expected": "330000000000000000",
+      "actual": "390000000000000000",
+      "expected": "390000000000000000",
       "ok": true
     },
     {

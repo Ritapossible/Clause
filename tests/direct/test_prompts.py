@@ -111,3 +111,14 @@ def test_an_excerpt_cannot_forge_structure():
 
 def test_no_location_no_section():
     assert "LOCATION" not in prompts.build_prompt(criterion="c", test="exactly 3 items", artifact_text="w")
+
+
+def test_the_works_claims_about_itself_are_not_evidence_and_the_jury_works_before_deciding():
+    """Measured on Studio with jury release 1: an invoice whose note said the
+    total was correct, while its amounts did not add up, was ruled met in 2 of
+    3 runs. The prompt now says a self-claim is not evidence, and asks for the
+    check before the reading."""
+    text = prompts.build_prompt(criterion="Invoice", test='The value of "total" equals the sum of the "amount" values', artifact_text="{}")
+    assert "is a\nclaim, not evidence" in text
+    assert "do the calculation from the values in the work" in text
+    assert text.index('"check"') < text.index('"reading"')

@@ -13,11 +13,15 @@ export interface NetworkConfig {
   /** Studio has a faucet method on its RPC; the testnet has none. */
   faucet: boolean;
   pollMs: number;
-  /** The Clause contract on this network (deploy/deployments.json). */
+  /** The Clause escrow on this network (deploy/deployments.json). */
   clause?: string;
+  /** The jury contract the escrow reads rulings from. */
+  jury?: string;
+  /** How long a ruling waits before the escrow can apply it. */
+  appealSeconds: number;
 }
 
-const d = deployments as Record<string, { clause?: string }>;
+const d = deployments as Record<string, { clause?: string; jury?: string; appeal_seconds?: number }>;
 const explorerOf = (c: typeof studionet) => (c.blockExplorers?.default.url ?? "").replace(/\/$/, "");
 
 // Chain config comes from genlayer-js 1.1.8. Older releases pointed the testnet
@@ -36,6 +40,8 @@ export const NETWORKS: Record<NetworkId, NetworkConfig> = {
     faucet: true,
     pollMs: 2500,
     clause: d.studio?.clause,
+    jury: d.studio?.jury,
+    appealSeconds: Number(d.studio?.appeal_seconds ?? 0),
   },
   bradbury: {
     id: "bradbury",
@@ -47,5 +53,7 @@ export const NETWORKS: Record<NetworkId, NetworkConfig> = {
     faucet: false,
     pollMs: 4000,
     clause: d.bradbury?.clause,
+    jury: d.bradbury?.jury,
+    appealSeconds: Number(d.bradbury?.appeal_seconds ?? 0),
   },
 };

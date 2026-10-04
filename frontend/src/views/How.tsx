@@ -27,7 +27,9 @@ const STEPS: { t: string; hot?: boolean; body: JSX.Element }[] = [
       <p>
         Inside a clause's review window the buyer may dispute it, citing its id and posting a bond (10% of the clause, never
         less than the floor). A dispute citing an id that is not in the spec, or late, or under-bonded, is refused and
-        recorded: no jury, the bond credited back. A clause nobody disputes pays the seller when its window closes.
+        recorded: no jury, the bond credited back. A clause nobody disputes pays the seller when its window closes. If the
+        problem is deep in the work, the buyer may point at it with a location (a byte span or a JSON pointer); the jury
+        sees those bytes, never the buyer's words.
       </p>
     ),
   },
@@ -37,10 +39,14 @@ const STEPS: { t: string; hot?: boolean; body: JSX.Element }[] = [
     body: (
       <>
         <p>
-          Anyone may convene the jury on a disputed clause. Each GenLayer validator fetches the work, checks it against the
-          pinned digest, and answers one question from the clause and the work alone: <i>does the delivered work fail this
-          clause, as written?</i> The buyer's dispute text is never in the prompt. Work that is not at its digest cannot meet
-          a clause.
+          Anyone may convene the jury on a disputed clause. The jury is its own contract: each GenLayer validator fetches the
+          work, checks it against the pinned digest, and answers one question from the clause and the work alone: <i>does
+          the delivered work fail this clause, as written?</i> The buyer's dispute text is never in the prompt. Work changed
+          or removed from its URL is unmet; work nobody could fetch is no ruling at all.
+        </p>
+        <p>
+          The ruling is recorded on the jury contract. After an appeal window, anyone applies it to the escrow. That is the
+          only time the escrow reads the jury, so the escrow's clocks pay even if the jury contract becomes unreadable.
         </p>
         <ul>
           <li><b>Unmet</b> (a confident fail): the clause is kept for the buyer, the bond comes back, and the seller may redeliver once.</li>
@@ -59,8 +65,9 @@ const STEPS: { t: string; hot?: boolean; body: JSX.Element }[] = [
     body: (
       <p>
         <code>settle</code>, callable by anyone, applies every clock that has run out: undelivered work refunds, closed review
-        windows pay, an unruled dispute pays the seller at its ruling deadline with the bond returned, and an unmet clause
-        nobody redelivered refunds. None of it needs a jury or another contract, so the escrow always resolves.
+        windows pay, a dispute with no ruling applied pays the seller after its ruling deadline and appeal window with the
+        bond returned, and an unmet clause nobody redelivered refunds. None of it reads the jury or any other contract, so
+        the escrow always resolves.
       </p>
     ),
   },
@@ -83,7 +90,8 @@ export function How() {
         From funding to <em>withdrawal.</em>
       </h1>
       <p className="lede" style={{ marginBottom: 36 }}>
-        Six steps, each enforced by one GenLayer Intelligent Contract. The jury appears in exactly one of them.
+        Six steps across two GenLayer Intelligent Contracts: an escrow that holds the money and a jury that holds nothing.
+        The jury appears in exactly one step. The full docs cover every rule.
       </p>
       <div className="flow" style={{ gridTemplateColumns: "minmax(0, 1fr)", maxWidth: 860 }}>
         {STEPS.map((s, i) => (

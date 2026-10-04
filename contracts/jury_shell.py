@@ -33,7 +33,7 @@ class ClauseJury(gl.Contract):
     ruled: u256
 
     def __init__(self):
-        self.release = "clause-jury/1"
+        self.release = "clause-jury/2"
         self.ruled = u256(0)
 
     def _now(self) -> int:
