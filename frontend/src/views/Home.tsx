@@ -57,10 +57,9 @@ export function Home() {
             </h1>
             <p className="tagline">Disputes by citation.</p>
             <p className="lede">
-              The fight in paid work is rarely about holding the money. It is the buyer rejecting the work for a reason that
-              was not in the spec when it was locked. In Clause, a dispute must cite a pinned clause, so{" "}
-              <strong>a requirement that was never pinned never reaches a model.</strong> For the clauses that were, a jury
-              of AI validators reads the clause and the work, and never the complaint.
+              A dispute must cite a clause from the spec, so{" "}
+              <strong>a requirement added after the deal never reaches the jury.</strong> The jury reads the clause and the
+              work, never the complaint.
             </p>
             <div className="row">
               <a className="btn primary lg" href={href({ name: "new" })}>Fund a deal</a>
