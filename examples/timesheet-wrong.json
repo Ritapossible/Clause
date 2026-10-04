@@ -1,0 +1,35 @@
+{
+  "timesheet": "Data labelling, September",
+  "approved_by": "Project lead - hours checked and approved.",
+  "entries": [
+    {
+      "date": "2026-09-14",
+      "hours": 7.5
+    },
+    {
+      "date": "2026-09-15",
+      "hours": 8.0
+    },
+    {
+      "date": "2026-09-16",
+      "hours": 6.25
+    },
+    {
+      "date": "2026-09-17",
+      "hours": 8.0
+    },
+    {
+      "date": "2026-09-18",
+      "hours": 7.75
+    },
+    {
+      "date": "2026-09-21",
+      "hours": 4.0
+    },
+    {
+      "date": "2026-09-22",
+      "hours": 5.5
+    }
+  ],
+  "total_hours": 46.5
+}

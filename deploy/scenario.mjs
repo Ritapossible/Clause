@@ -44,6 +44,10 @@ const WORK = {
   wrong: [RAW + "invoice-wrong.json", "5a03c531dfd1f1070ec381547d0c8ab855647fec1e569d4341bfd6f1b5823455"],
   right: [RAW + "invoice-right.json", "dd7c768f1513f7119d83a74c7bf870ed8706a981e18156f1c9bde22a129703af"],
   catalog: [RAW + "catalog-long.json", "975c5c2e564e6d6a0ab0e952ac9af61df8a05560354faab794632445fe25a069"],
+  tsWrong: [RAW + "timesheet-wrong.json", "88104598a157b92f29a87766835953252580e0dda1269d01063166a33d26e5af"],
+  tsRight: [RAW + "timesheet-right.json", "264c7399533d1095315d9b081caa877b158940b8384f1fcbb40ddf0932ece13d"],
+  orderWrong: [RAW + "order-wrong.json", "4cf7877e61ba22f2856ce96a6cef4691864822a3772a18ead4e53c022417e7ec"],
+  orderRight: [RAW + "order-right.json", "f013542b7bec59c9a5b264f23d9b7651a323aa084d30c063a1728aa785a96310"],
   missing: [RAW + "no-such-file.json", "e5e61d7ab0adb4ba31a6326751d02107b4a2dc1e957912fe2d24177539fa1bfb"],
   unreachable: ["https://clause-unreachable.invalid/work.json", "e5e61d7ab0adb4ba31a6326751d02107b4a2dc1e957912fe2d24177539fa1bfb"],
 };
@@ -52,6 +56,9 @@ const CITIES = { id: "cities", criterion: "A list of African cities for the trav
 const FORMAT = { id: "format", criterion: "Machine-readable output", test: 'The deliverable is JSON with a top-level key "cities"', amount: Number(GEN(0.03)) };
 const TOTAL = { id: "total", criterion: "An invoice for the brand work", test: 'The value of "total" equals the sum of the "amount" values of all items', amount: Number(GEN(0.05)) };
 const PRICES = { id: "prices", criterion: "The spring catalog", test: 'Every item in "items" has a "price" field', amount: Number(GEN(0.05)) };
+// Held out: written after jury release 2 was fixed and never used to tune it.
+const HOURS = { id: "hours", criterion: "September timesheet for the labelling work", test: 'The value of "total_hours" equals the sum of the "hours" of all entries', amount: Number(GEN(0.05)) };
+const LINES = { id: "lines", criterion: "Purchase order PO-7731", test: 'For every item, "line_total" equals "qty" multiplied by "unit_price"', amount: Number(GEN(0.05)) };
 const REVIEW = FULL ? 900 : 3600;
 const RULING = FULL ? 2400 : 3 * 3600;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -136,6 +143,10 @@ if (want(8)) for (let k = 1; k <= RUNS; k++) ids[`c8w${k}`] = await open(`case 8
 if (want(8)) for (let k = 1; k <= RUNS; k++) ids[`c8r${k}`] = await open(`case 8 right total, run ${k}`, [TOTAL], "right", "total");
 if (FULL && want(9)) ids.c9u = await open("case 9 without a location", [PRICES], "catalog", "prices");
 if (want(9)) ids.c9l = await open("case 9 with a location", [PRICES], "catalog", "prices", { locate: "/items/71" });
+for (let k = 1; k <= RUNS && want(10); k++) ids[`c10w${k}`] = await open(`case 10 timesheet, wrong total, run ${k}`, [HOURS], "tsWrong", "hours");
+for (let k = 1; k <= RUNS && want(10); k++) ids[`c10r${k}`] = await open(`case 10 timesheet, right total, run ${k}`, [HOURS], "tsRight", "hours");
+for (let k = 1; k <= RUNS && want(11); k++) ids[`c11w${k}`] = await open(`case 11 order, one wrong line, run ${k}`, [LINES], "orderWrong", "lines");
+for (let k = 1; k <= RUNS && want(11); k++) ids[`c11r${k}`] = await open(`case 11 order, all lines right, run ${k}`, [LINES], "orderRight", "lines");
 
 // Phase 2: the jury, once per dispute.
 console.log("\nThe jury");
@@ -160,6 +171,10 @@ for (let k = 1; k <= RUNS && want(8); k++) await rule(`case 8 wrong total, run $
 for (let k = 1; k <= RUNS && want(8); k++) await rule(`case 8 right total, run ${k}`, ids[`c8r${k}`], "total", "met");
 if (ids.c9u !== undefined) await rule("case 9 without a location", ids.c9u, "prices", "not visible to the jury");
 if (ids.c9l !== undefined) await rule("case 9 with a location", ids.c9l, "prices", "unmet");
+for (let k = 1; k <= RUNS && want(10); k++) await rule(`case 10 timesheet, wrong total, run ${k}`, ids[`c10w${k}`], "hours", "unmet");
+for (let k = 1; k <= RUNS && want(10); k++) await rule(`case 10 timesheet, right total, run ${k}`, ids[`c10r${k}`], "hours", "met");
+for (let k = 1; k <= RUNS && want(11); k++) await rule(`case 11 order, one wrong line, run ${k}`, ids[`c11w${k}`], "lines", "unmet");
+for (let k = 1; k <= RUNS && want(11); k++) await rule(`case 11 order, all lines right, run ${k}`, ids[`c11r${k}`], "lines", "met");
 
 // Phase 3: wait out the appeal window, then the escrow applies each ruling.
 const last = Math.max(...plan.filter((p) => p.ruling.at).map((p) => Number(p.ruling.at)));
