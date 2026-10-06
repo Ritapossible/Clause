@@ -57,7 +57,7 @@ holds nothing.
 | 02 | **Checkability gate** | Each acceptance test must name something checkable: a number, a quoted value or a structure. Tests built on taste words ("good", "professional") are refused at funding, and the GEN is credited back. |
 | 03 | **Deliver** | The seller delivers one URL and its sha256. Every clause opens for review. If nothing is delivered by the deadline, the buyer is refunded. |
 | 04 | **Dispute by citation** | During a clause's review window, the buyer may dispute that clause by its id, with a bond (10% of the clause, at least 0.01 GEN), and may point at a location in the work. A dispute citing an id that is not in the spec is refused: no model runs and the bond is credited back. |
-| 05 | **The jury rules** | Anyone can convene the jury contract. Each validator fetches the work and checks its digest, then answers the one question from the clause, the work and the bytes at the buyer's location. The jury records the ruling. |
+| 05 | **The jury rules** | The dispute convenes the jury contract itself; anyone can convene it again if a round could not decide. Each validator fetches the work and checks its digest, then answers the one question from the clause, the work and the bytes at the buyer's location. The jury records the ruling. |
 | 06 | **The escrow applies it** | After an appeal window, anyone applies the ruling to the escrow. **unmet** keeps the clause's money for the buyer, and the seller may redeliver once. **met** pays the seller, plus the bond. **undetermined** pays the seller and returns the bond. |
 | 07 | **Every clock is in the escrow** | `settle` (anyone) applies every deadline that has passed: undisputed clauses pay, a dispute with no ruling applied lapses to the seller - or refunds the buyer if the jury could not fetch the work - and undelivered work refunds. It never reads the jury. |
 | 08 | **Withdraw** | Rulings and deadlines credit what each party is owed, and `withdraw` sends it. |
@@ -76,13 +76,16 @@ is a normal response and an unreachable host raises. So:
 
 - bytes that differ from the digest, or a 404, are the seller's: unmet, with
   no model call;
-- no answer at all is never paid for. Each round that cannot fetch the work
-  is recorded, and the jury sends it to the escrow itself. Rounds must be a
+- no answer at all is never paid for. Every dispute convenes the jury
+  itself, so the work is fetched at least once even if nobody pursues the
+  dispute. Each round that cannot fetch the work is recorded, and the jury
+  sends it to the escrow itself. Rounds must be a
   quarter of the ruling window apart. The third is the verdict
   **unavailable**: a neutral refund, the clause and the bond back to the
   buyer. With fewer rounds, the deadline refunds the same way instead of
   paying the seller. Work that becomes readable again is ruled on as usual.
-  Tested in `tests/direct/test_scenarios.py` (cases 5c-5e).
+  Tested in `tests/direct/test_scenarios.py` (cases 5c-5e; 5d is a dispute
+  nobody pursues).
 
 **The buyer can point, never argue.** The jury reads the first 4,000
 characters of the work. A dispute may carry a byte span or a JSON pointer,
@@ -134,8 +137,8 @@ The jury itself has been shown on a small sample, stated as small:
 
 | Network | Escrow | Jury |
 | --- | --- | --- |
-| GenLayer Studio | [`0xd4E2e736222260dc1037E687bbCD351a96b0AF49`](https://explorer-studio.genlayer.com/address/0xd4E2e736222260dc1037E687bbCD351a96b0AF49) | [`0x7AC031DD7a2F73297c8396493Dc8a49D15D8C782`](https://explorer-studio.genlayer.com/address/0x7AC031DD7a2F73297c8396493Dc8a49D15D8C782) |
-| Bradbury testnet | [`0x86b89ACC65A95DFdb44CE1203c1d95b618f5b920`](https://explorer-bradbury.genlayer.com/address/0x86b89ACC65A95DFdb44CE1203c1d95b618f5b920) | [`0xd9505f21257b63b9De187FCf9Ce5F5bad0831BB7`](https://explorer-bradbury.genlayer.com/address/0xd9505f21257b63b9De187FCf9Ce5F5bad0831BB7) |
+| GenLayer Studio | [`0xC254Dd250b56941C7024a478E880c5859F329Ebf`](https://explorer-studio.genlayer.com/address/0xC254Dd250b56941C7024a478E880c5859F329Ebf) | [`0xfaf7be070e483D2b884FDD93Cc611F0c3616d0bE`](https://explorer-studio.genlayer.com/address/0xfaf7be070e483D2b884FDD93Cc611F0c3616d0bE) |
+| Bradbury testnet | [`0x7950E82CC97978141A5126078198e0F7bA192061`](https://explorer-bradbury.genlayer.com/address/0x7950E82CC97978141A5126078198e0F7bA192061) | [`0x9D3219a52f03c231F46c213b921e019C5E648DEA`](https://explorer-bradbury.genlayer.com/address/0x9D3219a52f03c231F46c213b921e019C5E648DEA) |
 
 - Releases: escrow `clause/3`, jury `clause-jury/3` (work nobody can fetch is
   never paid for; see "A missing file is not a failed test").
@@ -212,13 +215,15 @@ the books) are checked.
 | 11 *(held out)* | the same order, every line right | met | | 3 of 3: met (99, 99, 100) | |
 
 **Case 7 under `clause/3`, after a review asked that unreadable work never
-pay the seller.** On Studio (`deploy/scenario-studio-unavailable.json`):
-three jury rounds against an unreachable host, each recorded as `unread`; the
-jury's own message noted the first on the escrow within a second, with
-nobody applying it; an immediate retry was refused; the third round was the
-verdict `unavailable`; after the appeal window the escrow refunded the buyer
-0.06 GEN (the clause and the bond) and credited the seller nothing, and the
-buyer withdrew it. 0 failed checks. Bradbury: round 1 behaved the same (recorded, retry refused, noted on the escrow by the jury's message within a second); the full run is in progress.
+pay the seller.** On Studio (`deploy/scenario-studio-unavailable.json`): the
+dispute convened the jury itself - round 1 was recorded as `unread` 12
+seconds later with no `rule` call - and the jury's own message noted it on
+the escrow within a second, with nobody applying anything; an immediate
+retry was refused; rounds 2 and 3, a quarter of the ruling window apart,
+were also unread, and the third was the verdict `unavailable`; after the
+appeal window the escrow refunded the buyer 0.06 GEN (the clause and the
+bond), credited the seller nothing, and the buyer withdrew it. 0 failed
+checks. Bradbury: in progress.
 
 Records:
 
@@ -302,7 +307,7 @@ The threat model (T1 to T12) is in the docs. Here is what is **not** solved:
 
 ```bash
 python3 -m pytest tests/direct          # 112 tests: rules, prompt, both builds, scenarios
-python3 tests/mutation_check.py         # 40 mutants, one per rule; all must be killed
+python3 tests/mutation_check.py         # 41 mutants, one per rule; all must be killed
 python3 deploy/build_contract.py        # rebuild contracts/build/ (both contracts)
 cd frontend && npm run typecheck && npx tsx scripts/parity.ts
 ```

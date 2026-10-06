@@ -81,6 +81,8 @@ MUTATIONS = [
      '            if int(line.get("unread", 0)) > 0:', "            if False:", CORE),
     ("jury-does-not-notify", "the jury tells the escrow about an unread round itself",
      "            gl.get_contract_at(Address(source)).emit(on=\"accepted\").note_unread(", "            (lambda *a: None)(", JURY),
+    ("dispute-does-not-convene", "every dispute convenes the jury itself",
+     '        gl.get_contract_at(Address(self.jury)).emit(on="accepted").rule(', "        (lambda *a: None)(", SHELL),
     ("note-from-anyone", "only the jury may note an unread round",
      "        if self._me() != self.jury:\n            raise Exception(\"[EXPECTED] only the jury contract notes", "        if False:\n            raise Exception(\"[EXPECTED] only the jury contract notes", SHELL),
     ("unread-not-noted", "an unread record is noted on the line at once",

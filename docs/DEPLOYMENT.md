@@ -15,7 +15,7 @@ Bradbury, prove it on chain, and ship the web app.
 
 ```bash
 python3 -m pytest tests/direct          # 112 tests
-python3 tests/mutation_check.py         # 40 mutants; all must be killed
+python3 tests/mutation_check.py         # 41 mutants; all must be killed
 python3 deploy/build_contract.py        # writes contracts/build/clause*.py and clause*.min.py
 ```
 

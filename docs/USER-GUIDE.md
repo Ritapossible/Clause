@@ -126,11 +126,13 @@ amount, never less than 0.01 GEN.
   jury acts on them. In the recorded runs, the same located defect was ruled
   unmet on Studio and undetermined on Bradbury, where the seller was paid.
 
-### 4. Convene the jury, then apply the ruling
+### 4. The jury rules, then apply the ruling
 
-1. Anyone can press **Convene the jury** on a disputed clause: you, the
-   seller, or anyone else. The jury is its own contract. On Studio a round
-   takes about 20 seconds; on Bradbury it takes minutes.
+1. Your dispute convenes the jury itself: the escrow sends the jury a
+   message the moment the dispute is accepted. On Studio a round takes about
+   20 seconds; on Bradbury it takes minutes. If that round could not decide,
+   anyone can press **Convene the jury** to try again: you, the seller, or
+   anyone else.
 2. The ruling shows on the clause at once, but the escrow applies it only
    after its **appeal window**: 5 minutes on Studio, 40 on Bradbury. Then
    anyone can press **Apply the ruling**.
@@ -225,7 +227,7 @@ dispute happens, every validator fetches the URL and hashes the bytes:
 | The bytes match the digest | The jury reads the work |
 | The bytes are different | Unmet, without a model call: you changed the work you pinned |
 | 404 or 410 | Unmet, without a model call: you removed the work you pinned |
-| No answer (network error, server error) | Nothing is ruled. The jury can be convened again; if nothing lands by the deadline, the clause pays you |
+| No answer (network error, server error) | Recorded, never paid for. The jury can be convened again a quarter of the ruling window later; three such rounds, or the deadline after one, refund the buyer |
 
 ### Get paid
 
@@ -358,7 +360,7 @@ Mutual cancellation is on the roadmap.
 **Is the work private?** No. The URL is on chain and validators must fetch it,
 so treat delivered work as public. Private delivery is on the roadmap.
 
-**Who pays for the jury?** Whoever convenes it pays that transaction's gas.
+**Who pays for the jury?** The first round is part of the dispute: the escrow convenes it as a message. Whoever convenes a later round pays that transaction's gas.
 
 **Can a ruling be appealed?** GenLayer lets anyone appeal the jury's
 transaction during its appeal window. The escrow waits out that window before

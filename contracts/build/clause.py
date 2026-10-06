@@ -708,7 +708,8 @@ class Clause(gl.Contract):
         ("" or a byte span or JSON pointer) shows the jury where to look. A
         dispute that cites no clause of the spec, or is late, under-bonded or
         badly located, is refused: it is recorded on the deal, no jury runs,
-        and the bond is credited back."""
+        and the bond is credited back. An accepted dispute convenes the jury
+        itself."""
         bond = int(gl.message.value)
         if int(deal_id) < 0 or int(deal_id) >= int(self.deal_count):
             self._refuse("unknown deal", bond)
@@ -731,6 +732,13 @@ class Clause(gl.Contract):
             return
         self._save(deal)
         self.held = u256(int(self.held) + bond)
+        # Every dispute gets a jury round: convened here, as a message the
+        # jury runs once this call is accepted. So the work is always fetched
+        # at least once - a round that cannot fetch it is recorded and the
+        # clause can no longer pay the seller - even if nobody convenes the
+        # jury by hand. A message is not a read: if the jury contract fails,
+        # only the message fails, and every clock here still runs.
+        gl.get_contract_at(Address(self.jury)).emit(on="accepted").rule(str(self.address).lower(), int(deal_id), str(clause_id))
 
     @gl.public.write
     def apply_ruling(self, deal_id: int, clause_id: str) -> None:

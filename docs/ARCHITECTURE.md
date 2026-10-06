@@ -151,6 +151,11 @@ So the contract can tell the server's definite answer from no answer:
 - **Bytes that differ from the pinned digest, or a 404/410,** are the
   seller's: it pinned the work and changed or removed it. These are ruled
   unmet with no model call, and the seller may redeliver.
+- **Every dispute convenes the jury itself.** An accepted `dispute` sends
+  the jury a `rule` message, so the work is fetched at least once even if
+  nobody pursues the dispute. It is a message, not a read: the escrow still
+  reads the jury only in `apply_ruling`, and if the jury fails, only the
+  message fails.
 - **No answer at all never pays the seller.** It is not a reading of the
   work, so no model runs, but the round is recorded on the jury contract as
   `unread`. The jury can be convened again a quarter of the ruling window
@@ -163,10 +168,9 @@ So the contract can tell the server's definite answer from no answer:
   round noted is refunded the same way instead of paying the seller. If the
   work becomes readable again, the next round reads it and rules as usual.
 
-  The escrow still never reads the jury in `settle`, so the note has to be
-  applied: anyone may do it as soon as the round is recorded, and the
-  deadline comes `appeal_seconds` after the last moment a round can run -
-  the same window every ruling has to be applied in.
+  The jury sends each unread round to the escrow itself (`note_unread`,
+  accepted only from the escrow's jury), so nobody has to apply it; anyone
+  may also apply the record with `apply_ruling`.
 
 Before this rule, the same missing file could end two opposite ways:
 validators who all failed to fetch agreed on "unmet", while validators who

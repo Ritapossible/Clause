@@ -8,7 +8,8 @@
 //   4   two clauses, one broken, only the broken one cited
 //   5   a forged answer block in the work (expected unmet)
 //   6   the delivery URL returns 404: unmet with no model
-//   7   the delivery host cannot be reached: each jury round records the
+//   7   the delivery host cannot be reached: the dispute convenes round 1
+//       itself; each jury round records the
 //       failed fetch; the third is the verdict unavailable, a neutral refund
 //       (the clause and the bond back to the buyer, nothing to the seller)
 //   8   an invoice whose prose says the total is right and whose numbers do
@@ -120,7 +121,9 @@ const plan = [];
 /** Convene the jury; record what it found. */
 async function rule(label, id, cid, expected) {
   const r = await tx(buyer, jury, "rule", [clause, id, cid], `${label}: convene the jury`);
-  const ruling = r.applied ? (await readUntil(() => rulingOf(id, cid), (x) => !!x.verdict, { seconds: 300 })).value : {};
+  // The dispute already convened the jury itself, so this call may be refused
+  // as "already ruled"; the ruling is read either way.
+  const ruling = (await readUntil(() => rulingOf(id, cid), (x) => !!x.verdict, { seconds: r.applied ? 300 : 900 })).value;
   console.log(`    ${r.applied ? `ruling ${ruling.verdict} / ${ruling.reason} @${ruling.confidence}, work ${ruling.artifact}` : "no ruling recorded"}   (expected ${expected})`);
   cases[label] = { expected, rule_tx: r.hash, rule: r.applied ? "applied" : r.refused ? "refused" : r.consensus, ...ruling };
   plan.push({ label, id, cid, ruling });
@@ -174,10 +177,14 @@ if (ids.c7 !== undefined) {
       const pause = lastAt + gap + 15 - Number((await deal(ids.c7)).now);
       if (pause > 0) { console.log(`  waiting ${pause}s before round ${n}`); await sleep(pause * 1000); }
     }
-    const r = await tx(buyer, jury, "rule", [clause, ids.c7, "cities"], `case 7: convene the jury, round ${n}`);
-    const rec = (await readUntil(() => rulingOf(ids.c7, "cities"), (x) => Number(x.unread ?? 0) >= n, { seconds: 600 })).value;
-    console.log(`    record: ${JSON.stringify(rec)}`);
-    check(`case 7: round ${n} could not fetch the work and is recorded`, `${r.applied}/${rec.unread}/${rec.artifact}`, `true/${n}/unread`);
+    // Round 1 is the one the dispute convened itself; nobody calls rule for it.
+    const r = n === 1 ? { applied: true, hash: "convened by the dispute" }
+      : await tx(buyer, jury, "rule", [clause, ids.c7, "cities"], `case 7: convene the jury, round ${n}`);
+    const got = await readUntil(() => rulingOf(ids.c7, "cities"), (x) => Number(x.unread ?? 0) >= n, { seconds: FULL ? 600 : 2700, every: 10 });
+    const rec = got.value;
+    console.log(`    record: ${JSON.stringify(rec)}${n === 1 ? `   (seen ${got.waited}s after the dispute, with no rule call)` : ""}`);
+    check(n === 1 ? "case 7: the dispute convened the jury itself; round 1 could not fetch the work and is recorded"
+      : `case 7: round ${n} could not fetch the work and is recorded`, `${r.applied}/${rec.unread}/${rec.artifact}`, `true/${n}/unread`);
     if (n === 1) {
       const again = await tx(seller, jury, "rule", [clause, ids.c7, "cities"], "case 7: convene again at once");
       check("case 7: a round cannot be repeated at once", again.refused, true);

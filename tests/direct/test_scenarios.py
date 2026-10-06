@@ -208,10 +208,12 @@ def scenario(suffix):
     calls = len(model.prompts)
     fund("deal 7", [CITIES])
     tx("deliver 7", C, "deliver", 7, DOWN, THREE[2], sender=SELLER)
-    dispute("dispute 7", 7, "cities")
     out["case 5c: owed before"] = (c.owed_to(BUYER), c.owed_to(SELLER))
+    dispute("dispute 7", 7, "cities")  # convenes round 1 itself
+    out["case 5c: rule unreachable 1"] = "ok" if json.loads(rt.contracts[J].ruling_of(C, 7, "cities")).get("unread") == 1 else "no round"
     for n in (1, 2, 3):
-        tx("case 5c: rule unreachable %d" % n, J, "rule", C, 7, "cities", sender=SELLER)
+        if n > 1:
+            tx("case 5c: rule unreachable %d" % n, J, "rule", C, 7, "cities", sender=SELLER)
         out["case 5c: record %d" % n] = json.loads(rt.contracts[J].ruling_of(C, 7, "cities"))
         tx("case 5c: rule again at once %d" % n, J, "rule", C, 7, "cities", sender=SELLER)
         tx("case 5c: apply %d" % n, C, "apply_ruling", 7, "cities", sender=BUYER)
@@ -262,18 +264,19 @@ def scenario(suffix):
     out["case 7"] = deal(12)["lines"][0]
     rt.contracts[J] = jury
 
-    # 5d. One unread round, convened by the seller, and then nobody does
-    # anything: the jury's message alone makes the deadline refund the buyer.
+    # 5d. A dispute, and then nobody does anything: nobody convenes the
+    # jury, nobody applies anything. The dispute convened the jury itself;
+    # its round could not fetch the work and told the escrow, so the
+    # deadline refunds the buyer instead of paying the seller.
     fund("deal 13", [CITIES])
     tx("deliver 13", C, "deliver", 13, DOWN_ONCE, THREE[2], sender=SELLER)
-    dispute("dispute 13", 13, "cities")
-    tx("case 5d: a note from anyone but the jury", C, "note_unread", 13, "cities",
-       deal(13)["lines"][0]["dispute"]["round"], 3, rt.now, sender=SELLER)
+    owed = (c.owed_to(BUYER), c.owed_to(SELLER))
     sent = len(rt.messages)
-    tx("case 5d: rule unreachable", J, "rule", C, 13, "cities", sender=SELLER)
+    dispute("case 5d: dispute", 13, "cities")
     out["case 5d: messages"] = rt.messages[sent:]
     out["case 5d: line noted"] = deal(13)["lines"][0]
-    owed = (c.owed_to(BUYER), c.owed_to(SELLER))
+    tx("case 5d: a note from anyone but the jury", C, "note_unread", 13, "cities",
+       deal(13)["lines"][0]["dispute"]["round"], 3, rt.now, sender=SELLER)
     rt.now += 901 + APPEAL
     tx("case 5d: settle", C, "settle", 13, sender=SELLER)
     out["case 5d"] = deal(13)["lines"][0]
@@ -282,8 +285,8 @@ def scenario(suffix):
     # 5e. Unreadable once, readable on the next round: ruled as usual.
     fund("deal 14", [CITIES])
     tx("deliver 14", C, "deliver", 14, FLAKY, THREE[2], sender=SELLER)
-    dispute("dispute 14", 14, "cities")
-    tx("case 5e: rule unreachable", J, "rule", C, 14, "cities", sender=BUYER)
+    dispute("dispute 14", 14, "cities")  # its own round cannot fetch the work
+    out["case 5e: first round"] = json.loads(rt.contracts[J].ruling_of(C, 14, "cities"))
     rt.web[FLAKY] = THREE[1]
     rt.now += GAP
     out["case 5e"] = rule_and_apply(14, "cities")
@@ -396,15 +399,16 @@ def test_case_5c_repeated_unavailability_ends_in_a_neutral_refund(readable):
     assert "not disputed" in r["case 5c: rule after the refund"]
 
 
-def test_case_5d_an_unread_round_makes_the_deadline_refund_with_nobody_applying_it(readable):
-    """The jury tells the escrow itself: no one has to apply the record, so a
-    seller who convenes the jury while its host is down cannot then wait out
-    the deadline and be paid."""
+def test_case_5d_a_dispute_nobody_pursues_still_never_pays_for_unreadable_work(readable):
+    """Nobody convenes the jury and nobody applies anything. The dispute
+    convened the jury itself, the round could not fetch the work, and the jury
+    told the escrow: the deadline refunds the buyer. There is no path on which
+    work nobody could read is paid for."""
     r = readable
     assert "only the jury contract notes an unread round" in r["case 5d: a note from anyone but the jury"]
-    assert r["case 5d: rule unreachable"] == r["case 5d: settle"] == "ok"
-    [(origin, target, method, _args, outcome)] = r["case 5d: messages"]
-    assert (origin, target, method, outcome) == (J, C, "note_unread", "ok")
+    assert r["case 5d: dispute"] == r["case 5d: settle"] == "ok"
+    sent = sorted((origin, target, method, outcome) for origin, target, method, _args, outcome in r["case 5d: messages"])
+    assert sent == [(C, J, "rule", "ok"), (J, C, "note_unread", "ok")]  # the dispute convened the jury; the jury told the escrow
     noted = r["case 5d: line noted"]
     assert (noted["state"], noted["unread"], noted["artifact"]) == ("disputed", 1, "unread")
     line = r["case 5d"]
@@ -414,7 +418,7 @@ def test_case_5d_an_unread_round_makes_the_deadline_refund_with_nobody_applying_
 
 def test_case_5e_work_readable_again_is_ruled_on_as_usual(readable):
     r = readable
-    assert r["case 5e: rule unreachable"] == "ok"
+    assert (r["case 5e: first round"]["unread"], "verdict" in r["case 5e: first round"]) == (1, False)
     line = r["case 5e"]
     assert (line["state"], line["verdict"], line["artifact"]) == ("released", "met", "verified")
 

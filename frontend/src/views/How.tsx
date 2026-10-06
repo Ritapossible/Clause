@@ -40,7 +40,7 @@ const STEPS: { t: string; hot?: boolean; body: JSX.Element }[] = [
     body: (
       <>
         <p>
-          Anyone may convene the jury on a disputed clause. The jury is its own contract: each GenLayer validator fetches the
+          The dispute convenes the jury itself, and anyone may convene it again if a round could not decide. The jury is its own contract: each GenLayer validator fetches the
           work, checks it against the pinned digest, and answers one question from the clause and the work alone: <i>does
           the delivered work fail this clause, as written?</i> The buyer's dispute text is never in the prompt. Work changed
           or removed from its URL is unmet; work nobody could fetch is recorded each round, and never paid for: the third

@@ -1,13 +1,13 @@
 {
   "studio": {
-    "clause": "0xd4E2e736222260dc1037E687bbCD351a96b0AF49",
-    "deploy_tx": "0x0cff00055979cc0d446faa3b0a40603930744e5869a65cdf6e1ffa87bc276467",
-    "jury": "0x7AC031DD7a2F73297c8396493Dc8a49D15D8C782",
-    "jury_deploy_tx": "0xfe2de99fc198197cd54a86cac2d749977fe3f1fb70b160f0ef1db41174d47edf",
+    "clause": "0xC254Dd250b56941C7024a478E880c5859F329Ebf",
+    "deploy_tx": "0x6106659437925d80f4ff9a2f9b070c8b2dda2cb47060f4e4d00407b92331715e",
+    "jury": "0xfaf7be070e483D2b884FDD93Cc611F0c3616d0bE",
+    "jury_deploy_tx": "0xcbc4a49841ca21e2185f96df569ba200f53937a2ad84c91c0de95dfd2edcd6d3",
     "bond_floor": "10000000000000000",
     "appeal_seconds": 300,
     "release": "clause/3",
-    "at": "2026-10-06T15:19:29.048Z",
+    "at": "2026-10-06T16:01:00.730Z",
     "previous": {
       "release": "clause/2",
       "clause": "0xA3DE12a40Cf80B473B945C1f84a0BFE55976C3F2",
@@ -18,14 +18,14 @@
     }
   },
   "bradbury": {
-    "clause": "0x86b89ACC65A95DFdb44CE1203c1d95b618f5b920",
-    "deploy_tx": "0x8940e38e81429e570c31c3b3c59d7837b79b74564002a6817dd6d84c9ad77c23",
-    "jury": "0xd9505f21257b63b9De187FCf9Ce5F5bad0831BB7",
-    "jury_deploy_tx": "0xeccbfddeaacff23b3e5eb7880df9f0a67594d36ca80cb78215774425beaa6091",
+    "clause": "0x7950E82CC97978141A5126078198e0F7bA192061",
+    "deploy_tx": "0x4b83950d30da531bdd4e80c262137f5daf7b48e3c86d98306f32e19fb906d09c",
+    "jury": "0x9D3219a52f03c231F46c213b921e019C5E648DEA",
+    "jury_deploy_tx": "0x97d198302fde9433949c7994d84192ba0faec925566f74f56945aa604749eed0",
     "bond_floor": "10000000000000000",
     "appeal_seconds": 2400,
     "release": "clause/3",
-    "at": "2026-10-06T15:24:58.794Z",
+    "at": "2026-10-06T16:01:47.696Z",
     "previous": {
       "release": "clause/2",
       "clause": "0x6A5c02527e1504f416c5e47F68129f1Afc1FbF02",

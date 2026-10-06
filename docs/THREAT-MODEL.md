@@ -101,16 +101,27 @@ in `tests/direct/test_core.py`. Mutants `unread-is-a-verdict`,
 `unread-not-recorded`, `unread-retried-at-once`, `unavailable-never-terminal`,
 `unavailable-pays-seller`, `unread-lapse-pays-seller`, `unread-not-noted`.
 
-**Closed:** a seller taking its host offline for the ruling window used to
-be paid at the deadline. Now it is refunded to the buyer.
+- **Every dispute is fetched at least once, with nobody's help.** An
+  accepted `dispute` convenes the jury itself (a message to the jury's
+  `rule`), and the jury sends each unread round to the escrow itself
+  (`note_unread`). A dispute that nobody pursues - nobody convenes the jury,
+  nobody applies anything - still has its work fetched, and if that fetch
+  fails, the deadline refunds the buyer.
 
-**Left.** `settle` never reads the jury, so an unread round changes the
-deadline only once someone applies it to the escrow - anyone may, at once.
-A buyer who convenes the jury, sees the fetch fail, and never applies the
-record or convenes again can still lose the clause at the deadline. The app
-shows the button the moment the round is recorded. And a dispute nobody
-convenes the jury on at all still lapses to the seller, as before: the
-dispute's burden is the buyer's.
+**Test.** Also `test_case_5d_a_dispute_nobody_pursues_still_never_pays_for_unreadable_work`
+(a dispute, then nothing: both messages delivered, the deadline refunds the
+clause and the bond); mutants `dispute-does-not-convene`,
+`jury-does-not-notify`, `note-from-anyone`.
+
+**Closed:** a seller taking its host offline for the ruling window used to
+be paid at the deadline, and so did any dispute nobody convened the jury on.
+Now neither can pay for work nobody could read.
+
+**Left.** A dispute still lapses to the seller when a jury round runs but
+does not reach consensus (validators who read the work disagree), as
+designed: the buyer carries the burden of an honest doubt. The escrow's
+messages are fire-and-forget, so if the jury contract itself fails, the
+dispute lapses on the escrow's clock, as before.
 
 ## T6 - The buyer disputes everything to delay payment
 

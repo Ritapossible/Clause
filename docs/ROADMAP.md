@@ -37,7 +37,7 @@ and depend on the GenLayer platform where noted.
 | A checkability gate on acceptance tests | Contract and in-browser, held equal by `parity.ts` |
 | Credit-then-withdraw; `balance == held + owed`; the jury holds nothing | Checked on chain after every scenario |
 | A web app for both parties, phone-ready, with the docs built in | Two-person browser e2e on Studio |
-| 112 tests, 40 killed mutants, a gas-budget test per contract | `tests/` |
+| 112 tests, 41 killed mutants, a gas-budget test per contract | `tests/` |
 
 **What the jury has and has not been shown.**
 

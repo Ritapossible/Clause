@@ -420,6 +420,7 @@ class Clause(gl.Contract):
    return
   self._save(_b)
   self.held = u256(int(self.held) + _a)
+  gl.get_contract_at(Address(self.jury)).emit(on='accepted').rule(str(self.address).lower(), int(deal_id), str(clause_id))
 
  @gl.public.write
  def apply_ruling(self, deal_id: int, clause_id: str) -> None:

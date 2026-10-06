@@ -257,7 +257,7 @@ function LineCard({ deal, line, now, isBuyer, onDone }: { deal: Deal; line: Line
             : "The work could not be fetched before the deadline: settling refunds the buyer with the bond. Nothing is paid for work nobody could read.")}
         {line.state === "disputed" && !ruling?.verdict && unread === 0 && noted === 0 &&
           (canRule
-            ? `Disputed. Anyone may convene the jury for ${duration(ruleBy - now)}; with no ruling the clause pays the seller ${duration(ruleBy + appealSeconds - now)} from now and the bond goes back.`
+            ? `Disputed. The dispute convened the jury; if no ruling shows, anyone may convene it again for ${duration(ruleBy - now)}; with no ruling the clause pays the seller ${duration(ruleBy + appealSeconds - now)} from now and the bond goes back.`
             : now > ruleBy + appealSeconds
               ? "Disputed, and no ruling landed in time: settling pays the seller and returns the bond."
               : `Disputed; no ruling landed by the deadline. The clause pays the seller in ${duration(ruleBy + appealSeconds - now)}.`)}

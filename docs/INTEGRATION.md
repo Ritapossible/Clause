@@ -23,8 +23,8 @@ and clocks) and the **jury** (runs the model, records rulings, holds nothing).
 
 | Network | Escrow | Jury | genlayer-js chain |
 | --- | --- | --- | --- |
-| GenLayer Studio | `0xd4E2e736222260dc1037E687bbCD351a96b0AF49` | `0x7AC031DD7a2F73297c8396493Dc8a49D15D8C782` | `studionet` |
-| Bradbury testnet | `0x86b89ACC65A95DFdb44CE1203c1d95b618f5b920` | `0xd9505f21257b63b9De187FCf9Ce5F5bad0831BB7` | `testnetBradbury` |
+| GenLayer Studio | `0xC254Dd250b56941C7024a478E880c5859F329Ebf` | `0xfaf7be070e483D2b884FDD93Cc611F0c3616d0bE` | `studionet` |
+| Bradbury testnet | `0x7950E82CC97978141A5126078198e0F7bA192061` | `0x9D3219a52f03c231F46c213b921e019C5E648DEA` | `testnetBradbury` |
 
 The canonical list, with each network's `appeal_seconds`, is
 `deploy/deployments.json`. Read it from there rather than hard-coding these.
@@ -59,8 +59,8 @@ npm install genlayer-js
 import { createClient, createAccount } from "genlayer-js";
 import { studionet } from "genlayer-js/chains";   // or testnetBradbury
 
-const CLAUSE = "0xd4E2e736222260dc1037E687bbCD351a96b0AF49";   // the escrow
-const JURY = "0x7AC031DD7a2F73297c8396493Dc8a49D15D8C782";
+const CLAUSE = "0xC254Dd250b56941C7024a478E880c5859F329Ebf";   // the escrow
+const JURY = "0xfaf7be070e483D2b884FDD93Cc611F0c3616d0bE";
 const account = createAccount(process.env.PRIVATE_KEY);
 const client = createClient({ chain: studionet, account });
 
@@ -141,7 +141,7 @@ even when refused. To tell the difference:
 | --- | --- | --- | --- | --- |
 | `create_deal(seller, clauses_json, delivery_seconds, review_seconds, redelivery_seconds, ruling_seconds) -> int` | the exact clause total | buyer | Opens a deal; returns its id. On any spec error: returns -1, credits the value back, records `refusal_of(buyer)`. | never |
 | `deliver(deal_id, uri, digest)` | none | seller | The first delivery (all `funded` lines go to `in_review`), or a redelivery (only `failed` lines inside their window). | `only the seller may deliver`, `the delivery deadline has passed`, `nothing to redeliver`, `the delivery digest must be 64 hex characters`, `the delivery must be an http(s) URL`, `unknown deal` |
-| `dispute(deal_id, clause_id, text, locate)` | at least `bond_for(deal_id, clause_id)` | buyer | The line goes to `disputed`, and the bond is held. `locate` is `""`, a byte span `bytes:START-END` (1-2,000 bytes), or a JSON pointer `/a/0`. On any error: the reason is recorded on the deal and in `refusal_of`, and the value is credited back. | never |
+| `dispute(deal_id, clause_id, text, locate)` | at least `bond_for(deal_id, clause_id)` | buyer | The line goes to `disputed`, the bond is held, and the escrow convenes the jury itself (a message to the jury's `rule`). `locate` is `""`, a byte span `bytes:START-END` (1-2,000 bytes), or a JSON pointer `/a/0`. On any error: the reason is recorded on the deal and in `refusal_of`, and the value is credited back. | never |
 | `apply_ruling(deal_id, clause_id)` | none | anyone | Reads the jury's ruling on this dispute and applies it, if it is about this dispute's round, was made by the ruling deadline, and is `appeal_seconds` old. A record of rounds that could not fetch the work is noted on the line at once (`unread`). | `the jury has not ruled on this dispute`, `the ruling can be applied from …, after its appeal window`, `the ruling came after the ruling deadline`, `clause … is not disputed`, `unknown deal` |
 | `note_unread(deal_id, clause_id, round, count, at)` | none | the jury contract only | Sent by the jury as a message after a round that could not fetch the work: notes `unread` on the line, so its deadline refunds the buyer. | `only the jury contract notes an unread round`, `clause … is not disputed`, `the jury has not ruled on this dispute` |
 | `settle(deal_id)` | none | anyone | Applies every passed deadline on the deal. A no-op if none has passed. Never reads the jury. | `unknown deal` |

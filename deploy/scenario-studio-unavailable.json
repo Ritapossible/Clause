@@ -1,13 +1,13 @@
 {
   "network": "studio",
-  "escrow": "0xd4E2e736222260dc1037E687bbCD351a96b0AF49",
-  "jury": "0x7AC031DD7a2F73297c8396493Dc8a49D15D8C782",
+  "escrow": "0xC254Dd250b56941C7024a478E880c5859F329Ebf",
+  "jury": "0xfaf7be070e483D2b884FDD93Cc611F0c3616d0bE",
   "jury_release": "clause-jury/3",
   "only": [
     "7"
   ],
   "appeal_seconds": 300,
-  "recorded_at": "2026-10-06T15:31:33.255Z",
+  "recorded_at": "2026-10-06T16:13:19.863Z",
   "review_seconds": 900,
   "seller_owed_before": "0",
   "cases": {
@@ -19,30 +19,30 @@
       "rounds": [
         {
           "n": 1,
-          "rule_tx": "0xa36e41908cde22873905209f3a50c0f137735d3bef04369b289909ae8beba8d8",
-          "round": "1.1791299988",
+          "rule_tx": "convened by the dispute",
+          "round": "1.1791302484",
           "unread": 1,
           "artifact": "unread",
           "located": false,
-          "at": 1791299993
+          "at": 1791302488
         },
         {
           "n": 2,
-          "rule_tx": "0x13e9e7923ec2ec187e3255d441b2b9c5bac42d33e5d3ef4bb1c25f8bebb415c0",
-          "round": "1.1791299988",
+          "rule_tx": "0x45539c8ab0cf0a3e5f806b5c8c1ae11764e0517c27c4f023558d333de7731347",
+          "round": "1.1791302484",
           "unread": 2,
           "artifact": "unread",
           "located": false,
-          "at": 1791300160
+          "at": 1791302655
         },
         {
           "n": 3,
-          "rule_tx": "0x3f0a7397a4c9b62829cacae55c69976859fe901d3a023a73434f82982979b5e1",
-          "round": "1.1791299988",
+          "rule_tx": "0x0a194280747d50af12fd97b279aa7cb177827b1e55d5b3e9e3bf5a9bf4871e66",
+          "round": "1.1791302484",
           "unread": 3,
           "artifact": "unread",
           "located": false,
-          "at": 1791300326,
+          "at": 1791302821,
           "verdict": "unavailable",
           "reason": "work_unavailable",
           "confidence": 100
@@ -52,9 +52,9 @@
       "reason": "work_unavailable",
       "confidence": 100,
       "artifact": "unread",
-      "at": 1791300326,
+      "at": 1791302821,
       "state": "refunded",
-      "apply_tx": "0xc2c8a50ab6198a54c218d9400f6c4319219d40c280593b5f202a5a28294fc3ae"
+      "apply_tx": "0x9921e1875576a0d51af3728a808717900e3e734e0894f5709e93bd690c00b964"
     },
     "withdraw": {
       "owed": "60000000000000000",
@@ -64,7 +64,7 @@
   },
   "status": {
     "release": "clause/3",
-    "jury": "0x7ac031dd7a2f73297c8396493dc8a49d15d8c782",
+    "jury": "0xfaf7be070e483d2b884fdd93cc611f0c3616d0be",
     "appeal_seconds": 300,
     "deals": 1,
     "held": 0,
@@ -75,37 +75,31 @@
   "log": [
     {
       "tx": "case 7: fund",
-      "hash": "0xaf7e74bf3a7144d66e8f7ad084580ded59d742691b3a11b0ec86c71200203963",
+      "hash": "0x8e2f7bad50f93af89199f8dad8f08f32266df32cce2d06352642502058f93adf",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 7: deliver unreachable",
-      "hash": "0x9c8cc74013137af2bf857bfbc2887b6360cea941e33d04443ed515cfa3707794",
+      "hash": "0x802a7ffcf2fdbad0a0edadaaf16bf6a4210e80250eeeddc533c03238617070e8",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
       "tx": "case 7: dispute \"cities\"",
-      "hash": "0x94afc23b7c58eeb68d268b1c49865a29af872738e3214633967c88e339eb033c",
+      "hash": "0x90d2315e270654c9d25484ee53e5a883dfb8364beb12d303a23145c81c60cbd2",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
     {
-      "tx": "case 7: convene the jury, round 1",
-      "hash": "0xa36e41908cde22873905209f3a50c0f137735d3bef04369b289909ae8beba8d8",
-      "consensus": "MAJORITY_AGREE",
-      "leader": "return"
-    },
-    {
-      "check": "case 7: round 1 could not fetch the work and is recorded",
+      "check": "case 7: the dispute convened the jury itself; round 1 could not fetch the work and is recorded",
       "actual": "true/1/unread",
       "expected": "true/1/unread",
       "ok": true
     },
     {
       "tx": "case 7: convene again at once",
-      "hash": "0xf59b678f92888a20b5d65e01f3ebcbe8d75a8c3cb76ef8620ecdde01f288e71d",
+      "hash": "0x4f6ec33acc43e1a02b52d21ec76fc8f1f770591158997b32a23555ff85e5976e",
       "consensus": "MAJORITY_AGREE",
       "leader": "contract_error"
     },
@@ -123,7 +117,7 @@
     },
     {
       "tx": "case 7: convene the jury, round 2",
-      "hash": "0x13e9e7923ec2ec187e3255d441b2b9c5bac42d33e5d3ef4bb1c25f8bebb415c0",
+      "hash": "0x45539c8ab0cf0a3e5f806b5c8c1ae11764e0517c27c4f023558d333de7731347",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
@@ -135,7 +129,7 @@
     },
     {
       "tx": "case 7: convene the jury, round 3",
-      "hash": "0x3f0a7397a4c9b62829cacae55c69976859fe901d3a023a73434f82982979b5e1",
+      "hash": "0x0a194280747d50af12fd97b279aa7cb177827b1e55d5b3e9e3bf5a9bf4871e66",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
@@ -153,7 +147,7 @@
     },
     {
       "tx": "case 7: apply unavailable",
-      "hash": "0xc2c8a50ab6198a54c218d9400f6c4319219d40c280593b5f202a5a28294fc3ae",
+      "hash": "0x9921e1875576a0d51af3728a808717900e3e734e0894f5709e93bd690c00b964",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },
@@ -177,7 +171,7 @@
     },
     {
       "tx": "withdraw",
-      "hash": "0xd41d28ae7fa86bd41352f096fb49ad17e4ca93ef03adfd9a0fc9009aee812fd3",
+      "hash": "0x95834e99385849c5e1000b0e145884d11b7f91edae15b751ecf49a4f584521f5",
       "consensus": "MAJORITY_AGREE",
       "leader": "return"
     },

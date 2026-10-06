@@ -113,10 +113,14 @@ def test_the_jury_holds_no_gen_and_the_escrow_runs_no_model(built, jury):
 
 
 def test_the_escrow_reads_the_jury_in_one_place(built):
-    """settle and withdraw never depend on the jury contract being readable."""
-    assert built.count("gl.get_contract_at(Address(") == 1
-    assert "gl.get_contract_at(" in method(built, "apply_ruling")
-    for name in ("settle", "withdraw", "create_deal", "deliver", "dispute"):
+    """settle and withdraw never depend on the jury contract being readable.
+    The escrow reads the jury only in apply_ruling, and otherwise only sends
+    it one message: dispute convenes it, fire-and-forget."""
+    assert built.count("gl.get_contract_at(Address(") == 2
+    assert ".view()" in method(built, "apply_ruling")
+    assert ".emit(on=\"accepted\").rule(" in method(built, "dispute")
+    assert ".view()" not in method(built, "dispute")
+    for name in ("settle", "withdraw", "create_deal", "deliver"):
         assert "self.jury" not in method(built, name), name
 
 
