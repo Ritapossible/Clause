@@ -301,8 +301,8 @@ The threat model (T1 to T12) is in the docs. Here is what is **not** solved:
 **Requirements:** Python 3.11+ with `pytest`, and Node 20+.
 
 ```bash
-python3 -m pytest tests/direct          # 103 tests: rules, prompt, both builds, scenarios
-python3 tests/mutation_check.py         # 32 mutants, one per rule; all must be killed
+python3 -m pytest tests/direct          # 112 tests: rules, prompt, both builds, scenarios
+python3 tests/mutation_check.py         # 40 mutants, one per rule; all must be killed
 python3 deploy/build_contract.py        # rebuild contracts/build/ (both contracts)
 cd frontend && npm run typecheck && npx tsx scripts/parity.ts
 ```
