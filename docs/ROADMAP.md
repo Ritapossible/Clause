@@ -31,7 +31,7 @@ and depend on the GenLayer platform where noted.
 | The jury reads the clause and the work, never the complaint | Cases 1b and 3: the complaint is never an input |
 | The money does not depend on the jury: the escrow reads it only in `apply_ruling`, and `settle`/`withdraw` still pay if the jury contract is unreadable | Case 7 in the tests; an appeal of a real ruling on Studio (`deploy/appeal-studio.json`) |
 | A ruling waits out its appeal window before any GEN is credited | Checked on chain on both networks |
-| Work changed or removed from its URL is unmet; work nobody can fetch is never paid for: three unreadable rounds, or the deadline after one, refund the buyer | Case 6 (a 404) on both networks; case 7 (an unreachable host) in `tests/direct/test_scenarios.py` (cases 5c-5e) and on chain in `deploy/scenario-*-unavailable.json` |
+| Work changed or removed from its URL is unmet; work nobody can fetch is never paid for: three unreadable rounds, or the deadline after one, refund the buyer | Case 6 (a 404) on both networks; case 7 (an unreachable host) in `tests/direct/test_scenarios.py` (cases 5c-5e) and on chain on Studio and Bradbury (`deploy/scenario-*-unavailable.json`, 0 failed checks each) |
 | A dispute can put a location deep in the work in front of the jury | Case 9, a missing price at byte 5,731: unmet on Studio, **undetermined (80) on Bradbury**, where the seller was paid. The bytes arrive; the jury does not always use them. |
 | Every state has a clock in the escrow; `settle` resolves it | Cases 4 and 7; deadline tests |
 | A checkability gate on acceptance tests | Contract and in-browser, held equal by `parity.ts` |

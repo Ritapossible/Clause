@@ -223,7 +223,11 @@ retry was refused; rounds 2 and 3, a quarter of the ruling window apart,
 were also unread, and the third was the verdict `unavailable`; after the
 appeal window the escrow refunded the buyer 0.06 GEN (the clause and the
 bond), credited the seller nothing, and the buyer withdrew it. 0 failed
-checks. Bradbury: in progress.
+checks. On Bradbury (`deploy/scenario-bradbury-unavailable.json`), the
+same, with rounds 45 minutes apart and a 40-minute appeal window: round 1
+convened by the dispute, three unread rounds, `unavailable`, the buyer
+refunded 0.06 GEN and the seller credited nothing; the buyer's wallet
+received it less its own fee. 0 failed checks.
 
 Records:
 
