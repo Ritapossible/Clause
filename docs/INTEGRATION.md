@@ -23,8 +23,8 @@ and clocks) and the **jury** (runs the model, records rulings, holds nothing).
 
 | Network | Escrow | Jury | genlayer-js chain |
 | --- | --- | --- | --- |
-| GenLayer Studio | `0xA3DE12a40Cf80B473B945C1f84a0BFE55976C3F2` | `0x7563c5F4e868B762351dA38ebc477b49bD91F006` | `studionet` |
-| Bradbury testnet | `0x6A5c02527e1504f416c5e47F68129f1Afc1FbF02` | `0xD981E621967074cA72F72409380a90cB55bd02ED` | `testnetBradbury` |
+| GenLayer Studio | `0xd4E2e736222260dc1037E687bbCD351a96b0AF49` | `0x7AC031DD7a2F73297c8396493Dc8a49D15D8C782` | `studionet` |
+| Bradbury testnet | `0x86b89ACC65A95DFdb44CE1203c1d95b618f5b920` | `0xd9505f21257b63b9De187FCf9Ce5F5bad0831BB7` | `testnetBradbury` |
 
 The canonical list, with each network's `appeal_seconds`, is
 `deploy/deployments.json`. Read it from there rather than hard-coding these.
@@ -59,8 +59,8 @@ npm install genlayer-js
 import { createClient, createAccount } from "genlayer-js";
 import { studionet } from "genlayer-js/chains";   // or testnetBradbury
 
-const CLAUSE = "0xA3DE12a40Cf80B473B945C1f84a0BFE55976C3F2";   // the escrow
-const JURY = "0x7563c5F4e868B762351dA38ebc477b49bD91F006";
+const CLAUSE = "0xd4E2e736222260dc1037E687bbCD351a96b0AF49";   // the escrow
+const JURY = "0x7AC031DD7a2F73297c8396493Dc8a49D15D8C782";
 const account = createAccount(process.env.PRIVATE_KEY);
 const client = createClient({ chain: studionet, account });
 
@@ -142,7 +142,8 @@ even when refused. To tell the difference:
 | `create_deal(seller, clauses_json, delivery_seconds, review_seconds, redelivery_seconds, ruling_seconds) -> int` | the exact clause total | buyer | Opens a deal; returns its id. On any spec error: returns -1, credits the value back, records `refusal_of(buyer)`. | never |
 | `deliver(deal_id, uri, digest)` | none | seller | The first delivery (all `funded` lines go to `in_review`), or a redelivery (only `failed` lines inside their window). | `only the seller may deliver`, `the delivery deadline has passed`, `nothing to redeliver`, `the delivery digest must be 64 hex characters`, `the delivery must be an http(s) URL`, `unknown deal` |
 | `dispute(deal_id, clause_id, text, locate)` | at least `bond_for(deal_id, clause_id)` | buyer | The line goes to `disputed`, and the bond is held. `locate` is `""`, a byte span `bytes:START-END` (1-2,000 bytes), or a JSON pointer `/a/0`. On any error: the reason is recorded on the deal and in `refusal_of`, and the value is credited back. | never |
-| `apply_ruling(deal_id, clause_id)` | none | anyone | Reads the jury's ruling on this dispute and applies it, if it is about this dispute's round, was made by the ruling deadline, and is `appeal_seconds` old. | `the jury has not ruled on this dispute`, `the ruling can be applied from …, after its appeal window`, `the ruling came after the ruling deadline`, `clause … is not disputed`, `unknown deal` |
+| `apply_ruling(deal_id, clause_id)` | none | anyone | Reads the jury's ruling on this dispute and applies it, if it is about this dispute's round, was made by the ruling deadline, and is `appeal_seconds` old. A record of rounds that could not fetch the work is noted on the line at once (`unread`). | `the jury has not ruled on this dispute`, `the ruling can be applied from …, after its appeal window`, `the ruling came after the ruling deadline`, `clause … is not disputed`, `unknown deal` |
+| `note_unread(deal_id, clause_id, round, count, at)` | none | the jury contract only | Sent by the jury as a message after a round that could not fetch the work: notes `unread` on the line, so its deadline refunds the buyer. | `only the jury contract notes an unread round`, `clause … is not disputed`, `the jury has not ruled on this dispute` |
 | `settle(deal_id)` | none | anyone | Applies every passed deadline on the deal. A no-op if none has passed. Never reads the jury. | `unknown deal` |
 | `withdraw()` | none | anyone | Sends the caller everything it is owed. Never reads the jury. | `nothing is owed to this address` |
 
@@ -150,7 +151,7 @@ even when refused. To tell the difference:
 
 | Method | Caller | Effect | Reverts with |
 | --- | --- | --- | --- |
-| `rule(escrow, deal_id, clause_id)` | anyone | Reads the disputed clause from `escrow`, fetches the work, runs the jury, and records the ruling for this dispute's round. | `clause is not disputed`, `the ruling deadline has passed; …`, `this dispute is already ruled; …`, `the work could not be fetched, so nothing was ruled; …` |
+| `rule(escrow, deal_id, clause_id)` | anyone | Reads the disputed clause from `escrow`, fetches the work, runs the jury, and records the ruling for this dispute's round. If no validator could fetch the work, records the round as `unread` (count 1-3; the third carries the verdict `unavailable`) and sends `note_unread` to the escrow. | `clause is not disputed`, `the ruling deadline has passed; …`, `this dispute is already ruled; …`, `the work could not be fetched at …; the jury may try again from …` |
 
 Every revert message starts with `[EXPECTED]`.
 
@@ -189,7 +190,8 @@ Every revert message starts with `[EXPECTED]`.
 | --- | --- | --- | --- |
 | `funded` | no delivery and `now > deliver_by` | `refunded` | buyer: amount |
 | `in_review` | `now > review_until` | `released` | seller: amount |
-| `disputed` | `now > dispute.rule_by + appeal_seconds` | `released`, `lapsed: true` | seller: amount; buyer: bond |
+| `disputed` | `now > dispute.rule_by + appeal_seconds`, no unread round noted | `released`, `lapsed: true` | seller: amount; buyer: bond |
+| `disputed` | the same, with `unread` noted | `refunded`, `lapsed: true`, `unavailable: true` | buyer: amount + bond |
 | `failed` | `now > redeliver_by` | `refunded` | buyer: amount |
 
 ## The deal record
@@ -232,7 +234,8 @@ Every revert message starts with `[EXPECTED]`.
 Fields appear as the deal progresses: `review_until` on delivery, `dispute` on
 a dispute, `verdict`/`reason`/`confidence`/`artifact`/`ruled_at`/`decided_at`
 when a ruling is applied,
-`redeliver_by` on unmet, `lapsed` on a lapsed dispute. `refused` keeps the last
+`redeliver_by` on unmet, `lapsed` on a lapsed dispute, `unread` (rounds that
+could not fetch the work) and `unavailable` on a neutral refund. `refused` keeps the last
 10 refused disputes.
 
 ## The spec format
@@ -280,7 +283,12 @@ To check a spec before sending anything, use the same rules the app uses:
 During a ruling, each validator fetches the URL, hashes the body and compares
 the result with the digest. Different bytes (`changed`) or a 404/410
 (`missing`) are ruled `unmet` without a model call. No answer at all
-(`unread`) is no ruling: `rule` is refused, and can be called again.
+(`unread`) never pays the seller: the round is recorded and sent to the
+escrow, `rule` can be called again a quarter of the ruling window later, and
+the third unread round is the verdict `unavailable` - a neutral refund of the
+clause and the bond to the buyer. A dispute that reaches its deadline with an
+unread round noted is refunded the same way. Keep the work reachable until
+every dispute on it is ruled.
 
 ## An agent-to-agent flow
 

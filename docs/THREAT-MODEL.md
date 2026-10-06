@@ -66,7 +66,7 @@ fetches the URL itself:
 | 2xx, the bytes differ | `changed` | Unmet, no model call |
 | 404 or 410 | `missing` | Unmet, no model call |
 
-**Test.** `test_case_5_work_changed_or_removed_is_unmet_work_unreachable_is_no_ruling`;
+**Test.** `test_case_5_work_changed_or_removed_is_unmet`;
 mutant `changed-work-judged`. Measured: case 6, a 404, on both networks.
 
 ## T5 - A flaky fetch decides a clause
@@ -77,19 +77,40 @@ who failed differently disagreed, and the clause then paid at its deadline.
 The same missing file ended two opposite ways.
 
 **Stops it.** No answer from the server (an exception, a 5xx, a 429) is not a
-verdict on anyone. The jury contract refuses the call and records nothing.
-Anyone can convene the jury again before the ruling deadline, and if nothing
-lands, the clause pays the seller. The behaviour was measured first: on
-Studio, a 404 returns a status and an unreachable host raises
-(`deploy/probes/probe-web-studio.json`).
+reading of the work, and it never pays the seller. The behaviour was
+measured first: on Studio, a 404 returns a status and an unreachable host
+raises (`deploy/probes/probe-web-studio.json`).
 
-**Test.** The same scenario test, case 5c; mutant `unread-is-a-verdict`.
-Measured: case 7, an unreachable host, on both networks.
+- Each round in which no validator could fetch the work is recorded as
+  `unread`. Rounds must be a quarter of the ruling window apart, so a blink
+  is not counted three times, and a later round that can read the work
+  rules on it as usual.
+- The third unread round records the verdict `unavailable`, applied by the
+  escrow as a **neutral refund**: the clause and the bond back to the buyer,
+  nothing to the seller.
+- With fewer rounds, an unread round noted on the clause makes the deadline
+  refund the buyer instead of paying the seller.
 
-**Left.** A seller could take a host offline (rather than deleting the file)
-for the whole ruling window, and be paid at the deadline. A 404 does not
-help them; a dead host does. Pinning to content-addressed storage
-(roadmap 1.4) closes most of this.
+**Test.** `tests/direct/test_scenarios.py`:
+`test_case_5c_repeated_unavailability_ends_in_a_neutral_refund` (three
+unreachable rounds, an immediate retry refused, the buyer credited the
+clause and the bond, the seller nothing),
+`test_case_5d_an_unread_round_on_record_makes_the_deadline_refund`,
+`test_case_5e_work_readable_again_is_ruled_on_as_usual`; the rules one by one
+in `tests/direct/test_core.py`. Mutants `unread-is-a-verdict`,
+`unread-not-recorded`, `unread-retried-at-once`, `unavailable-never-terminal`,
+`unavailable-pays-seller`, `unread-lapse-pays-seller`, `unread-not-noted`.
+
+**Closed:** a seller taking its host offline for the ruling window used to
+be paid at the deadline. Now it is refunded to the buyer.
+
+**Left.** `settle` never reads the jury, so an unread round changes the
+deadline only once someone applies it to the escrow - anyone may, at once.
+A buyer who convenes the jury, sees the fetch fail, and never applies the
+record or convenes again can still lose the clause at the deadline. The app
+shows the button the moment the round is recorded. And a dispute nobody
+convenes the jury on at all still lapses to the seller, as before: the
+dispute's burden is the buyer's.
 
 ## T6 - The buyer disputes everything to delay payment
 

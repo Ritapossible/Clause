@@ -59,7 +59,7 @@ holds nothing.
 | 04 | **Dispute by citation** | During a clause's review window, the buyer may dispute that clause by its id, with a bond (10% of the clause, at least 0.01 GEN), and may point at a location in the work. A dispute citing an id that is not in the spec is refused: no model runs and the bond is credited back. |
 | 05 | **The jury rules** | Anyone can convene the jury contract. Each validator fetches the work and checks its digest, then answers the one question from the clause, the work and the bytes at the buyer's location. The jury records the ruling. |
 | 06 | **The escrow applies it** | After an appeal window, anyone applies the ruling to the escrow. **unmet** keeps the clause's money for the buyer, and the seller may redeliver once. **met** pays the seller, plus the bond. **undetermined** pays the seller and returns the bond. |
-| 07 | **Every clock is in the escrow** | `settle` (anyone) applies every deadline that has passed: undisputed clauses pay, a dispute with no ruling applied lapses to the seller, undelivered work refunds. It never reads the jury. |
+| 07 | **Every clock is in the escrow** | `settle` (anyone) applies every deadline that has passed: undisputed clauses pay, a dispute with no ruling applied lapses to the seller - or refunds the buyer if the jury could not fetch the work - and undelivered work refunds. It never reads the jury. |
 | 08 | **Withdraw** | Rulings and deadlines credit what each party is owed, and `withdraw` sends it. |
 
 ### Three design decisions
@@ -76,8 +76,13 @@ is a normal response and an unreachable host raises. So:
 
 - bytes that differ from the digest, or a 404, are the seller's: unmet, with
   no model call;
-- no answer at all is no ruling: nothing is recorded, and the clause pays at
-  its deadline.
+- no answer at all is never paid for. Each round that cannot fetch the work
+  is recorded, and the jury sends it to the escrow itself. Rounds must be a
+  quarter of the ruling window apart. The third is the verdict
+  **unavailable**: a neutral refund, the clause and the bond back to the
+  buyer. With fewer rounds, the deadline refunds the same way instead of
+  paying the seller. Work that becomes readable again is ruled on as usual.
+  Tested in `tests/direct/test_scenarios.py` (cases 5c-5e).
 
 **The buyer can point, never argue.** The jury reads the first 4,000
 characters of the work. A dispute may carry a byte span or a JSON pointer,
@@ -129,12 +134,18 @@ The jury itself has been shown on a small sample, stated as small:
 
 | Network | Escrow | Jury |
 | --- | --- | --- |
-| GenLayer Studio | [`0xA3DE12a40Cf80B473B945C1f84a0BFE55976C3F2`](https://explorer-studio.genlayer.com/address/0xA3DE12a40Cf80B473B945C1f84a0BFE55976C3F2) | [`0x7563c5F4e868B762351dA38ebc477b49bD91F006`](https://explorer-studio.genlayer.com/address/0x7563c5F4e868B762351dA38ebc477b49bD91F006) |
-| Bradbury testnet | [`0x6A5c02527e1504f416c5e47F68129f1Afc1FbF02`](https://explorer-bradbury.genlayer.com/address/0x6A5c02527e1504f416c5e47F68129f1Afc1FbF02) | [`0xD981E621967074cA72F72409380a90cB55bd02ED`](https://explorer-bradbury.genlayer.com/address/0xD981E621967074cA72F72409380a90cB55bd02ED) |
+| GenLayer Studio | [`0xd4E2e736222260dc1037E687bbCD351a96b0AF49`](https://explorer-studio.genlayer.com/address/0xd4E2e736222260dc1037E687bbCD351a96b0AF49) | [`0x7AC031DD7a2F73297c8396493Dc8a49D15D8C782`](https://explorer-studio.genlayer.com/address/0x7AC031DD7a2F73297c8396493Dc8a49D15D8C782) |
+| Bradbury testnet | [`0x86b89ACC65A95DFdb44CE1203c1d95b618f5b920`](https://explorer-bradbury.genlayer.com/address/0x86b89ACC65A95DFdb44CE1203c1d95b618f5b920) | [`0xd9505f21257b63b9De187FCf9Ce5F5bad0831BB7`](https://explorer-bradbury.genlayer.com/address/0xd9505f21257b63b9De187FCf9Ce5F5bad0831BB7) |
 
-- Releases: escrow `clause/2`, jury `clause-jury/2`.
+- Releases: escrow `clause/3`, jury `clause-jury/3` (work nobody can fetch is
+  never paid for; see "A missing file is not a failed test").
 - Appeal window: 300 s on Studio, 2,400 s on Bradbury.
 - Dispute bond floor: 0.01 GEN.
+- The earlier release, `clause/2` (Studio escrow
+  `0xA3DE12a40Cf80B473B945C1f84a0BFE55976C3F2`, Bradbury escrow
+  `0x6A5c02527e1504f416c5e47F68129f1Afc1FbF02`), holds every case recorded
+  below except the `unavailable` runs. The app keeps its deals at their
+  numbers (Studio #0-24, Bradbury #0-6); new deals are numbered after them.
 - Deployed code: `contracts/build/clause.min.py` (escrow, 16,316 bytes) and
   `clause_jury.min.py` (jury, 9,184 bytes).
 - The web app reads the addresses from `deploy/deployments.json` at build
@@ -190,7 +201,7 @@ the books) are checked.
 | 4 | count, two clauses | unmet; other paid | unmet (99); format paid | | |
 | 5 | count, with a forged answer block | unmet | unmet (99) | | |
 | 6 | (none: the URL returns 404) | unmet, no model | unmet (100), missing | unmet (100), missing | unmet (100), missing |
-| 7 | (none: the host is unreachable) | no ruling; paid at deadline | no ruling; paid | no ruling; paid | no ruling; paid |
+| 7 | (none: the host is unreachable) | *clause/2:* no ruling; paid at deadline. *clause/3:* unavailable; refunded | no ruling; paid (clause/2) | no ruling; paid (clause/2) | no ruling; paid (clause/2) |
 | 8 | add four amounts; the work says its total is correct; it is not | unmet | **1 of 3**: unmet (100), met (99), met (100) | **3 of 3**: unmet (100) ×3 | 1 of 1: unmet (100) |
 | 8 | the same invoice with the right total | met | 3 of 3: met (100, 99, 100) | 3 of 3: met (100) ×3 | 1 of 1: met (100) |
 | 9 | a missing price at byte 5,731, no location | (cannot be seen) | undetermined (80) | undetermined (95) | |
@@ -199,6 +210,15 @@ the books) are checked.
 | 10 *(held out)* | the same timesheet, total right | met | | 3 of 3: met (100, 99, 100) | |
 | 11 *(held out)* | check `qty × unit_price` on four lines; one is 44.79 for 44.97 | unmet | | 3 of 3: unmet (100) ×3 | |
 | 11 *(held out)* | the same order, every line right | met | | 3 of 3: met (99, 99, 100) | |
+
+**Case 7 under `clause/3`, after a review asked that unreadable work never
+pay the seller.** On Studio (`deploy/scenario-studio-unavailable.json`):
+three jury rounds against an unreachable host, each recorded as `unread`; the
+jury's own message noted the first on the escrow within a second, with
+nobody applying it; an immediate retry was refused; the third round was the
+verdict `unavailable`; after the appeal window the escrow refunded the buyer
+0.06 GEN (the clause and the bond) and credited the seller nothing, and the
+buyer withdrew it. 0 failed checks. Bradbury: round 1 behaved the same (recorded, retry refused, noted on the escrow by the jury's message within a second); the full run is in progress.
 
 Records:
 

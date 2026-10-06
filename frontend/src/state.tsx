@@ -155,6 +155,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
+/** Where deal number ``id`` (as the app numbers deals) lives: the previous
+ *  release's escrow for the numbers it used, else the current escrow, offset. */
+export function dealHome(network: NetworkId, id: number) {
+  const n = NETWORKS[network];
+  const p = n.previous;
+  if (p && id < p.deals) return { clause: p.clause, jury: p.jury, appealSeconds: p.appealSeconds, local: id, release: p.release };
+  return { clause: n.clause ?? "", jury: n.jury ?? "", appealSeconds: n.appealSeconds, local: id - (p?.deals ?? 0), release: "" };
+}
+
+/** The app's number for the current escrow's deal ``local``. */
+export function appDealId(network: NetworkId, local: number) {
+  return local + (NETWORKS[network].previous?.deals ?? 0);
+}
+
+/** Children see the escrow, jury and appeal window that deal ``id`` lives on. */
+export function DealScope({ id, children }: { id: number; children: ReactNode }) {
+  const app = useApp();
+  const home = dealHome(app.network, id);
+  return <Ctx.Provider value={{ ...app, clause: home.clause, jury: home.jury, appealSeconds: home.appealSeconds }}>{children}</Ctx.Provider>;
+}
+
 export function useApp(): AppState {
   const v = useContext(Ctx);
   if (!v) throw new Error("useApp outside AppProvider");

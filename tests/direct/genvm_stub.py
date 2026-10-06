@@ -93,6 +93,8 @@ class Runtime:
         self.current = None
         self.balances = {}
         self.transfers = []
+        self.outbox = []  # messages emitted by the transaction running now
+        self.messages = []  # (from, to, method, args, outcome) of every delivered message
 
     def transfer(self, source, to, value):
         if self.balances.get(source, 0) < value:
@@ -113,8 +115,9 @@ class Runtime:
         snapshot = (copy.deepcopy(self.contracts_state()), dict(self.balances), list(self.transfers))
         self.value, self.current = int(value), address
         self.balances[address] = self.balances.get(address, 0) + int(value)
+        outbox = self.outbox = []
         try:
-            return getattr(self.contracts[address], method)(*args)
+            result = getattr(self.contracts[address], method)(*args)
         except Exception:
             state, self.balances, self.transfers = snapshot
             for addr, data in state.items():
@@ -123,6 +126,16 @@ class Runtime:
             raise
         finally:
             self.value, self.current = 0, None
+        # Messages a contract emitted run as their own transactions once this
+        # one is accepted, sent by that contract; one that fails is recorded
+        # and does not undo the call that sent it.
+        for target, name, margs, origin in outbox:
+            try:
+                self.call(target, name, *margs, sender=origin)
+                self.messages.append((origin, target, name, margs, "ok"))
+            except Exception as exc:
+                self.messages.append((origin, target, name, margs, "failed: %s" % exc))
+        return result
 
     def contracts_state(self):
         return {addr: obj.__dict__ for addr, obj in self.contracts.items()}
@@ -156,11 +169,20 @@ class Runtime:
                 raise AttributeError(name)
 
         class _Proxy:
-            def __init__(self, target):
-                self.target = target
+            def __init__(self, address):
+                self.address = str(address).lower()
 
             def view(self):
-                return self.target
+                return rt.contracts[self.address]
+
+            def emit(self, on="accepted"):
+                address, origin = self.address, rt.current
+
+                class _Emit:
+                    def __getattr__(self, name):
+                        return lambda *a: rt.outbox.append((address, name, a, origin))
+
+                return _Emit()
 
         class _Message:
             @property
@@ -208,7 +230,7 @@ class Runtime:
             nondet=_Nondet,
             vm=_Vm,
             evm=_Evm,
-            get_contract_at=lambda addr: _Proxy(rt.contracts[str(addr).lower()]),
+            get_contract_at=lambda addr: _Proxy(addr),
         )
         _Evm.runtime = rt
         return gl

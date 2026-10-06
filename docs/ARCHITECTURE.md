@@ -80,12 +80,14 @@ create_deal (buyer, payable: exactly the sum of the clause amounts)
    citing an id not in the spec: refused, recorded, no jury, bond back
         │
     DISPUTED ───────── no ruling applied by rule_by + appeal ─► RELEASED, bond back
-        │
-   jury.rule (anyone) ── work unreachable: nothing recorded; try again
-        │
-   escrow.apply_ruling (anyone), once the ruling is appeal_seconds old
+        │                  ...with an unread round noted ─────► REFUNDED, bond back
+   jury.rule (anyone) ── work unreachable: the round is recorded as unread;
+        │                 again after ruling_seconds/4; the 3rd is "unavailable"
+   escrow.apply_ruling (anyone): an unread record is noted at once; a verdict
+        │                         once it is appeal_seconds old
         ├── met ──────────────────────────────────────────────► RELEASED, bond to seller
         ├── undetermined ─────────────────────────────────────► RELEASED, bond back
+        ├── unavailable (3 unread rounds) ────────────────────► REFUNDED, bond back
         └── unmet ──► FAILED, bond back
                         ├── redeliver by redeliver_by ──► IN_REVIEW (only this clause)
                         └── no redelivery ──────────────► REFUNDED
@@ -149,9 +151,22 @@ So the contract can tell the server's definite answer from no answer:
 - **Bytes that differ from the pinned digest, or a 404/410,** are the
   seller's: it pinned the work and changed or removed it. These are ruled
   unmet with no model call, and the seller may redeliver.
-- **No answer at all is not a verdict on anyone.** The call is refused,
-  nothing is recorded, anyone can convene the jury again, and if nothing
-  lands by the deadline the clause pays the seller.
+- **No answer at all never pays the seller.** It is not a reading of the
+  work, so no model runs, but the round is recorded on the jury contract as
+  `unread`. The jury can be convened again a quarter of the ruling window
+  later (`unread_gap`), so one passing outage is not counted three times.
+  The third unread round records the verdict `unavailable`: once its appeal
+  window passes, the escrow applies it as a **neutral refund** - the clause
+  and the bond back to the buyer, nothing to the seller, nobody's bond
+  forfeited. `apply_ruling` notes an unread record on the clause at once
+  (`line.unread`), and a dispute that reaches its deadline with an unread
+  round noted is refunded the same way instead of paying the seller. If the
+  work becomes readable again, the next round reads it and rules as usual.
+
+  The escrow still never reads the jury in `settle`, so the note has to be
+  applied: anyone may do it as soon as the round is recorded, and the
+  deadline comes `appeal_seconds` after the last moment a round can run -
+  the same window every ruling has to be applied in.
 
 Before this rule, the same missing file could end two opposite ways:
 validators who all failed to fetch agreed on "unmet", while validators who

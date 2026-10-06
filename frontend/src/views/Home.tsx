@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { href, useApp } from "../state";
+import { appDealId, href, useApp } from "../state";
 import { readStatus } from "../chain/clause";
 
 // Each case was run as real transactions; the records are deploy/scenario-*.json.
@@ -9,7 +9,7 @@ const CASES: [string, string, string, string][] = [
   ["10, 11", "Held out: a timesheet total half an hour off under an 'approved' note, and one order line where qty × price is wrong. Written after the prompt change and pre-registered before running.", "12 of 12", "Every run came back as registered. Still arithmetic, the check the prompt was told to make: the fix carries to other sums, which says nothing about judgment beyond that."],
   ["9", "A catalog whose missing price sits at byte 5,731, past the 4,000 characters the jury reads.", "Unmet / undetermined", "Pointed at /items/71, the jury saw those bytes, never the buyer's words. Studio: unmet. Bradbury: undetermined (80), test called ambiguous, seller paid. The bytes arrive; the jury does not always use them."],
   ["6", "The seller's file is gone: its URL answers 404.", "Unmet", "No model call. A definite answer from the server is the seller's."],
-  ["7", "The seller's host cannot be reached while the jury runs.", "No ruling", "Nobody could read the work, so nothing is ruled. The clause pays the seller at its deadline."],
+  ["7", "The seller's host cannot be reached while the jury runs.", "Refunded", "Each round that cannot fetch the work is recorded and sent to the escrow. The third is unavailable: the clause and the bond go back to the buyer. Work nobody can read is never paid for."],
   ["2", "The work has 2 cities. The clause says exactly 3.", "Unmet", "A counting case: it shows the clause reaches the jury intact, not that the jury judges well."],
 ];
 
@@ -19,24 +19,25 @@ const FLOW: [string, string, string][] = [
   ["Dispute by citation", "The buyer disputes a clause by id, with a 10% bond, and may point at a location in the work. An id not in the spec is refused: no model, bond back.", "hot"],
   ["The jury rules", "A separate jury contract fetches the work, checks its digest, and answers one question from the clause and the work alone.", ""],
   ["The escrow applies it", "After an appeal window, anyone applies the ruling. It is the only time the escrow reads the jury.", ""],
-  ["Clocks and withdraw", "Undisputed clauses pay, unruled disputes lapse to the seller, undelivered work refunds. withdraw sends what each party is owed.", ""],
+  ["Clocks and withdraw", "Undisputed clauses pay, unruled disputes lapse to the seller, work nobody could fetch refunds the buyer, undelivered work refunds. withdraw sends what each party is owed.", ""],
 ];
 
 /** Deals opened on the selected network, read live from the contract. */
 function useDealCount() {
-  const { client, clause } = useApp();
+  const { client, clause, network } = useApp();
   const [n, setN] = useState<number | null>(null);
   useEffect(() => {
     let live = true;
     setN(null);
     if (!clause) return;
+    // Every deal on Clause here, the previous release's included.
     readStatus(client, clause)
-      .then((s) => live && setN(s.deals))
+      .then((s) => live && setN(appDealId(network, s.deals)))
       .catch(() => live && setN(null));
     return () => {
       live = false;
     };
-  }, [client, clause]);
+  }, [client, clause, network]);
   return n;
 }
 
@@ -194,7 +195,7 @@ export function Home() {
             <ul>
               <li>bytes that differ from the digest: unmet, no model</li>
               <li>a 404: unmet, no model</li>
-              <li>no answer at all: no ruling, and the deadline pays</li>
+              <li>no answer, three rounds running: refunded to the buyer</li>
               <li>the right bytes: the jury reads them</li>
             </ul>
           </div>

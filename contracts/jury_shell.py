@@ -17,9 +17,13 @@ with ``status`` 404, and an unreachable host raises. So:
 - 2xx and the bytes match the pinned digest: the model reads the work.
 - 2xx and the bytes differ, or 404/410: the seller changed or removed the
   work it pinned. ``unmet``, no model call; the seller may redeliver.
-- no answer at all (an exception, 5xx, 429): not a verdict on anyone. The
-  call is refused, nothing is recorded, and it can be convened again until
-  the ruling deadline, after which the clause pays the seller.
+- no answer at all (an exception, 5xx, 429): not a reading of the work, and
+  never a payout to the seller. The round is recorded as unread; the jury
+  may be convened again a quarter of the ruling window later. The third
+  unread round records the verdict ``unavailable`` - a neutral refund - and a
+  dispute that reaches its deadline with any unread round on record is
+  refunded too. Each unread round is also sent to the escrow as a message
+  (``note_unread``), so the deadline refunds even if nobody applies it.
 
 Hard rules (see docs/ARCHITECTURE.md):
 - The fetch is written inline in both closures.
@@ -33,7 +37,7 @@ class ClauseJury(gl.Contract):
     ruled: u256
 
     def __init__(self):
-        self.release = "clause-jury/2"
+        self.release = "clause-jury/3"
         self.ruled = u256(0)
 
     def _now(self) -> int:
@@ -58,8 +62,14 @@ class ClauseJury(gl.Contract):
         if self._now() > int(dispute["rule_by"]):
             raise Exception("[EXPECTED] the ruling deadline has passed; settle releases the clause")
         key = self._key(source, deal_id, clause_id)
-        if str(json.loads(self.rulings.get(key, "{}")).get("round", "")) == str(dispute["round"]):
+        previous = json.loads(self.rulings.get(key, "{}"))
+        if str(previous.get("round", "")) != str(dispute["round"]):
+            previous = {}
+        if str(previous.get("verdict", "")) != "":
             raise Exception("[EXPECTED] this dispute is already ruled; apply_ruling applies it")
+        wait = unread_retry_error(previous, now=self._now(), ruling_seconds=int(deal["timing"]["ruling_seconds"]))
+        if wait:
+            raise Exception("[EXPECTED] " + wait)
 
         # Plain values only: the validator's closure is pickled into a sandbox
         # where a storage proxy does not survive.
@@ -136,8 +146,15 @@ class ClauseJury(gl.Contract):
 
         decoded = as_dict(gl.vm.run_nondet(leader, validator, compare_user_errors=True))
         if str(decoded.get("artifact", "")) == ARTIFACT_UNREAD:
-            # No answer from the server is not a verdict on anyone.
-            raise Exception("[EXPECTED] the work could not be fetched, so nothing was ruled; convene the jury again before the ruling deadline")
+            # No answer from the server: recorded here, and sent to the escrow,
+            # which from then on refunds the clause at its deadline instead of
+            # paying the seller - without waiting for anyone to apply it.
+            record = record_unread(previous, round_id=str(dispute["round"]), now=self._now(), locate=locate)
+            self.rulings[key] = json.dumps(record)
+            gl.get_contract_at(Address(source)).emit(on="accepted").note_unread(
+                int(deal_id), str(clause_id), str(record["round"]), int(record["unread"]), int(record["at"])
+            )
+            return
         verdict = str(decoded.get("verdict", VERDICT_UNDETERMINED))
         if verdict not in VERDICTS:
             verdict = VERDICT_UNDETERMINED

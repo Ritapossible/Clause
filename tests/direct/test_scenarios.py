@@ -11,7 +11,9 @@ entrypoints, requires both builds to behave identically, and checks:
 3. A dispute that tries to instruct the jury: met; its text never reaches it.
 4. Two lines, one broken, only the broken one cited.
 5. Injected work; work changed or removed after delivery (unmet, no model);
-   work nobody could fetch (no ruling at all; the deadline pays).
+   work nobody could fetch never pays the seller: three unread rounds end in
+   a neutral refund, one unread round makes the deadline refund, and work
+   that becomes readable again is ruled on as usual.
 6. A non-counting test (an invoice total against its line items) and a
    location that shows the jury a defect past the 4,000-character cut.
 7. The jury contract becomes unreadable: the escrow still settles and pays.
@@ -65,6 +67,9 @@ RIGHT = example("invoice-right.json")
 CATALOG = example("catalog-long.json")
 GONE = "https://example.test/removed.json"
 DOWN = "https://unreachable.test/work.json"
+DOWN_ONCE = "https://unreachable.test/once.json"
+FLAKY = "https://flaky.test/cities-three.json"
+GAP = 900 // 4  # unread_gap of the 900-second ruling window these deals use
 
 
 def model(prompt):
@@ -199,15 +204,25 @@ def scenario(suffix):
     out["case 5b missing"] = rule_and_apply(6, "cities")
     out["case 5b: model calls"] = len(model.prompts) - calls
 
-    # 5c. Work nobody could fetch: no ruling at all; the deadline pays.
+    # 5c. Work nobody could fetch, three times: a neutral refund.
+    calls = len(model.prompts)
     fund("deal 7", [CITIES])
     tx("deliver 7", C, "deliver", 7, DOWN, THREE[2], sender=SELLER)
     dispute("dispute 7", 7, "cities")
-    tx("case 5c: rule unreachable", J, "rule", C, 7, "cities", sender=BUYER)
-    out["case 5c: ruling"] = json.loads(rt.contracts[J].ruling_of(C, 7, "cities"))
-    rt.now += 901 + APPEAL
-    tx("settle 7", C, "settle", 7, sender=SELLER)
+    out["case 5c: owed before"] = (c.owed_to(BUYER), c.owed_to(SELLER))
+    for n in (1, 2, 3):
+        tx("case 5c: rule unreachable %d" % n, J, "rule", C, 7, "cities", sender=SELLER)
+        out["case 5c: record %d" % n] = json.loads(rt.contracts[J].ruling_of(C, 7, "cities"))
+        tx("case 5c: rule again at once %d" % n, J, "rule", C, 7, "cities", sender=SELLER)
+        tx("case 5c: apply %d" % n, C, "apply_ruling", 7, "cities", sender=BUYER)
+        out["case 5c: line after %d" % n] = deal(7)["lines"][0]
+        rt.now += GAP
+    rt.now += APPEAL
+    tx("case 5c: apply unavailable", C, "apply_ruling", 7, "cities", sender=BUYER)
     out["case 5c"] = deal(7)["lines"][0]
+    out["case 5c: owed after"] = (c.owed_to(BUYER), c.owed_to(SELLER))
+    out["case 5c: model calls"] = len(model.prompts) - calls
+    tx("case 5c: rule after the refund", J, "rule", C, 7, "cities", sender=SELLER)
 
     # 6a. An invoice whose prose says the total is right and whose numbers do not add up.
     fund("deal 8", [INVOICE])
@@ -245,12 +260,39 @@ def scenario(suffix):
     rt.now += 901
     tx("case 7: settle", C, "settle", 12, sender=SELLER)
     out["case 7"] = deal(12)["lines"][0]
+    rt.contracts[J] = jury
+
+    # 5d. One unread round, convened by the seller, and then nobody does
+    # anything: the jury's message alone makes the deadline refund the buyer.
+    fund("deal 13", [CITIES])
+    tx("deliver 13", C, "deliver", 13, DOWN_ONCE, THREE[2], sender=SELLER)
+    dispute("dispute 13", 13, "cities")
+    tx("case 5d: a note from anyone but the jury", C, "note_unread", 13, "cities",
+       deal(13)["lines"][0]["dispute"]["round"], 3, rt.now, sender=SELLER)
+    sent = len(rt.messages)
+    tx("case 5d: rule unreachable", J, "rule", C, 13, "cities", sender=SELLER)
+    out["case 5d: messages"] = rt.messages[sent:]
+    out["case 5d: line noted"] = deal(13)["lines"][0]
+    owed = (c.owed_to(BUYER), c.owed_to(SELLER))
+    rt.now += 901 + APPEAL
+    tx("case 5d: settle", C, "settle", 13, sender=SELLER)
+    out["case 5d"] = deal(13)["lines"][0]
+    out["case 5d: credited"] = (c.owed_to(BUYER) - owed[0], c.owed_to(SELLER) - owed[1])
+
+    # 5e. Unreadable once, readable on the next round: ruled as usual.
+    fund("deal 14", [CITIES])
+    tx("deliver 14", C, "deliver", 14, FLAKY, THREE[2], sender=SELLER)
+    dispute("dispute 14", 14, "cities")
+    tx("case 5e: rule unreachable", J, "rule", C, 14, "cities", sender=BUYER)
+    rt.web[FLAKY] = THREE[1]
+    rt.now += GAP
+    out["case 5e"] = rule_and_apply(14, "cities")
 
     # Every remaining clock, then withdrawal.
     rt.now += 3600
-    for i in range(13):
+    for i in range(15):
         tx("settle %d end" % i, C, "settle", i, sender=BUYER)
-    out["states"] = [[l["state"] for l in deal(i)["lines"]] for i in range(13)]
+    out["states"] = [[l["state"] for l in deal(i)["lines"]] for i in range(15)]
     out["owed"] = {"buyer": c.owed_to(BUYER), "seller": c.owed_to(SELLER)}
     out["status before withdraw"] = json.loads(c.status())
     tx("withdraw seller", C, "withdraw", sender=SELLER)
@@ -260,7 +302,6 @@ def scenario(suffix):
     out["transfers"] = list(rt.transfers)
     out["balance"] = rt.balances.get(C, 0)
     out["jury balance"] = rt.balances.get(J, 0)
-    rt.contracts[J] = jury
     out["jury status"] = json.loads(jury.status())
     return out
 
@@ -321,15 +362,61 @@ def test_case_4_one_broken_line_does_not_freeze_the_other(readable):
     assert readable["case 4"] == [("cities", "failed", "unmet"), ("format", "released", "")]
 
 
-def test_case_5_work_changed_or_removed_is_unmet_work_unreachable_is_no_ruling(readable):
+def test_case_5_work_changed_or_removed_is_unmet(readable):
     r = readable
     assert r["case 5a"]["verdict"] == "unmet"
     assert (r["case 5b changed"]["verdict"], r["case 5b changed"]["artifact"]) == ("unmet", "changed")
     assert (r["case 5b missing"]["verdict"], r["case 5b missing"]["artifact"]) == ("unmet", "missing")
     assert r["case 5b: model calls"] == 0
-    assert "could not be fetched, so nothing was ruled" in r["case 5c: rule unreachable"]
-    assert r["case 5c: ruling"] == {}
-    assert (r["case 5c"]["state"], r["case 5c"].get("lapsed")) == ("released", True)
+
+
+def test_case_5c_repeated_unavailability_ends_in_a_neutral_refund(readable):
+    """The reviewer's case: the seller's work cannot be fetched, round after
+    round. Each round is recorded, a round cannot be repeated at once, and the
+    third ends the dispute in a neutral refund: the clause and the bond back
+    to the buyer, nothing to the seller, no model call."""
+    r = readable
+    for n in (1, 2, 3):
+        assert r["case 5c: rule unreachable %d" % n] == "ok"
+        record = r["case 5c: record %d" % n]
+        assert (record["unread"], record["artifact"]) == (n, "unread")
+        again = r["case 5c: rule again at once %d" % n]
+        assert ("may try again from" if n < 3 else "already ruled") in again
+        assert r["case 5c: apply %d" % n] == "ok"
+        line = r["case 5c: line after %d" % n]
+        assert (line["state"], line["unread"]) == ("disputed", n)
+    assert "verdict" not in r["case 5c: record 2"]
+    assert (r["case 5c: record 3"]["verdict"], r["case 5c: record 3"]["reason"]) == ("unavailable", "work_unavailable")
+    line = r["case 5c"]
+    assert (line["state"], line["verdict"], line["unavailable"]) == ("refunded", "unavailable", True)
+    before, after = r["case 5c: owed before"], r["case 5c: owed after"]
+    assert after[0] - before[0] == CITIES["amount"] + 10 * GEN  # the clause and the bond
+    assert after[1] == before[1]  # nothing to the seller
+    assert r["case 5c: model calls"] == 0
+    assert "not disputed" in r["case 5c: rule after the refund"]
+
+
+def test_case_5d_an_unread_round_makes_the_deadline_refund_with_nobody_applying_it(readable):
+    """The jury tells the escrow itself: no one has to apply the record, so a
+    seller who convenes the jury while its host is down cannot then wait out
+    the deadline and be paid."""
+    r = readable
+    assert "only the jury contract notes an unread round" in r["case 5d: a note from anyone but the jury"]
+    assert r["case 5d: rule unreachable"] == r["case 5d: settle"] == "ok"
+    [(origin, target, method, _args, outcome)] = r["case 5d: messages"]
+    assert (origin, target, method, outcome) == (J, C, "note_unread", "ok")
+    noted = r["case 5d: line noted"]
+    assert (noted["state"], noted["unread"], noted["artifact"]) == ("disputed", 1, "unread")
+    line = r["case 5d"]
+    assert (line["state"], line["lapsed"], line["unavailable"], line["unread"]) == ("refunded", True, True, 1)
+    assert r["case 5d: credited"] == (CITIES["amount"] + 10 * GEN, 0)
+
+
+def test_case_5e_work_readable_again_is_ruled_on_as_usual(readable):
+    r = readable
+    assert r["case 5e: rule unreachable"] == "ok"
+    line = r["case 5e"]
+    assert (line["state"], line["verdict"], line["artifact"]) == ("released", "met", "verified")
 
 
 def test_case_6_a_non_counting_test_and_a_located_defect(readable):

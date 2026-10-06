@@ -25,7 +25,9 @@ const all = fs.existsSync(path) ? JSON.parse(fs.readFileSync(path, "utf8")) : {}
 all[network] = {
   clause: escrow.address, deploy_tx: escrow.hash,
   jury: jury.address, jury_deploy_tx: jury.hash,
-  bond_floor: String(BOND_FLOOR), appeal_seconds: APPEAL, release: "clause/2", at: new Date().toISOString(),
+  bond_floor: String(BOND_FLOOR), appeal_seconds: APPEAL, release: "clause/3", at: new Date().toISOString(),
+  // The release before this one: the app keeps its deals at their numbers.
+  ...(all[network]?.previous ? { previous: all[network].previous } : {}),
 };
 fs.writeFileSync(path, JSON.stringify(all, null, 2));
 console.log("recorded in deploy/deployments.json");

@@ -97,7 +97,7 @@ node appeal_scenario.mjs studio   # an appeal of the jury; the escrow still pays
 | 4 | Two clauses, one broken |
 | 5 | A forged answer block in the work |
 | 6 | A 404 |
-| 7 | An unreachable host |
+| 7 | An unreachable host: three jury rounds, each recorded and sent to the escrow; the third is `unavailable`, a neutral refund |
 | 8 | An invoice whose total is wrong, and the same invoice with the right total; 3 runs each on Studio |
 | 9 | A defect past the 4,000-character cut, with and without a location |
 

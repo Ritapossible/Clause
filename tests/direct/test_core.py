@@ -235,7 +235,7 @@ def test_a_failed_line_nobody_redelivers_refunds_the_buyer():
 def test_deadlines_are_idempotent_and_conserve_value():
     """Whatever order events and deadlines arrive in, every GEN funded or
     bonded ends credited exactly once."""
-    for verdict in (U, M, D, None):
+    for verdict in (U, M, D, core.VERDICT_UNAVAILABLE, None):
         d, line = disputed()
         total = 150 * GEN + 10 * GEN
         paid = {}
@@ -294,3 +294,73 @@ def test_a_dispute_lapses_only_after_the_appeal_window_past_its_deadline():
     assert core.apply_deadlines(d, end, appeal_seconds=300) == {SELLER: 50 * GEN}
     assert line["state"] == "disputed"
     assert core.apply_deadlines(d, end + 1, appeal_seconds=300) == {SELLER: 100 * GEN, BUYER: 10 * GEN}
+
+
+# --- work nobody can fetch never pays the seller ------------------------------
+
+
+def unread_rounds(line, n, start=T0 + 100):
+    """The jury's records after ``n`` rounds that could not fetch the work."""
+    record, gap = {}, core.unread_gap(TIMING["ruling_seconds"])
+    for i in range(n):
+        assert core.unread_retry_error(record, now=start + i * gap, ruling_seconds=TIMING["ruling_seconds"]) == ""
+        record = core.record_unread(record, round_id=line["dispute"]["round"], now=start + i * gap)
+    return record
+
+
+def test_unread_rounds_are_counted_spaced_and_the_third_is_unavailable():
+    d, line = disputed()
+    gap = core.unread_gap(TIMING["ruling_seconds"])
+    assert gap == 225  # a quarter of the window: three rounds fit inside it
+    one = unread_rounds(line, 1)
+    assert (one["unread"], one["artifact"], "verdict" in one) == (1, "unread", False)
+    assert "may try again from %d" % (T0 + 100 + gap) in core.unread_retry_error(
+        one, now=T0 + 100 + gap - 1, ruling_seconds=TIMING["ruling_seconds"])
+    two = unread_rounds(line, 2)
+    assert (two["unread"], "verdict" in two) == (2, False)
+    three = unread_rounds(line, 3)
+    assert (three["unread"], three["verdict"], three["confidence"]) == (3, "unavailable", 100)
+    # A new dispute round starts the count again.
+    assert core.record_unread(three, round_id="2.1", now=T0 + 5000)["unread"] == 1
+
+
+def test_an_unread_record_is_noted_at_once_and_applies_nothing():
+    d, line = disputed()
+    record = unread_rounds(line, 1)
+    assert core.accept_ruling(line, record, now=record["at"], appeal_seconds=300) == ""
+    assert (line["state"], line["unread"]) == ("disputed", 1)
+    with pytest.raises(core.ClauseError, match="has not ruled on this dispute"):
+        core.accept_ruling(line, dict(record, round="0.1"), now=T0 + 10**6, appeal_seconds=300)
+    with pytest.raises(core.ClauseError, match="after the ruling deadline"):
+        core.accept_ruling(line, dict(record, at=line["dispute"]["rule_by"] + 1), now=T0 + 10**6, appeal_seconds=0)
+
+
+def test_unavailable_waits_its_appeal_window_then_refunds_the_line_and_the_bond():
+    d, line = disputed()
+    record = unread_rounds(line, 3)
+    assert core.accept_ruling(line, record, now=record["at"] + 299, appeal_seconds=300) == ""
+    assert line["unread"] == 3
+    verdict = core.accept_ruling(line, record, now=record["at"] + 300, appeal_seconds=300)
+    assert verdict == "unavailable"
+    credits = core.apply_ruling(line, verdict=verdict, buyer=BUYER, seller=SELLER, now=record["at"] + 300, redelivery_seconds=1800)
+    assert credits == {BUYER: 100 * GEN + 10 * GEN}
+    assert (line["state"], line["unavailable"]) == ("refunded", True)
+
+
+@pytest.mark.parametrize("rounds", [1, 2])
+def test_a_deadline_with_an_unread_round_on_record_refunds_instead_of_paying(rounds):
+    d, line = disputed()
+    core.accept_ruling(line, unread_rounds(line, rounds), now=T0 + 600, appeal_seconds=300)
+    end = line["dispute"]["rule_by"] + 300 + 1
+    credits = core.apply_deadlines(d, end, appeal_seconds=300)
+    # The undisputed clause pays the seller; the unreadable one goes back, bond included.
+    assert credits == {SELLER: 50 * GEN, BUYER: 100 * GEN + 10 * GEN}
+    assert (line["state"], line["lapsed"], line["unavailable"]) == ("refunded", True, True)
+
+
+def test_a_redelivery_starts_with_no_unread_rounds():
+    d, line = disputed()
+    line["unread"] = 2
+    core.apply_ruling(line, verdict=U, buyer=BUYER, seller=SELLER, now=T0 + 30, redelivery_seconds=1800)
+    core.deliver(d, uri="https://example.test/v2.json", digest="b" * 64, now=T0 + 40)
+    assert line["state"] == "in_review" and "unread" not in line

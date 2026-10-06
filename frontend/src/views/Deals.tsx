@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { href, useApp } from "../state";
+import { DealScope, appDealId, href, useApp } from "../state";
 import { NETWORKS } from "../chain/networks";
 import { readDeal, readOwed, readRefusal, readStatus, write, type Deal, type Status } from "../chain/clause";
 import { sameAddr, ago } from "../lib/format";
@@ -25,7 +25,8 @@ export function total(d: Deal): bigint {
 export function Deals() {
   const { client, clause, network, me } = useApp();
   const [status, setStatus] = useState<Status | null>(null);
-  const [deals, setDeals] = useState<Deal[] | null>(null);
+  // Each deal with the number the app shows it under (see state.dealHome).
+  const [deals, setDeals] = useState<{ d: Deal; n: number }[] | null>(null);
   const [mine, setMine] = useState(false);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
@@ -38,21 +39,27 @@ export function Deals() {
       const s = await readStatus(client, clause);
       setStatus(s);
       const ids = Array.from({ length: Math.min(SHOW, s.deals) }, (_, i) => s.deals - 1 - i);
-      setDeals(await Promise.all(ids.map((i) => readDeal(client, clause, i))));
+      const current = await Promise.all(ids.map(async (i) => ({ d: await readDeal(client, clause, i), n: appDealId(network, i) })));
+      // Then the previous release's deals, under the numbers they always had.
+      const p = NETWORKS[network].previous;
+      const more = p ? Array.from({ length: Math.min(SHOW - current.length, p.deals) }, (_, i) => p.deals - 1 - i) : [];
+      const earlier = p ? await Promise.all(more.map(async (i) => ({ d: await readDeal(client, p.clause, i), n: i }))) : [];
+      setDeals([...current, ...earlier]);
     } catch (e) {
       setErr("Could not read the contract. The network may be busy - try again.");
       console.warn(e);
     } finally {
       setLoading(false);
     }
-  }, [client, clause]);
+  }, [client, clause, network]);
   useEffect(() => {
     setDeals(null);
     void reload();
   }, [reload]);
 
   if (!clause) return <Empty>Clause is not deployed on {NETWORKS[network].label} in this build.</Empty>;
-  const rows = (deals ?? []).filter((d) => !mine || sameAddr(d.buyer, me) || sameAddr(d.seller, me));
+  const rows = (deals ?? []).filter(({ d }) => !mine || sameAddr(d.buyer, me) || sameAddr(d.seller, me));
+  const previous = NETWORKS[network].previous;
 
   return (
     <>
@@ -69,10 +76,16 @@ export function Deals() {
         </button>
       </div>
       <Owed />
+      {previous && (
+        <DealScope id={0}>
+          <Owed earlier={previous.release} />
+        </DealScope>
+      )}
       {status && (
         <p className="small muted" style={{ margin: "14px 0" }}>
           Contract <Addr value={clause} /> · {status.deals} deals · <Gen atto={status.held} /> held in escrow ·{" "}
           <Gen atto={status.owed} /> owed, waiting to be withdrawn
+          {previous && <> · deals #0-{previous.deals - 1} are on the earlier release ({previous.release}, <Addr value={previous.clause} />)</>}
         </p>
       )}
       <div className="filters" role="group" aria-label="Filter">
@@ -102,11 +115,11 @@ export function Deals() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((d) => (
-                <tr key={d.id} className="click" tabIndex={0}
-                  onClick={() => (window.location.hash = href({ name: "deal", id: d.id }))}
-                  onKeyDown={(e) => e.key === "Enter" && (window.location.hash = href({ name: "deal", id: d.id }))}>
-                  <td className="mono card-head" data-label="Deal #">{d.id}</td>
+              {rows.map(({ d, n }) => (
+                <tr key={n} className="click" tabIndex={0}
+                  onClick={() => (window.location.hash = href({ name: "deal", id: n }))}
+                  onKeyDown={(e) => e.key === "Enter" && (window.location.hash = href({ name: "deal", id: n }))}>
+                  <td className="mono card-head" data-label="Deal #">{n}</td>
                   <td className="num" data-label="Escrow"><Gen atto={total(d)} /></td>
                   <td data-label="Clauses" className="mono small">{d.lines.map((l) => l.id).join(", ")}</td>
                   <td data-label="Buyer" onClick={(e) => e.stopPropagation()}><Addr value={d.buyer} label={sameAddr(d.buyer, me) ? "you" : undefined} /></td>
@@ -125,7 +138,9 @@ export function Deals() {
 
 /** What the connected wallet is owed, with a withdraw button, and why its
  *  last payable call was refused, if it was. */
-export function Owed() {
+/** What the escrow in scope owes the signer. ``earlier`` names a previous
+ *  release: then the card shows only when something is owed there. */
+export function Owed({ earlier = "" }: { earlier?: string }) {
   const { client, clause, me, network, pollMs, canSign } = useApp();
   const [owed, setOwed] = useState<bigint | null>(null);
   const [refusal, setRefusal] = useState<{ reason?: string; at?: number; returned?: string }>({});
@@ -139,11 +154,12 @@ export function Owed() {
     void load();
   }, [load]);
   if (!me) return null;
+  if (earlier && !owed && !refusal.reason) return null;
   return (
     <div className="card" style={{ marginBottom: 10 }}>
       <div className="row" style={{ justifyContent: "space-between" }}>
         <div>
-          <h3 style={{ margin: 0 }}>Owed to you</h3>
+          <h3 style={{ margin: 0 }}>Owed to you{earlier ? ` on the earlier release (${earlier})` : ""}</h3>
           <p className="sub" style={{ margin: "4px 0 0" }}>
             Rulings and deadlines credit what each party is owed; withdrawing sends it to your wallet.
           </p>

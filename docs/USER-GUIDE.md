@@ -80,7 +80,7 @@ Open **Fund a deal**.
    | --- | --- | --- | --- |
    | Delivery by | 1 hour | 7 days | How long after funding the seller has to deliver. If nothing is delivered in time, everything is refunded. |
    | Review window | 5 minutes (30 on Bradbury) | 3 days | How long after delivery you have to dispute a clause. After that, it pays. |
-   | Ruling deadline | 30 minutes | 2 days | How long after a dispute the jury can be convened. If no ruling is applied by this deadline plus the appeal window, the clause pays the seller and your bond comes back. |
+   | Ruling deadline | 30 minutes | 2 days | How long after a dispute the jury can be convened. If no ruling is applied by this deadline plus the appeal window, the clause pays the seller and your bond comes back - unless the jury could not fetch the work, in which case you are refunded. |
    | Redelivery | 30 minutes | 3 days | How long the seller has to redeliver after an unmet ruling. If nobody redelivers, the clause is refunded. |
 
    Each window can be anything from 60 seconds to 90 days.
@@ -135,9 +135,13 @@ amount, never less than 0.01 GEN.
    after its **appeal window**: 5 minutes on Studio, 40 on Bradbury. Then
    anyone can press **Apply the ruling**.
 
-If the work could not be fetched at all, nothing is ruled. Convene the jury
-again before the deadline. See [the jury](#the-jury) for what each verdict
-does.
+If the work could not be fetched at all, the round is recorded and the
+clause can no longer pay the seller at its deadline: it refunds you instead.
+You can convene the jury again a quarter of the ruling window later (the
+button shows when). After three rounds that could not fetch it, the verdict
+is **unavailable**: a neutral refund of the clause and your bond. If the work
+comes back, the next round reads it and rules as usual. See
+[the jury](#the-jury) for what each verdict does.
 
 ### 5. Withdraw
 
@@ -244,8 +248,14 @@ clause is refunded to the buyer when the window closes.
   receive the clause amount **and** the buyer's bond.
 - The buyer cannot stall payment. If no ruling is applied by the ruling
   deadline plus the appeal window, the clause pays you.
-- A network failure while the jury runs is not held against you. Only a
-  definite answer from your server (different bytes, or a 404) is.
+- A single network failure while the jury runs is not a ruling against you:
+  the jury can be convened again a quarter of the ruling window later, and
+  only a definite answer from your server (different bytes, or a 404) is
+  ruled unmet.
+- But work nobody can fetch is never paid for. Each round that cannot reach
+  your server is recorded; three such rounds, or the deadline after one, refund
+  the buyer the clause and the bond. Keep the work reachable until every
+  dispute on it is ruled.
 
 ## The jury
 
@@ -261,6 +271,7 @@ When a disputed clause is ruled, each GenLayer validator independently:
 | **unmet** | The work clearly fails the test (confidence 60 or more), or the work was changed or removed from its URL | Held for the buyer; the seller may redeliver once | Back to the buyer |
 | **met** | The work satisfies the test | Paid to the seller | Paid to the seller |
 | **undetermined** | A hesitant fail, or a test that can honestly be read both ways | Paid to the seller | Back to the buyer |
+| **unavailable** | No validator could fetch the work, in three rounds a quarter of the ruling window apart | Refunded to the buyer | Back to the buyer |
 
 The jury fails closed toward paying the seller, because the buyer brings the
 dispute. An unmet ruling stands only if validators re-answering the question
@@ -283,6 +294,7 @@ anyone calls `settle` (the **Apply the deadlines that have passed** button):
 | Awaiting delivery | Delivery deadline | Refunded to the buyer |
 | In review | Review window | Paid to the seller |
 | Disputed | Ruling deadline + appeal window, with no ruling applied | Paid to the seller; bond back to the buyer |
+| Disputed, a round could not fetch the work | Ruling deadline + appeal window | Refunded to the buyer, with the bond |
 | Unmet, awaiting redelivery | Redelivery window | Refunded to the buyer |
 
 The deal page shows each clock, measured by the contract's own time. Nothing
@@ -330,7 +342,7 @@ GEN, so nothing is lost:
 | `the delivery digest must be 64 hex characters` | Use **Compute digest**. |
 | `clause is not disputed` | Only a disputed clause can be ruled. |
 | `the ruling deadline has passed; settle releases the clause` | Wait out the appeal window, then press settle. |
-| `the work could not be fetched, so nothing was ruled; …` | The server did not answer. Convene the jury again before the deadline. |
+| `the work could not be fetched at …; the jury may try again from …` | The last round could not reach the seller's server. Try again from the time shown; three failed rounds refund the buyer. |
 | `this dispute is already ruled; apply_ruling applies it` | Press **Apply the ruling** once its appeal window has passed. |
 | `the ruling can be applied from …, after its appeal window` | Wait for the appeal window. |
 | `nothing is owed to this address` | There is nothing to withdraw. |

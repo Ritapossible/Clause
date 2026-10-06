@@ -14,7 +14,10 @@ answers one question about that clause and that artifact: does the artifact
 fail this clause as written? It never sees the buyer's dispute text; the
 buyer may only point at a location in the work. Unmet keeps the line for the
 buyer (the seller may redeliver once); met or undetermined releases it to the
-seller. The jury is a separate contract: the escrow only reads its ruling, and
+seller. Work nobody can fetch never pays the seller: each round in which no
+validator could read it is recorded, and a dispute with such a round on record
+ends in a neutral refund (the clause and the bond back to the buyer) - at
+once after ``UNREAD_LIMIT`` rounds, or at its ruling deadline after fewer. The jury is a separate contract: the escrow only reads its ruling, and
 every deadline resolves by arithmetic, so the escrow pays or refunds on its
 own clock whatever happens to the jury.
 """
@@ -44,13 +47,18 @@ VERDICT_UNMET = "unmet"
 VERDICT_MET = "met"
 VERDICT_UNDETERMINED = "undetermined"
 VERDICTS = (VERDICT_UNMET, VERDICT_MET, VERDICT_UNDETERMINED)
+# Not a reading of the work: the work could not be fetched in UNREAD_LIMIT
+# separate jury rounds. A neutral refund, never a payout to the seller.
+VERDICT_UNAVAILABLE = "unavailable"
+RULING_VERDICTS = VERDICTS + (VERDICT_UNAVAILABLE,)
+UNREAD_LIMIT = 3
 
 # What fetching the delivery found. Only a definite answer from the server is
 # held against the seller; no answer at all is not a verdict on anyone.
 ARTIFACT_VERIFIED = "verified"  # read, and the bytes match the pinned digest
 ARTIFACT_CHANGED = "changed"  # read, and the bytes differ: the seller changed the work
 ARTIFACT_MISSING = "missing"  # the server said 404/410: the seller removed the work
-ARTIFACT_UNREAD = "unread"  # no answer (network error, 5xx, 429): no ruling at all
+ARTIFACT_UNREAD = "unread"  # no answer (network error, 5xx, 429): recorded; never pays the seller
 ARTIFACT_STATES = (ARTIFACT_VERIFIED, ARTIFACT_CHANGED, ARTIFACT_MISSING, ARTIFACT_UNREAD)
 MISSING_STATUS = (404, 410)
 
@@ -321,21 +329,62 @@ def _credit(credits, who, amount):
         credits[who] = credits.get(who, 0) + amount
 
 
+def unread_gap(ruling_seconds):
+    """How far apart the rounds that find the work unreadable must be: a
+    quarter of the ruling window, so ``UNREAD_LIMIT`` rounds fit inside it and
+    one passing outage cannot be counted three times."""
+    return max(1, int(ruling_seconds) // (UNREAD_LIMIT + 1))
+
+
+def unread_retry_error(previous, *, now, ruling_seconds):
+    """Why the jury may not be convened again yet on a dispute whose last
+    round could not fetch the work ("" when it may)."""
+    if not previous or int(previous.get("unread", 0) or 0) <= 0:
+        return ""
+    ready = int(previous["at"]) + unread_gap(ruling_seconds)
+    if int(now) < ready:
+        return "the work could not be fetched at %d; the jury may try again from %d" % (int(previous["at"]), ready)
+    return ""
+
+
+def record_unread(previous, *, round_id, now, locate=""):
+    """The jury's record of a round in which no validator could fetch the
+    work. ``previous`` is the record for this dispute round, or {}. The count
+    grows by one per round; at ``UNREAD_LIMIT`` the record carries the
+    terminal verdict ``unavailable``."""
+    count = 1
+    if previous and str(previous.get("round", "")) == str(round_id):
+        count = int(previous.get("unread", 0) or 0) + 1
+    record = {"round": str(round_id), "unread": count, "artifact": ARTIFACT_UNREAD, "located": locate != "", "at": int(now)}
+    if count >= UNREAD_LIMIT:
+        record.update({"verdict": VERDICT_UNAVAILABLE, "reason": "work_unavailable", "confidence": 100})
+    return record
+
+
 def accept_ruling(line, ruling, *, now, appeal_seconds):
     """The verdict the escrow may apply from a ruling the jury contract
     recorded. It must be about this dispute (its round), carry a known
     verdict, have been made by the ruling deadline, and be ``appeal_seconds``
     old, so an appeal of the jury's transaction has its window before any GEN
-    is credited."""
+    is credited.
+
+    A record of rounds that could not fetch the work is noted on the line at
+    once (``line["unread"]``), so the deadline refunds instead of paying the
+    seller; it returns "" while there is no verdict to apply yet."""
     if line["state"] != LINE_DISPUTED:
         raise ClauseError("clause %r is not disputed" % line["id"])
     if not isinstance(ruling, dict) or str(ruling.get("round", "")) != str(line["dispute"]["round"]):
         raise ClauseError("the jury has not ruled on this dispute")
-    if ruling.get("verdict") not in VERDICTS:
-        raise ClauseError("the ruling has no verdict")
     at = _int(ruling.get("at"), "ruled at")
     if at > int(line["dispute"]["rule_by"]):
         raise ClauseError("the ruling came after the ruling deadline")
+    unread = int(ruling.get("unread", 0) or 0)
+    if unread > 0:
+        line["unread"] = max(int(line.get("unread", 0)), unread)
+        if ruling.get("verdict") != VERDICT_UNAVAILABLE or int(now) < at + int(appeal_seconds):
+            return ""
+    if ruling.get("verdict") not in RULING_VERDICTS:
+        raise ClauseError("the ruling has no verdict")
     if int(now) < at + int(appeal_seconds):
         raise ClauseError("the ruling can be applied from %d, after its appeal window" % (at + int(appeal_seconds)))
     return ruling["verdict"]
@@ -350,10 +399,13 @@ def apply_ruling(line, *, verdict, buyer, seller, now, redelivery_seconds):
     clause the work met cost the seller a wait.
     undetermined: the line releases to the seller; the bond comes back, since
     an honest doubt is not a frivolous dispute.
+    unavailable: nobody could read the work in ``UNREAD_LIMIT`` rounds. A
+    neutral refund: the line and the bond go back to the buyer, and nothing is
+    paid to the seller for work no one could see.
     """
     if line["state"] != LINE_DISPUTED:
         raise ClauseError("line %s is not disputed" % line["id"])
-    if verdict not in VERDICTS:
+    if verdict not in RULING_VERDICTS:
         raise ClauseError("unknown verdict %r" % verdict)
     credits = {}
     bond = int(line["dispute"]["bond"])
@@ -364,6 +416,10 @@ def apply_ruling(line, *, verdict, buyer, seller, now, redelivery_seconds):
     elif verdict == VERDICT_MET:
         line["state"] = LINE_RELEASED
         _credit(credits, seller, int(line["amount"]) + bond)
+    elif verdict == VERDICT_UNAVAILABLE:
+        line["state"] = LINE_REFUNDED
+        line["unavailable"] = True
+        _credit(credits, buyer, int(line["amount"]) + bond)
     else:
         line["state"] = LINE_RELEASED
         _credit(credits, seller, int(line["amount"]))
@@ -381,7 +437,10 @@ def apply_deadlines(deal, now, appeal_seconds=0):
     - funded, and the delivery deadline passed with nothing delivered: refund.
     - in review, and the review window closed without a dispute: release.
     - disputed, and no ruling landed by the ruling deadline: release, and the
-      bond goes back (nobody is marked as having lost).
+      bond goes back (nobody is marked as having lost) - unless a jury round
+      found the work unreadable (``line["unread"]``): then a neutral refund,
+      the line and the bond back to the buyer. Work nobody could read is
+      never paid for.
     - failed, and no redelivery by the redelivery deadline: refund.
     """
     credits = {}
@@ -396,10 +455,15 @@ def apply_deadlines(deal, now, appeal_seconds=0):
             line["state"] = LINE_RELEASED
             _credit(credits, seller, int(line["amount"]))
         elif state == LINE_DISPUTED and now > int(line["dispute"]["rule_by"]) + int(appeal_seconds):
-            line["state"] = LINE_RELEASED
             line["lapsed"] = True
-            _credit(credits, seller, int(line["amount"]))
-            _credit(credits, buyer, int(line["dispute"]["bond"]))
+            if int(line.get("unread", 0)) > 0:
+                line["state"] = LINE_REFUNDED
+                line["unavailable"] = True
+                _credit(credits, buyer, int(line["amount"]) + int(line["dispute"]["bond"]))
+            else:
+                line["state"] = LINE_RELEASED
+                _credit(credits, seller, int(line["amount"]))
+                _credit(credits, buyer, int(line["dispute"]["bond"]))
         elif state == LINE_FAILED and now > int(line["redeliver_by"]):
             line["state"] = LINE_REFUNDED
             _credit(credits, buyer, int(line["amount"]))
@@ -461,6 +525,7 @@ def deliver(deal, *, uri, digest, now):
         line["state"] = LINE_IN_REVIEW
         line["review_until"] = now + review
         line.pop("dispute", None)
+        line.pop("unread", None)
     return [l["id"] for l in targets]
 
 

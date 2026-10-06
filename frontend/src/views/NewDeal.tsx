@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { href, useApp } from "../state";
+import { appDealId, href, useApp } from "../state";
 import { readRefusal, readStatus, readDeal, write } from "../chain/clause";
 import { NETWORKS } from "../chain/networks";
 import { specErrors, total, MAX_CLAUSES, type ClauseSpec } from "../lib/spec";
@@ -87,7 +87,7 @@ export function NewDeal() {
         for (let i = s.deals - 1; i >= Math.max(0, s.deals - 5); i--) {
           const d = await readDeal(client, clause, i);
           if (sameAddr(d.buyer, me) && sameAddr(d.seller, seller.trim()) && Date.now() / 1000 - d.created_at < 900) {
-            window.location.hash = href({ name: "deal", id: i });
+            window.location.hash = href({ name: "deal", id: appDealId(network, i) });
             return;
           }
         }
@@ -155,7 +155,7 @@ export function NewDeal() {
         <dl className="kv" style={{ marginTop: 12 }}>
           <dt>Delivery by</dt><dd>{duration(timing.delivery_seconds)} after funding, or everything is refunded</dd>
           <dt>Review window</dt><dd>{duration(timing.review_seconds)} after delivery to dispute a clause; then it pays</dd>
-          <dt>Ruling deadline</dt><dd>{duration(timing.ruling_seconds)} after a dispute; with no ruling, the clause pays and the bond comes back</dd>
+          <dt>Ruling deadline</dt><dd>{duration(timing.ruling_seconds)} after a dispute; with no ruling, the clause pays and the bond comes back; if the jury could not fetch the work, it refunds you</dd>
           <dt>Redelivery</dt><dd>{duration(timing.redelivery_seconds)} after an unmet ruling; then the clause is refunded</dd>
         </dl>
       </div>

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { href, useApp } from "../state";
+import { DealScope, dealHome, href, useApp } from "../state";
 import { readBond, readDeal, readRuling, write, type Artifact, type Deal, type Line, type Ruling } from "../chain/clause";
 import { NETWORKS } from "../chain/networks";
 import { digestOfUrl, isSha256Hex } from "../lib/digest";
@@ -9,7 +9,19 @@ import { useNow, useTx } from "../hooks";
 import { Addr, Badge, Empty, Gen, Spinner, TxLine, explainError } from "../components/ui";
 import { Owed, total } from "./Deals";
 
+/** Deal ``id`` as the app numbers it: on the previous release's escrow for
+ *  the numbers that release used, else on the current one. */
 export function DealView({ id }: { id: number }) {
+  const { network } = useApp();
+  const home = dealHome(network, id);
+  return (
+    <DealScope id={id}>
+      <DealPage id={home.local} shown={id} release={home.release} />
+    </DealScope>
+  );
+}
+
+function DealPage({ id, shown, release }: { id: number; shown: number; release: string }) {
   const { client, clause, me, appealSeconds } = useApp();
   const [deal, setDeal] = useState<Deal | null>(null);
   const [readAt, setReadAt] = useState(0);
@@ -48,7 +60,13 @@ export function DealView({ id }: { id: number }) {
   return (
     <>
       <a href={href({ name: "deals" })} className="small">← All deals</a>
-      <h1 className="page-title" style={{ marginTop: 8 }}>Deal #{deal.id}</h1>
+      <h1 className="page-title" style={{ marginTop: 8 }}>Deal #{shown}</h1>
+      {release && (
+        <p className="small muted" style={{ margin: "0 0 10px" }}>
+          On the earlier escrow release ({release}, <Addr value={clause} />), where it was opened. Its clocks and rulings run
+          there unchanged.
+        </p>
+      )}
       <p className="lede" style={{ marginBottom: 14 }}>
         <Gen atto={total(deal)} /> in {deal.lines.length} {deal.lines.length === 1 ? "clause" : "clauses"}, each paid on its own.
       </p>
@@ -205,7 +223,12 @@ function LineCard({ deal, line, now, isBuyer, onDone }: { deal: Deal; line: Line
   }, [client, jury, clause, deal.id, line.id, line.state, round, tick]);
   const ruleBy = line.dispute?.rule_by ?? 0;
   const canDispute = isBuyer && line.state === "in_review" && now <= (line.review_until ?? 0);
-  const canRule = line.state === "disputed" && !ruling && now <= ruleBy;
+  // A round that could not fetch the work is recorded, not a verdict; the jury
+  // may be convened again a quarter of the ruling window later (clause_core.unread_gap).
+  const unread = ruling?.unread ?? 0;
+  const retryFrom = unread > 0 ? (ruling?.at ?? 0) + Math.max(1, Math.floor(deal.timing.ruling_seconds / 4)) : 0;
+  const canRule = line.state === "disputed" && !ruling?.verdict && now <= ruleBy;
+  const noted = Math.max(line.unread ?? 0, 0);
   const applyFrom = (ruling?.at ?? 0) + appealSeconds;
   const locErr = locateError(locate.trim());
   const reload = async () => {
@@ -228,7 +251,11 @@ function LineCard({ deal, line, now, isBuyer, onDone }: { deal: Deal; line: Line
       <p className="small muted" style={{ margin: 0 }}>
         {line.state === "funded" && "Waiting for the delivery."}
         {line.state === "in_review" && `Open for review for ${duration((line.review_until ?? 0) - now)}; with no dispute it pays the seller.`}
-        {line.state === "disputed" && !ruling &&
+        {line.state === "disputed" && !ruling?.verdict && (unread > 0 || noted > 0) &&
+          (now <= ruleBy
+            ? `The work could not be fetched in ${Math.max(unread, noted)} of 3 jury rounds. It is never paid for unread: a third unreadable round, or the deadline in ${duration(ruleBy + appealSeconds - now)}, refunds the buyer with the bond.`
+            : "The work could not be fetched before the deadline: settling refunds the buyer with the bond. Nothing is paid for work nobody could read.")}
+        {line.state === "disputed" && !ruling?.verdict && unread === 0 && noted === 0 &&
           (canRule
             ? `Disputed. Anyone may convene the jury for ${duration(ruleBy - now)}; with no ruling the clause pays the seller ${duration(ruleBy + appealSeconds - now)} from now and the bond goes back.`
             : now > ruleBy + appealSeconds
@@ -239,7 +266,10 @@ function LineCard({ deal, line, now, isBuyer, onDone }: { deal: Deal; line: Line
             ? `Judged unmet. The seller may redeliver for ${duration((line.redeliver_by ?? 0) - now)}; after that the buyer is refunded.`
             : "Judged unmet. The redelivery window has closed; settling the deal refunds the buyer.")}
         {line.state === "released" && (line.lapsed ? "Paid to the seller: no ruling was applied by the deadline; the bond went back." : "Paid to the seller.")}
-        {line.state === "refunded" && "Refunded to the buyer."}
+        {line.state === "refunded" &&
+          (line.unavailable
+            ? "Refunded to the buyer, with the bond: nobody could fetch the work, so nothing was paid for it."
+            : "Refunded to the buyer.")}
       </p>
       {line.verdict && (
         <div className="notice" style={{ marginTop: 10 }}>
@@ -286,13 +316,26 @@ function LineCard({ deal, line, now, isBuyer, onDone }: { deal: Deal; line: Line
           </div>
         </div>
       )}
+      {unread > 0 && !ruling?.verdict && line.state === "disputed" && unread > noted && (
+        <div className="row" style={{ marginTop: 12 }}>
+          <button className="btn" disabled={!canSign || tx.pending}
+            onClick={() => tx.run((h) => write(client, clause, "apply_ruling", [deal.id, line.id], pollMs, h), reload)}>
+            {tx.pending ? <Spinner /> : null} Record the failed fetch on the escrow
+          </button>
+          <span className="hint">From then on the deadline refunds the buyer instead of paying the seller. Anyone may do it.</span>
+        </div>
+      )}
       {canRule && (
         <div className="row" style={{ marginTop: 12 }}>
-          <button className="btn primary" disabled={!canSign || tx.pending || !jury}
+          <button className="btn primary" disabled={!canSign || tx.pending || !jury || now < retryFrom}
             onClick={() => tx.run((h) => write(client, jury, "rule", [clause, deal.id, line.id], pollMs, h), reload)}>
             {tx.pending ? <Spinner /> : null} Convene the jury
           </button>
-          <span className="hint">Validators fetch the work, check its digest, and each answer: does it fail this clause as written?</span>
+          <span className="hint">
+            {now < retryFrom
+              ? `The last round could not fetch the work; the jury may try again in ${duration(retryFrom - now)}.`
+              : "Validators fetch the work, check its digest, and each answer: does it fail this clause as written?"}
+          </span>
         </div>
       )}
       {ruling?.verdict && line.state === "disputed" && (
@@ -305,7 +348,7 @@ function LineCard({ deal, line, now, isBuyer, onDone }: { deal: Deal; line: Line
         </div>
       )}
       <TxLine network={network} pending={tx.pending} hash={tx.hash} outcome={tx.outcome}
-        refusalHint={canRule ? "If the work could not be fetched, nothing was ruled; you can convene the jury again." : "The contract refused."} />
+        refusalHint="The contract refused." />
       {tx.err && <div className="notice bad">{tx.err}</div>}
       <p className="small muted" style={{ marginTop: 8 }}>
         On {NETWORKS[network].short}. Times are the contract's clock.

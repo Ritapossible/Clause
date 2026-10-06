@@ -8,7 +8,8 @@ import { parseLossless } from "../lib/money";
 type Addr = `0x${string}`;
 
 export type LineState = "funded" | "in_review" | "disputed" | "failed" | "released" | "refunded";
-export type Verdict = "unmet" | "met" | "undetermined";
+/** "unavailable": the work could not be fetched in 3 jury rounds - a neutral refund. */
+export type Verdict = "unmet" | "met" | "undetermined" | "unavailable";
 
 export interface Line {
   id: string;
@@ -26,10 +27,14 @@ export interface Line {
   decided_at?: number;
   ruled_at?: number;
   lapsed?: boolean;
+  /** Jury rounds that could not fetch the work, noted by the escrow. */
+  unread?: number;
+  /** Refunded because nobody could read the work. */
+  unavailable?: boolean;
 }
 
-/** What fetching the delivery found: only a definite answer from the server
- *  counts against the seller; no answer is no ruling. */
+/** What fetching the delivery found. A definite answer from the server is held
+ *  against the seller; no answer is recorded and never pays the seller. */
 export type Artifact = "verified" | "changed" | "missing" | "unread";
 
 /** A ruling as the jury contract recorded it, before the escrow applies it. */
@@ -41,6 +46,8 @@ export interface Ruling {
   artifact?: Artifact;
   located?: boolean;
   at?: number;
+  /** Rounds in this dispute that could not fetch the work (3 = unavailable). */
+  unread?: number;
 }
 
 export interface Deal {

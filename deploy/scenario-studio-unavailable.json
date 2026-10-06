@@ -1,0 +1,215 @@
+{
+  "network": "studio",
+  "escrow": "0xd4E2e736222260dc1037E687bbCD351a96b0AF49",
+  "jury": "0x7AC031DD7a2F73297c8396493Dc8a49D15D8C782",
+  "jury_release": "clause-jury/3",
+  "only": [
+    "7"
+  ],
+  "appeal_seconds": 300,
+  "recorded_at": "2026-10-06T15:31:33.255Z",
+  "review_seconds": 900,
+  "seller_owed_before": "0",
+  "cases": {
+    "case 7 note": {
+      "waited_s": 1
+    },
+    "case 7": {
+      "expected": "unavailable: neutral refund",
+      "rounds": [
+        {
+          "n": 1,
+          "rule_tx": "0xa36e41908cde22873905209f3a50c0f137735d3bef04369b289909ae8beba8d8",
+          "round": "1.1791299988",
+          "unread": 1,
+          "artifact": "unread",
+          "located": false,
+          "at": 1791299993
+        },
+        {
+          "n": 2,
+          "rule_tx": "0x13e9e7923ec2ec187e3255d441b2b9c5bac42d33e5d3ef4bb1c25f8bebb415c0",
+          "round": "1.1791299988",
+          "unread": 2,
+          "artifact": "unread",
+          "located": false,
+          "at": 1791300160
+        },
+        {
+          "n": 3,
+          "rule_tx": "0x3f0a7397a4c9b62829cacae55c69976859fe901d3a023a73434f82982979b5e1",
+          "round": "1.1791299988",
+          "unread": 3,
+          "artifact": "unread",
+          "located": false,
+          "at": 1791300326,
+          "verdict": "unavailable",
+          "reason": "work_unavailable",
+          "confidence": 100
+        }
+      ],
+      "verdict": "unavailable",
+      "reason": "work_unavailable",
+      "confidence": 100,
+      "artifact": "unread",
+      "at": 1791300326,
+      "state": "refunded",
+      "apply_tx": "0xc2c8a50ab6198a54c218d9400f6c4319219d40c280593b5f202a5a28294fc3ae"
+    },
+    "withdraw": {
+      "owed": "60000000000000000",
+      "received": "60000000000000000",
+      "fee": "0"
+    }
+  },
+  "status": {
+    "release": "clause/3",
+    "jury": "0x7ac031dd7a2f73297c8396493dc8a49d15d8c782",
+    "appeal_seconds": 300,
+    "deals": 1,
+    "held": 0,
+    "owed": 0,
+    "balance": 0,
+    "bond_floor": 10000000000000000
+  },
+  "log": [
+    {
+      "tx": "case 7: fund",
+      "hash": "0xaf7e74bf3a7144d66e8f7ad084580ded59d742691b3a11b0ec86c71200203963",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 7: deliver unreachable",
+      "hash": "0x9c8cc74013137af2bf857bfbc2887b6360cea941e33d04443ed515cfa3707794",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 7: dispute \"cities\"",
+      "hash": "0x94afc23b7c58eeb68d268b1c49865a29af872738e3214633967c88e339eb033c",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "tx": "case 7: convene the jury, round 1",
+      "hash": "0xa36e41908cde22873905209f3a50c0f137735d3bef04369b289909ae8beba8d8",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 7: round 1 could not fetch the work and is recorded",
+      "actual": "true/1/unread",
+      "expected": "true/1/unread",
+      "ok": true
+    },
+    {
+      "tx": "case 7: convene again at once",
+      "hash": "0xf59b678f92888a20b5d65e01f3ebcbe8d75a8c3cb76ef8620ecdde01f288e71d",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "contract_error"
+    },
+    {
+      "check": "case 7: a round cannot be repeated at once",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "case 7: the jury's message notes it on the escrow; the clause stays disputed",
+      "actual": "disputed/1/unread",
+      "expected": "disputed/1/unread",
+      "ok": true
+    },
+    {
+      "tx": "case 7: convene the jury, round 2",
+      "hash": "0x13e9e7923ec2ec187e3255d441b2b9c5bac42d33e5d3ef4bb1c25f8bebb415c0",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 7: round 2 could not fetch the work and is recorded",
+      "actual": "true/2/unread",
+      "expected": "true/2/unread",
+      "ok": true
+    },
+    {
+      "tx": "case 7: convene the jury, round 3",
+      "hash": "0x3f0a7397a4c9b62829cacae55c69976859fe901d3a023a73434f82982979b5e1",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 7: round 3 could not fetch the work and is recorded",
+      "actual": "true/3/unread",
+      "expected": "true/3/unread",
+      "ok": true
+    },
+    {
+      "check": "case 7: the third unreadable round is the verdict unavailable",
+      "actual": "unavailable",
+      "expected": "unavailable",
+      "ok": true
+    },
+    {
+      "tx": "case 7: apply unavailable",
+      "hash": "0xc2c8a50ab6198a54c218d9400f6c4319219d40c280593b5f202a5a28294fc3ae",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "case 7: unavailable is a neutral refund",
+      "actual": "true/refunded/unavailable/true",
+      "expected": "true/refunded/unavailable/true",
+      "ok": true
+    },
+    {
+      "check": "case 7: the buyer gets the clause and the bond back",
+      "actual": "60000000000000000",
+      "expected": "60000000000000000",
+      "ok": true
+    },
+    {
+      "check": "case 7: the seller is paid nothing for work nobody could read",
+      "actual": "0",
+      "expected": "0",
+      "ok": true
+    },
+    {
+      "tx": "withdraw",
+      "hash": "0xd41d28ae7fa86bd41352f096fb49ad17e4ca93ef03adfd9a0fc9009aee812fd3",
+      "consensus": "MAJORITY_AGREE",
+      "leader": "return"
+    },
+    {
+      "check": "withdraw applied",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "the buyer's wallet received what it was owed, less its own transaction fee",
+      "actual": "true",
+      "expected": "true",
+      "ok": true
+    },
+    {
+      "check": "nothing left owed to the buyer",
+      "actual": "0",
+      "expected": "0",
+      "ok": true
+    },
+    {
+      "check": "the escrow holds exactly what is escrowed or owed",
+      "actual": "0",
+      "expected": "0",
+      "ok": true
+    },
+    {
+      "check": "the jury contract holds nothing",
+      "actual": "0",
+      "expected": "0",
+      "ok": true
+    }
+  ]
+}

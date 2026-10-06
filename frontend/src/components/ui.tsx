@@ -14,6 +14,7 @@ const LABELS: Record<string, string> = {
   unmet: "Unmet",
   met: "Met",
   undetermined: "Undetermined",
+  unavailable: "Unavailable",
   verified: "Verified",
   unverified: "Unverified",
 };

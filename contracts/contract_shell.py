@@ -50,7 +50,7 @@ class Clause(gl.Contract):
             raise Exception("[EXPECTED] the bond floor must be positive")
         if int(appeal_seconds) < 0 or int(appeal_seconds) > MAX_WINDOW:
             raise Exception("[EXPECTED] the appeal window is 0-%d seconds" % MAX_WINDOW)
-        self.release = "clause/2"
+        self.release = "clause/3"
         self.jury = normalize_address(jury, "jury")
         self.appeal_seconds = u256(int(appeal_seconds))
         self.bond_floor = u256(int(bond_floor))
@@ -181,7 +181,8 @@ class Clause(gl.Contract):
     @gl.public.write
     def apply_ruling(self, deal_id: int, clause_id: str) -> None:
         """Apply the jury contract's ruling on a disputed clause, once it is
-        ``appeal_seconds`` old. Anyone may call it. The only read of the jury."""
+        ``appeal_seconds`` old. Anyone may call it. The only read of the jury.
+        A record that the work could not be fetched is noted at once."""
         deal = self._load(deal_id)
         try:
             line = find_line(deal, str(clause_id))
@@ -190,6 +191,12 @@ class Clause(gl.Contract):
             verdict = accept_ruling(line, ruling, now=self._now(), appeal_seconds=int(self.appeal_seconds))
         except ClauseError as exc:
             raise Exception("[EXPECTED] " + str(exc))
+        if verdict == "":
+            # Rounds that could not fetch the work, noted on the line: from
+            # now on its deadline refunds the buyer instead of paying the seller.
+            line["artifact"] = ARTIFACT_UNREAD
+            self._save(deal)
+            return
         credits = apply_ruling(
             line, verdict=verdict, buyer=deal["buyer"], seller=deal["seller"], now=self._now(),
             redelivery_seconds=int(deal["timing"]["redelivery_seconds"]),
@@ -201,6 +208,23 @@ class Clause(gl.Contract):
         line["ruled_at"] = int(ruling["at"])
         self._save(deal)
         self._pay(credits)
+
+    @gl.public.write
+    def note_unread(self, deal_id: int, clause_id: str, round_id: str, count: int, at: int) -> None:
+        """Sent by the jury contract after a round that could not fetch the
+        work. Noted on the clause, so its deadline refunds the buyer instead
+        of paying the seller. Only this escrow's jury may send it."""
+        if self._me() != self.jury:
+            raise Exception("[EXPECTED] only the jury contract notes an unread round")
+        deal = self._load(deal_id)
+        try:
+            line = find_line(deal, str(clause_id))
+            accept_ruling(line, {"round": str(round_id), "unread": int(count), "at": int(at)}, now=self._now(),
+                          appeal_seconds=int(self.appeal_seconds))
+        except ClauseError as exc:
+            raise Exception("[EXPECTED] " + str(exc))
+        line["artifact"] = ARTIFACT_UNREAD
+        self._save(deal)
 
     @gl.public.write
     def settle(self, deal_id: int) -> None:

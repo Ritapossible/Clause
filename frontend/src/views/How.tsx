@@ -43,7 +43,8 @@ const STEPS: { t: string; hot?: boolean; body: JSX.Element }[] = [
           Anyone may convene the jury on a disputed clause. The jury is its own contract: each GenLayer validator fetches the
           work, checks it against the pinned digest, and answers one question from the clause and the work alone: <i>does
           the delivered work fail this clause, as written?</i> The buyer's dispute text is never in the prompt. Work changed
-          or removed from its URL is unmet; work nobody could fetch is no ruling at all.
+          or removed from its URL is unmet; work nobody could fetch is recorded each round, and never paid for: the third
+          such round, or the deadline after one, refunds the buyer the clause and the bond.
         </p>
         <p>
           The ruling is recorded on the jury contract. After an appeal window, anyone applies it to the escrow. That is the
@@ -66,7 +67,8 @@ const STEPS: { t: string; hot?: boolean; body: JSX.Element }[] = [
     body: (
       <p>
         <code>settle</code>, callable by anyone, applies every clock that has run out: undelivered work refunds, closed review
-        windows pay, a dispute with no ruling applied pays the seller after its ruling deadline and appeal window with the
+        windows pay, a dispute with no ruling applied pays the seller after its ruling deadline and appeal window (or refunds the buyer, if
+        the jury could not fetch the work) with the
         bond returned, and an unmet clause nobody redelivered refunds. None of it reads the jury or any other contract, so
         the escrow always resolves.
       </p>

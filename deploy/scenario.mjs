@@ -8,8 +8,9 @@
 //   4   two clauses, one broken, only the broken one cited
 //   5   a forged answer block in the work (expected unmet)
 //   6   the delivery URL returns 404: unmet with no model
-//   7   the delivery host cannot be reached: no ruling at all; the clause
-//       pays at its deadline
+//   7   the delivery host cannot be reached: each jury round records the
+//       failed fetch; the third is the verdict unavailable, a neutral refund
+//       (the clause and the bond back to the buyer, nothing to the seller)
 //   8   an invoice whose prose says the total is right and whose numbers do
 //       not add up (expected unmet), and the same invoice with the right
 //       total (expected met) - a test the model must compute, not count
@@ -137,7 +138,8 @@ if (FULL && want(3)) ids.c3 = await open("case 3", [CITIES], "three", "cities", 
 if (FULL && want(4)) ids.c4 = await open("case 4", [CITIES, FORMAT], "two", "cities", { text: "Two cities, not three.", review: 300 });
 if (FULL && want(5)) ids.c5 = await open("case 5", [CITIES], "injected", "cities", { text: "Two cities, not three." });
 if (want(6)) ids.c6 = await open("case 6", [CITIES], "missing", "cities", { text: "The file is gone." });
-if (want(7)) ids.c7 = await open("case 7", [CITIES], "unreachable", "cities", { text: "", ruling: 60 });
+const RULING7 = FULL ? 600 : 3 * 3600; // three rounds a quarter of this apart fit inside it
+if (want(7)) ids.c7 = await open("case 7", [CITIES], "unreachable", "cities", { text: "", ruling: RULING7 });
 const RUNS = Number(process.env.RUNS ?? (FULL ? 3 : 1));
 if (want(8)) for (let k = 1; k <= RUNS; k++) ids[`c8w${k}`] = await open(`case 8 wrong total, run ${k}`, [TOTAL], "wrong", "total");
 if (want(8)) for (let k = 1; k <= RUNS; k++) ids[`c8r${k}`] = await open(`case 8 right total, run ${k}`, [TOTAL], "right", "total");
@@ -164,8 +166,34 @@ if (ids.c6 !== undefined) {
   check("case 6: a 404 is the seller's - unmet, no model", `${c6.ruling.verdict}/${c6.ruling.artifact}`, "unmet/missing");
 }
 if (ids.c7 !== undefined) {
-  const c7 = await rule("case 7", ids.c7, "cities", "no ruling");
-  check("case 7: an unreachable host is no ruling at all", c7.r.refused && !c7.ruling.verdict, true);
+  const gap = Math.floor(RULING7 / 4);
+  const rounds = [];
+  let lastAt = 0;
+  for (let n = 1; n <= 3; n++) {
+    if (n > 1) {
+      const pause = lastAt + gap + 15 - Number((await deal(ids.c7)).now);
+      if (pause > 0) { console.log(`  waiting ${pause}s before round ${n}`); await sleep(pause * 1000); }
+    }
+    const r = await tx(buyer, jury, "rule", [clause, ids.c7, "cities"], `case 7: convene the jury, round ${n}`);
+    const rec = (await readUntil(() => rulingOf(ids.c7, "cities"), (x) => Number(x.unread ?? 0) >= n, { seconds: 600 })).value;
+    console.log(`    record: ${JSON.stringify(rec)}`);
+    check(`case 7: round ${n} could not fetch the work and is recorded`, `${r.applied}/${rec.unread}/${rec.artifact}`, `true/${n}/unread`);
+    if (n === 1) {
+      const again = await tx(seller, jury, "rule", [clause, ids.c7, "cities"], "case 7: convene again at once");
+      check("case 7: a round cannot be repeated at once", again.refused, true);
+      // Nobody applies anything: the jury's own message notes it on the escrow.
+      const seen = await readUntil(() => deal(ids.c7), (d) => Number(d.lines[0].unread ?? 0) >= 1, { seconds: FULL ? 300 : 2700, every: 10 });
+      const l = seen.value.lines[0];
+      console.log(`    the escrow saw the jury's note after ${seen.waited}s`);
+      check("case 7: the jury's message notes it on the escrow; the clause stays disputed", `${l.state}/${l.unread}/${l.artifact}`, "disputed/1/unread");
+      cases["case 7 note"] = { waited_s: seen.waited };
+    }
+    lastAt = Number(rec.at);
+    rounds.push({ n, rule_tx: r.hash, ...rec });
+  }
+  const last3 = rounds[2];
+  cases["case 7"] = { expected: "unavailable: neutral refund", rounds, verdict: last3.verdict, reason: last3.reason, confidence: last3.confidence, artifact: last3.artifact, at: last3.at };
+  check("case 7: the third unreadable round is the verdict unavailable", last3.verdict, "unavailable");
 }
 for (let k = 1; k <= RUNS && want(8); k++) await rule(`case 8 wrong total, run ${k}`, ids[`c8w${k}`], "total", "unmet");
 for (let k = 1; k <= RUNS && want(8); k++) await rule(`case 8 right total, run ${k}`, ids[`c8r${k}`], "total", "met");
@@ -177,7 +205,7 @@ for (let k = 1; k <= RUNS && want(11); k++) await rule(`case 11 order, one wrong
 for (let k = 1; k <= RUNS && want(11); k++) await rule(`case 11 order, all lines right, run ${k}`, ids[`c11r${k}`], "lines", "met");
 
 // Phase 3: wait out the appeal window, then the escrow applies each ruling.
-const last = Math.max(...plan.filter((p) => p.ruling.at).map((p) => Number(p.ruling.at)));
+const last = Math.max(0, ...plan.filter((p) => p.ruling.at).map((p) => Number(p.ruling.at)), Number(cases["case 7"]?.at ?? 0));
 const now0 = Number((await deal(Number(Object.values(ids)[0]))).now);
 const wait = last + APPEAL - now0 + 10;
 console.log(`\nWaiting ${wait}s for the appeal window of the last ruling`);
@@ -197,13 +225,15 @@ for (const p of plan.filter((p) => p.ruling.verdict)) {
 // Phase 4: the clocks.
 console.log("\nThe clocks");
 if (ids.c7 !== undefined) {
-  const d7 = await deal(ids.c7);
-  const lapse = Number(d7.lines[0].dispute.rule_by) + APPEAL - Number(d7.now) + 10;
-  if (lapse > 0) { console.log(`  waiting ${lapse}s for case 7 to lapse`); await sleep(lapse * 1000); }
-  await tx(seller, clause, "settle", [ids.c7], "case 7: settle");
+  const b0 = await owedTo(buyerAddr);
+  const s0 = await owedTo(sellerAddr);
+  const a = await tx(buyer, clause, "apply_ruling", [ids.c7, "cities"], "case 7: apply unavailable");
   const l7 = (await readUntil(() => deal(ids.c7), (d) => d.lines[0].state !== "disputed", { seconds: 300 })).value.lines[0];
-  check("case 7: with no ruling, the clause pays the seller at its deadline", `${l7.state}/${l7.lapsed}`, "released/true");
+  check("case 7: unavailable is a neutral refund", `${a.applied}/${l7.state}/${l7.verdict}/${l7.unavailable}`, "true/refunded/unavailable/true");
+  check("case 7: the buyer gets the clause and the bond back", (await owedTo(buyerAddr)) - b0, BigInt(CITIES.amount) + GEN(0.01));
+  check("case 7: the seller is paid nothing for work nobody could read", (await owedTo(sellerAddr)) - s0, 0n);
   cases["case 7"].state = l7.state;
+  cases["case 7"].apply_tx = a.hash;
 }
 if (ids.c4 !== undefined) {
   await tx(seller, clause, "settle", [ids.c4], "case 4: settle");
@@ -213,18 +243,20 @@ if (ids.c4 !== undefined) {
 }
 
 // Phase 5: withdraw and the books.
-console.log("\nThe seller withdraws; its wallet balance is read until the GEN arrives");
-const owed = await owedTo(sellerAddr);
-const before = await balance(sellerAddr);
-const w = await tx(seller, clause, "withdraw", [], "withdraw");
+const sellerOwes = (await owedTo(sellerAddr)) > 0n;
+const [wClient, wAddr, wName] = sellerOwes ? [seller, sellerAddr, "seller"] : [buyer, buyerAddr, "buyer"];
+console.log(`\nThe ${wName} withdraws; its wallet balance is read until the GEN arrives`);
+const owed = await owedTo(wAddr);
+const before = await balance(wAddr);
+const w = await tx(wClient, clause, "withdraw", [], "withdraw");
 check("withdraw applied", w.applied, true);
-const arrived = (await readUntil(() => balance(sellerAddr), (b) => b > before, { seconds: FULL ? 240 : 2700, every: 15 })).value;
+const arrived = (await readUntil(() => balance(wAddr), (b) => b > before, { seconds: FULL ? 240 : 2700, every: 15 })).value;
 const received = arrived - before;
 const fee = owed - received;
 console.log(`    wallet +${fmt(received)} (owed ${fmt(owed)}, withdraw fee ${fmt(fee)})`);
-check("the seller's wallet received what it was owed, less its own transaction fee", fee >= 0n && fee < GEN(0.001), true);
+check(`the ${wName}'s wallet received what it was owed, less its own transaction fee`, fee >= 0n && fee < GEN(0.001), true);
 cases.withdraw = { owed: String(owed), received: String(received), fee: String(fee) };
-check("nothing left owed to the seller", await owedTo(sellerAddr), 0n);
+check(`nothing left owed to the ${wName}`, await owedTo(wAddr), 0n);
 const status = await readView(buyer, clause, "status");
 check("the escrow holds exactly what is escrowed or owed", BigInt(status.balance), BigInt(status.held) + BigInt(status.owed));
 check("the jury contract holds nothing", await balance(jury), 0n);
